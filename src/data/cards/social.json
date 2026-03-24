@@ -1,0 +1,212 @@
+[
+  {
+    "text": "Everyone who has a pet, take {sip}!",
+    "action": "Drink up",
+    "icon": "beer",
+    "intensity": 1
+  },
+  {
+    "text": "Anyone who's been on a date in the last month — drink {sip}!",
+    "action": "Drink up",
+    "icon": "beer",
+    "intensity": 1
+  },
+  {
+    "text": "{player1} has to describe {player2} in 3 words. {player2} drinks {sip} if they disagree.",
+    "action": "Drink up",
+    "icon": "beer",
+    "intensity": 2
+  },
+  {
+    "text": "If you've ever ghosted someone… take {small}.",
+    "action": "Drink up",
+    "icon": "beer",
+    "intensity": 2
+  },
+  {
+    "text": "Everyone who's cried at a film this year, drink {sip}.",
+    "action": "Drink up",
+    "icon": "beer",
+    "intensity": 1
+  },
+  {
+    "text": "Point at the person you'd least trust with your phone. That person drinks {small}.",
+    "action": "Drink up",
+    "icon": "beer",
+    "intensity": 2
+  },
+  {
+    "text": "Anyone with a tattoo — show it or drink {small}.",
+    "action": "Show or drink",
+    "icon": "eye",
+    "intensity": 2
+  },
+  {
+    "text": "If you've ever told someone you were 'on your way' while still in bed — drink {sip}.",
+    "action": "Drink up",
+    "icon": "beer",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: name everyone here from most to least likely to be famous. The person ranked last drinks {medium}.",
+    "action": "Drink up",
+    "icon": "beer",
+    "intensity": 3
+  },
+  {
+    "text": "Last person to text their ex — take {small} and own it.",
+    "action": "Drink up",
+    "icon": "beer",
+    "intensity": 2
+  },
+  {
+    "text": "Everyone who's checked their phone in the last 5 minutes, drink {sip}.",
+    "action": "Drink up",
+    "icon": "beer",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: what would your group chat say about you behind your back?",
+    "action": "Be honest",
+    "icon": "chatbubble",
+    "intensity": 2
+  },
+  {
+    "text": "Stand up! The last player to stand up has to drink {sip}.",
+    "action": "Move it!",
+    "icon": "body",
+    "intensity": 1
+  },
+  {
+    "text": "Lava monster! The last person with their feet still on the ground takes {large}.",
+    "action": "Get off the floor!",
+    "icon": "warning",
+    "intensity": 2
+  },
+  {
+    "text": "Everyone with a tattoo or piercing, drink {sip}.",
+    "action": "Drink up",
+    "icon": "body",
+    "intensity": 1
+  },
+  {
+    "text": "Players who use Twitter/X, drink {sip}.",
+    "action": "Drink up",
+    "icon": "logo-twitter",
+    "intensity": 1
+  },
+  {
+    "text": "Anyone with a coin in their pocket can give {sip} to anyone who doesn't.",
+    "action": "Check your pockets",
+    "icon": "cash",
+    "intensity": 1
+  },
+  {
+    "text": "The player with the most recent birthday, give out {small}.",
+    "action": "Power move",
+    "icon": "gift",
+    "intensity": 1
+  },
+  {
+    "text": "Everyone with the letter 'O' in their first name, drink {sip}.",
+    "action": "Drink up",
+    "icon": "beer",
+    "intensity": 1
+  },
+  {
+    "text": "People in relationships, give {small} to another player.",
+    "action": "Couples tax",
+    "icon": "heart",
+    "intensity": 1
+  },
+  {
+    "text": "Rock-paper-scissors! Go around the group, play with the neighbour to your left. Each winner gives {small} to the loser. {player1}, you start.",
+    "action": "Play!",
+    "icon": "hand-left",
+    "intensity": 2
+  },
+  {
+    "text": "GAME — Video game consoles. Go around the group, if you repeat or can't think of one, drink {sip}. {player1}, you start.",
+    "action": "Think fast",
+    "icon": "game-controller",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: show the love! Give {small} to the player you like most.",
+    "action": "Choose wisely",
+    "icon": "heart",
+    "intensity": 2
+  },
+  {
+    "text": "BABY BIRD! {player1} takes {sip} then must pass it to {player2} — mouth to mouth, bird-feeding style. {player2} drinks {sip} if they refuse.",
+    "action": "Mouth to mouth!",
+    "icon": "rose",
+    "intensity": 2
+  },
+  {
+    "text": "NEVER HAVE I EVER — hold up 3 fingers. Go around the circle: say something you've never done. If you HAVE done it, put a finger down. First person with all 3 fingers down takes {medium}.",
+    "action": "Fingers up!",
+    "icon": "hand-left",
+    "intensity": 2
+  },
+  {
+    "text": "FOREHEAD! Everyone touch their forehead to the table — NOW. Last one down drinks {large}.",
+    "action": "On the table!",
+    "icon": "timer",
+    "intensity": 2
+  },
+  {
+    "text": "GECKO! Sprint and get all four limbs on a vertical surface. Last one there drinks {large}.",
+    "action": "Climb the walls!",
+    "icon": "body",
+    "intensity": 2
+  },
+  {
+    "text": "VROOM SKIRT! Starting with {player1}: choose VROOM to keep the direction going, or SKIRT to reverse it. Next person must react fast — hesitate and drink {sip}.",
+    "action": "Vroom or Skirt!",
+    "icon": "car",
+    "intensity": 1
+  },
+  {
+    "text": "TONGUE TIED! Starting with {player1}, go around saying 'Red lorry, yellow lorry.' First person to hesitate or stumble drinks {sip}.",
+    "action": "Say it!",
+    "icon": "mic",
+    "intensity": 1
+  },
+  {
+    "text": "FIZZ BUZZ! Starting with {player1}, count up to 30. Multiples of 3: clap. Multiples of 5: click your tongue. Both? Do both. Mess up a 3 = {small}. Mess up a 5 = {medium}. Mess up both = {large}.",
+    "action": "Count carefully",
+    "icon": "calculator",
+    "intensity": 2
+  },
+  {
+    "text": "CHARADES! {player1} must act out a film, song, or book — no words. First person to guess correctly dishes out {max}.",
+    "action": "Act it out!",
+    "icon": "film",
+    "intensity": 2
+  },
+  {
+    "text": "HIGH NOON! {player1} and {player2} — you are Wild West gunslingers. On the count of three, draw! Whoever is slowest takes {medium}.",
+    "action": "Draw!",
+    "icon": "flash",
+    "intensity": 2
+  },
+  {
+    "text": "PRIZE HEIFERS! {player1} and {player2} — down on all fours. On three, lock eyes and MOO your hearts out. Everyone else votes on the superior cow. Loser drinks {sip}.",
+    "action": "Moo!",
+    "icon": "rose",
+    "intensity": 2
+  },
+  {
+    "text": "10 MINUS PRESS-UPS! {player1}, do as many press-ups as you can (max 10). You drink {sip} for every one you didn't do.",
+    "action": "Drop and give!",
+    "icon": "body",
+    "intensity": 2
+  },
+  {
+    "text": "CATWALK! {player1}, strut from one end of the room to the other. Group rates it out of 10 — drink the difference from 10.",
+    "action": "Strut!",
+    "icon": "body",
+    "intensity": 2
+  }
+]

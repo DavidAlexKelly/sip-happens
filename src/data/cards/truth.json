@@ -1,0 +1,62 @@
+[
+  {
+    "text": "{player1}: have you ever been caught doing something you shouldn't? Spill or drink {medium}.",
+    "action": "Confess",
+    "icon": "eye",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: what's something you've done that no one in this room knows about?",
+    "action": "Tell us",
+    "icon": "eye",
+    "intensity": 3
+  },
+  {
+    "text": "Round the circle: everyone says their most embarrassing childhood memory. The group votes on the best one — winner dishes out {medium}.",
+    "action": "Cringe time",
+    "icon": "chatbubble",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: name someone you've blocked and why. Drink {sip} for courage first.",
+    "action": "The truth",
+    "icon": "eye",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: what's the most recent lie you've told? Tell us or drink {large}.",
+    "action": "No lying",
+    "icon": "eye",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: if you had to delete one person from your life — who here would it be? (Drink {sip} before answering.)",
+    "action": "Be honest",
+    "icon": "eye",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: read out the last voice note you sent. Refuse and drink {max}.",
+    "action": "Play it",
+    "icon": "mic",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: how many people in this room have you had a crush on? Drink {sip} for each.",
+    "action": "Count up",
+    "icon": "heart",
+    "intensity": 2
+  },
+  {
+    "text": "Everyone who has told a lie this week — take {sip}. Liars who deny it take {medium}.",
+    "action": "Honesty hour",
+    "icon": "eye",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: show the group your most recent text conversation. Read it aloud or drink {large}.",
+    "action": "Open it up",
+    "icon": "chatbubble",
+    "intensity": 3
+  }
+]

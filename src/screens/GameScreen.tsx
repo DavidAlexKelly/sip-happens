@@ -1,3 +1,4 @@
+// src/screens/GameScreen.tsx
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, Animated,
@@ -10,7 +11,10 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { RootStackParamList } from '../navigation/types';
 import { Colors, ModeColors, ModeLabels } from '../styles/theme';
-import { getChallengePool, substituteTokens, Challenge, PenaltyContext } from '../data/gameData';
+import {
+  getChallengePool, substituteTokens, Challenge, PenaltyContext,
+  ALL_RULE_STARTS, ALL_RULE_ENDS,
+} from '../data/gameData';
 import { useGame } from '../components/GameContext';
 
 type Props = {
@@ -20,18 +24,25 @@ type Props = {
 const TOTAL_ROUNDS = 20;
 const MULTIPLIER_STEPS = [1, 2, 3, 4] as const;
 
+// How often a rule card *can* appear: 1-in-N chance when no rule is active.
+// Normal cards are drawn the rest of the time, keeping rules rare.
+const RULE_DRAW_CHANCE = 0.15; // ~15% chance each round when no rule is active
+
 export default function GameScreen({ navigation }: Props) {
   const { state, nextRound, skipRound, setSipMultiplier } = useGame();
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [displayText, setDisplayText] = useState('');
   const [usedIds, setUsedIds] = useState<Set<string>>(new Set());
+  const [usedRuleIds, setUsedRuleIds] = useState<Set<string>>(new Set());
   const [showQuitModal, setShowQuitModal] = useState(false);
+
+  // Rule state: which rule is currently active + its scheduled end card
+  const activeRuleId = useRef<string | null>(null);
+  const pendingEndCard = useRef<{ card: Challenge; fireOnRound: number } | null>(null);
 
   const cardOpacity = useRef(new Animated.Value(1)).current;
   const cardTranslate = useRef(new Animated.Value(0)).current;
   const cardScale = useRef(new Animated.Value(1)).current;
-
-  // Animated value for the multiplier pill sliding between steps
   const multiplierAnim = useRef(new Animated.Value(state.sipMultiplier - 1)).current;
 
   const buildPenaltyCtx = useCallback((c: Challenge): PenaltyContext => ({
@@ -43,6 +54,55 @@ export default function GameScreen({ navigation }: Props) {
   }), [state.currentRound, state.totalRounds, state.selectedMode, state.sipMultiplier]);
 
   const loadChallenge = useCallback(() => {
+    const round = state.currentRound;
+
+    // 1. Fire a pending rule-end card if it's due
+    if (
+      pendingEndCard.current &&
+      round >= pendingEndCard.current.fireOnRound
+    ) {
+      const endCard = pendingEndCard.current.card;
+      pendingEndCard.current = null;
+      activeRuleId.current = null;
+      const text = substituteTokens(endCard.text, state.players, buildPenaltyCtx(endCard));
+      setChallenge(endCard);
+      setDisplayText(text);
+      return;
+    }
+
+    // 2. Maybe draw a rule-start card (only if no rule is active)
+    if (
+      !activeRuleId.current &&
+      Math.random() < RULE_DRAW_CHANCE
+    ) {
+      const available = ALL_RULE_STARTS.filter(
+        r => !usedRuleIds.has(r.ruleId!)
+      );
+      if (available.length > 0) {
+        const picked = available[Math.floor(Math.random() * available.length)];
+
+        // Register the active rule
+        activeRuleId.current = picked.ruleId!;
+        setUsedRuleIds(prev => new Set([...prev, picked.ruleId!]));
+
+        // Schedule the end card 4–6 rounds from now
+        const endDelay = 4 + Math.floor(Math.random() * 3); // 4, 5, or 6
+        const endCard = ALL_RULE_ENDS[picked.ruleId!];
+        if (endCard) {
+          pendingEndCard.current = {
+            card: endCard,
+            fireOnRound: round + endDelay,
+          };
+        }
+
+        const text = substituteTokens(picked.text, state.players, buildPenaltyCtx(picked));
+        setChallenge(picked);
+        setDisplayText(text);
+        return;
+      }
+    }
+
+    // 3. Draw a normal challenge card
     const pool = getChallengePool(state.selectedMode);
     let available = pool.filter(c => !usedIds.has(c.id));
     if (available.length === 0) {
@@ -51,11 +111,13 @@ export default function GameScreen({ navigation }: Props) {
     }
     const picked = available[Math.floor(Math.random() * available.length)];
     setUsedIds(prev => new Set([...prev, picked.id]));
-    setChallenge(picked);
-    setDisplayText(substituteTokens(picked.text, state.players, buildPenaltyCtx(picked)));
-  }, [state.selectedMode, state.players, usedIds, buildPenaltyCtx]);
 
-  // Re-render display text live when multiplier changes (without picking a new card)
+    const text = substituteTokens(picked.text, state.players, buildPenaltyCtx(picked));
+    setChallenge(picked);
+    setDisplayText(text);
+  }, [state.selectedMode, state.players, state.currentRound, usedIds, usedRuleIds, buildPenaltyCtx]);
+
+  // Re-render display text when multiplier changes (no new card)
   useEffect(() => {
     if (challenge) {
       setDisplayText(substituteTokens(challenge.text, state.players, buildPenaltyCtx(challenge)));
@@ -127,45 +189,49 @@ export default function GameScreen({ navigation }: Props) {
   };
 
   const progress = Math.max(0.04, state.currentRound / TOTAL_ROUNDS);
-  const modeColor = challenge ? (ModeColors[challenge.mode] || Colors.primary) : Colors.primary;
-  const modeLabel = challenge ? (ModeLabels[challenge.mode] || challenge.mode) : '';
 
-  // Width of a single step segment (calculated at render, used for pill animation)
-  const SLIDER_WIDTH = 160; // px — matches styles.multiplierTrack width
-  const STEP_WIDTH = SLIDER_WIDTH / 4;
+  // Rule cards get a distinct gold/amber colour so they're visually distinct
+  const isRuleCard = challenge?.isRule !== undefined;
+  const isRuleStart = challenge?.isRule === true;
+  const isRuleEnd = challenge?.isRule === false;
+  const modeColor = isRuleStart
+    ? '#f5c842'
+    : isRuleEnd
+    ? '#72e88a'
+    : (challenge ? (ModeColors[challenge.mode] || Colors.primary) : Colors.primary);
+
+  const modeLabel = isRuleStart
+    ? '📜 NEW RULE'
+    : isRuleEnd
+    ? '✅ RULE OVER'
+    : (challenge ? (ModeLabels[challenge.mode] || challenge.mode.toUpperCase()) : '');
+
+  const STEP_WIDTH = 160 / MULTIPLIER_STEPS.length;
   const pillTranslateX = multiplierAnim.interpolate({
-    inputRange: [0, 1, 2, 3],
-    outputRange: [0, STEP_WIDTH, STEP_WIDTH * 2, STEP_WIDTH * 3],
+    inputRange: [0, MULTIPLIER_STEPS.length - 1],
+    outputRange: [0, STEP_WIDTH * (MULTIPLIER_STEPS.length - 1)],
   });
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={[styles.ambientGlow, { backgroundColor: `${modeColor}12` }]} pointerEvents="none" />
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <LinearGradient
+        colors={[`${modeColor}18`, 'transparent']}
+        style={styles.topGlow}
+        start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 1 }}
+        pointerEvents="none"
+      />
 
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => setShowQuitModal(true)}>
-          <Ionicons name="close" size={24} color={Colors.onSurface} style={{ opacity: 0.5 }} />
-        </TouchableOpacity>
-        <LinearGradient colors={[Colors.primary, Colors.primaryContainer]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.titleGradient}>
-          <Text style={styles.headerTitle}>ELECTRIC NOCTURNE</Text>
-        </LinearGradient>
-        <View style={{ width: 24 }} />
-      </View>
+      <View style={styles.inner}>
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => setShowQuitModal(true)} style={styles.quitBtn}>
+            <Ionicons name="close" size={22} color={Colors.onSurfaceVariant} />
+          </TouchableOpacity>
 
-      <View style={styles.content}>
-        {/* Round counter + avatars */}
-        <View style={styles.progressHeader}>
-          <View>
-            <Text style={styles.roundLabel}>Round</Text>
-            <Text style={styles.roundNumber}>
-              <Text style={styles.roundCurrent}>{state.currentRound}</Text>
-              <Text style={styles.roundDivider}>/</Text>
-              <Text style={styles.roundTotal}>{TOTAL_ROUNDS}</Text>
-            </Text>
-          </View>
+          {/* Player avatars */}
           <View style={styles.avatarRow}>
-            {state.players.slice(0, 5).map((p, i) => (
-              <View key={p.id} style={[styles.avatar, { zIndex: 10 - i, marginLeft: i === 0 ? 0 : -10, borderColor: p.color }]}>
+            {state.players.slice(0, 5).map((p) => (
+              <View key={p.id} style={[styles.avatar, { marginLeft: -10, borderColor: p.color }]}>
                 {p.photo ? (
                   <Image source={{ uri: p.photo }} style={styles.avatarPhoto} />
                 ) : (
@@ -187,7 +253,7 @@ export default function GameScreen({ navigation }: Props) {
 
         {/* Progress bar */}
         <View style={styles.progressBarBg}>
-          <Animated.View style={[styles.progressBarFill, { width: `${progress * 100}%` }]} />
+          <Animated.View style={[styles.progressBarFill, { width: `${progress * 100}%`, backgroundColor: modeColor }]} />
         </View>
 
         {/* Challenge card */}
@@ -203,45 +269,45 @@ export default function GameScreen({ navigation }: Props) {
             start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
           />
 
-          {/* Card top: mode badge + multiplier slider */}
+          {/* Card top */}
           <View style={styles.cardTop}>
             <View style={[styles.categoryBadge, { backgroundColor: `${modeColor}18`, borderColor: `${modeColor}30` }]}>
               <Text style={[styles.categoryLabel, { color: modeColor }]}>{modeLabel}</Text>
             </View>
 
-            {/* Multiplier segmented slider */}
-            <View style={styles.multiplierWrapper}>
-              <Text style={styles.multiplierEyebrow}>SIPS ×</Text>
-              <View style={styles.multiplierTrack}>
-                {/* Animated sliding pill */}
-                <Animated.View
-                  style={[
-                    styles.multiplierPill,
-                    {
-                      width: STEP_WIDTH,
-                      backgroundColor: modeColor,
-                      transform: [{ translateX: pillTranslateX }],
-                    },
-                  ]}
-                />
-                {/* Tap targets */}
-                {MULTIPLIER_STEPS.map(step => (
-                  <TouchableOpacity
-                    key={step}
-                    style={styles.multiplierStep}
-                    onPress={() => handleMultiplierChange(step)}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={[
-                      styles.multiplierStepLabel,
-                      state.sipMultiplier === step && { color: Colors.onPrimary, fontFamily: 'PlusJakartaSans_800ExtraBold' },
-                    ]}>
-                      {step}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+            {/* Multiplier slider — hidden on rule cards */}
+            {!isRuleCard && (
+              <View style={styles.multiplierWrapper}>
+                <Text style={styles.multiplierEyebrow}>SIPS ×</Text>
+                <View style={styles.multiplierTrack}>
+                  <Animated.View
+                    style={[
+                      styles.multiplierPill,
+                      {
+                        width: STEP_WIDTH,
+                        backgroundColor: modeColor,
+                        transform: [{ translateX: pillTranslateX }],
+                      },
+                    ]}
+                  />
+                  {MULTIPLIER_STEPS.map(step => (
+                    <TouchableOpacity
+                      key={step}
+                      style={styles.multiplierStep}
+                      onPress={() => handleMultiplierChange(step)}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={[
+                        styles.multiplierStepLabel,
+                        state.sipMultiplier === step && { color: Colors.onPrimary, fontFamily: 'PlusJakartaSans_800ExtraBold' },
+                      ]}>
+                        {step}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
-            </View>
+            )}
           </View>
 
           {/* Challenge text */}
@@ -256,20 +322,22 @@ export default function GameScreen({ navigation }: Props) {
               <Ionicons name={(challenge?.icon as any) || 'beer'} size={20} color={modeColor} />
               <Text style={[styles.actionText, { color: modeColor }]}>{challenge?.action || 'Drink up'}</Text>
             </View>
-            <View style={styles.intensityBlock}>
-              <Text style={styles.intensityLabel}>Intensity</Text>
-              <View style={styles.intensityDots}>
-                {[1, 2, 3].map(i => (
-                  <View
-                    key={i}
-                    style={[
-                      styles.intensityDot,
-                      { backgroundColor: i <= (challenge?.intensity || 1) ? modeColor : Colors.outlineVariant },
-                    ]}
-                  />
-                ))}
+            {!isRuleCard && (
+              <View style={styles.intensityBlock}>
+                <Text style={styles.intensityLabel}>Intensity</Text>
+                <View style={styles.intensityDots}>
+                  {[1, 2, 3].map(i => (
+                    <View
+                      key={i}
+                      style={[
+                        styles.intensityDot,
+                        { backgroundColor: i <= (challenge?.intensity || 1) ? modeColor : Colors.outlineVariant },
+                      ]}
+                    />
+                  ))}
+                </View>
               </View>
-            </View>
+            )}
           </View>
 
           <View style={styles.watermark} pointerEvents="none">
@@ -302,19 +370,24 @@ export default function GameScreen({ navigation }: Props) {
         <View style={styles.modalOverlay}>
           <View style={styles.modalSheet}>
             <Text style={styles.modalTitle}>Quit the game?</Text>
-            <Text style={styles.modalSubtitle}>Progress will be lost. The night demands commitment.</Text>
-            <View style={styles.modalButtons}>
+            <Text style={styles.modalSubtitle}>Progress will be lost.</Text>
+            <View style={styles.modalBtns}>
               <TouchableOpacity
-                style={[styles.modalBtn, { backgroundColor: Colors.surfaceContainerHighest }]}
+                style={styles.modalCancel}
                 onPress={() => setShowQuitModal(false)}
+                activeOpacity={0.7}
               >
-                <Text style={styles.modalBtnText}>STAY IN</Text>
+                <Text style={styles.modalCancelText}>Keep Playing</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.modalBtn, { backgroundColor: Colors.errorContainer }]}
-                onPress={() => { setShowQuitModal(false); navigation.replace('Welcome'); }}
+                style={styles.modalQuit}
+                onPress={() => {
+                  setShowQuitModal(false);
+                  navigation.replace('Welcome');
+                }}
+                activeOpacity={0.7}
               >
-                <Text style={[styles.modalBtnText, { color: '#fff' }]}>QUIT</Text>
+                <Text style={styles.modalQuitText}>Quit</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -324,65 +397,56 @@ export default function GameScreen({ navigation }: Props) {
   );
 }
 
+const { width } = Dimensions.get('window');
+
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  ambientGlow: {
-    position: 'absolute', top: 0, left: 0, right: 0, height: 300, opacity: 0.6,
+  topGlow: {
+    position: 'absolute', top: 0, left: 0, right: 0, height: 300, zIndex: 0,
   },
-  header: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 24, paddingVertical: 16,
-    backgroundColor: 'rgba(14,14,17,0.8)',
+  inner: { flex: 1, paddingHorizontal: 20, paddingTop: 8, gap: 16 },
+
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  quitBtn: {
+    width: 40, height: 40, borderRadius: 12,
+    backgroundColor: Colors.surfaceContainerHigh,
+    alignItems: 'center', justifyContent: 'center',
   },
-  titleGradient: { borderRadius: 4 },
-  headerTitle: {
-    fontFamily: 'PlusJakartaSans_800ExtraBold_Italic',
-    fontSize: 17, letterSpacing: -0.5, color: Colors.onPrimary, paddingHorizontal: 4,
-  },
-  content: { flex: 1, paddingHorizontal: 24, paddingTop: 16, paddingBottom: 32, gap: 16 },
-  progressHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  roundLabel: {
-    fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 10, letterSpacing: 3, textTransform: 'uppercase', color: Colors.outline, marginBottom: 2,
-  },
-  roundNumber: { flexDirection: 'row' },
-  roundCurrent: { fontFamily: 'PlusJakartaSans_800ExtraBold', fontSize: 32, color: Colors.onSurface },
-  roundDivider: { fontFamily: 'PlusJakartaSans_800ExtraBold', fontSize: 32, color: Colors.primary },
-  roundTotal: { fontFamily: 'PlusJakartaSans_800ExtraBold', fontSize: 32, color: Colors.onSurface, opacity: 0.4 },
-  avatarRow: { flexDirection: 'row', alignItems: 'center' },
+  avatarRow: { flexDirection: 'row', paddingLeft: 10 },
   avatar: {
     width: 36, height: 36, borderRadius: 18,
-    backgroundColor: Colors.surfaceContainer,
-    alignItems: 'center', justifyContent: 'center',
-    borderWidth: 2, overflow: 'hidden',
+    backgroundColor: Colors.surfaceContainerHighest,
+    borderWidth: 2, alignItems: 'center', justifyContent: 'center',
   },
   avatarPhoto: { width: 36, height: 36, borderRadius: 18 },
   avatarText: { fontFamily: 'PlusJakartaSans_800ExtraBold', fontSize: 14 },
-  progressBarBg: {
-    height: 3, backgroundColor: Colors.surfaceContainerHighest, borderRadius: 2, overflow: 'hidden',
-  },
-  progressBarFill: { height: '100%', borderRadius: 2, backgroundColor: Colors.primary },
-  cardWrapper: {
-    flex: 1, borderRadius: 24, padding: 28,
-    backgroundColor: 'rgba(37,37,42,0.7)',
-    overflow: 'hidden', position: 'relative',
-    shadowColor: '#000', shadowOpacity: 0.5, shadowRadius: 30, shadowOffset: { width: 0, height: 15 },
-    justifyContent: 'space-between',
-  },
 
-  // Card top row — badge on left, multiplier on right
-  cardTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  progressBarBg: {
+    height: 3, borderRadius: 2,
+    backgroundColor: Colors.surfaceContainerHighest,
+    overflow: 'hidden',
   },
-  categoryBadge: { paddingHorizontal: 12, paddingVertical: 5, borderRadius: 999, borderWidth: 1 },
+  progressBarFill: { height: '100%', borderRadius: 2 },
+
+  cardWrapper: {
+    flex: 1,
+    backgroundColor: Colors.surfaceContainerLow,
+    borderRadius: 24,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: Colors.outlineVariant,
+    overflow: 'hidden',
+  },
+  cardTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  categoryBadge: {
+    paddingHorizontal: 12, paddingVertical: 6,
+    borderRadius: 999, borderWidth: 1,
+  },
   categoryLabel: {
     fontFamily: 'PlusJakartaSans_700Bold',
     fontSize: 10, letterSpacing: 2, textTransform: 'uppercase',
   },
 
-  // Multiplier slider
   multiplierWrapper: { alignItems: 'flex-end', gap: 4 },
   multiplierEyebrow: {
     fontFamily: 'PlusJakartaSans_700Bold',
@@ -390,34 +454,25 @@ const styles = StyleSheet.create({
     color: Colors.outline,
   },
   multiplierTrack: {
-    width: 160,
-    height: 28,
+    width: 160, height: 28,
     backgroundColor: Colors.surfaceContainerHighest,
-    borderRadius: 999,
-    flexDirection: 'row',
-    overflow: 'hidden',
-    position: 'relative',
+    borderRadius: 999, flexDirection: 'row',
+    overflow: 'hidden', position: 'relative',
   },
   multiplierPill: {
-    position: 'absolute',
-    top: 0, bottom: 0,
-    borderRadius: 999,
+    position: 'absolute', top: 0, bottom: 0, borderRadius: 999,
   },
   multiplierStep: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1,
+    flex: 1, alignItems: 'center', justifyContent: 'center', zIndex: 1,
   },
   multiplierStepLabel: {
-    fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 11, color: Colors.outline,
+    fontFamily: 'PlusJakartaSans_700Bold', fontSize: 11, color: Colors.outline,
   },
 
   cardBody: { flex: 1, justifyContent: 'center', paddingVertical: 24 },
   challengeText: {
     fontFamily: 'PlusJakartaSans_800ExtraBold',
-    fontSize: 26, color: Colors.onSurface, lineHeight: 34, letterSpacing: -0.5,
+    fontSize: 24, color: Colors.onSurface, lineHeight: 32, letterSpacing: -0.5,
   },
   cardDivider: { width: 48, height: 2, borderRadius: 2, marginTop: 20, opacity: 0.6 },
   cardBottom: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
@@ -432,38 +487,68 @@ const styles = StyleSheet.create({
     fontSize: 9, letterSpacing: 1.5, textTransform: 'uppercase', color: Colors.outline,
   },
   intensityDots: { flexDirection: 'row', gap: 4 },
-  intensityDot: { width: 16, height: 3, borderRadius: 2 },
-  watermark: { position: 'absolute', bottom: -20, right: -20 },
-  actions: { gap: 16 },
+  intensityDot: { width: 8, height: 8, borderRadius: 4 },
+
+  watermark: {
+    position: 'absolute', bottom: -40, right: -40,
+    opacity: 0.03, pointerEvents: 'none',
+  },
+
+  actions: { gap: 10, paddingBottom: 8 },
   nextBtn: {
-    paddingVertical: 22, borderRadius: 999,
+    paddingVertical: 20, borderRadius: 999,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
-    shadowColor: Colors.primary, shadowOpacity: 0.4, shadowRadius: 20, shadowOffset: { width: 0, height: 8 },
+    shadowColor: Colors.primary, shadowOpacity: 0.4, shadowRadius: 20,
+    shadowOffset: { width: 0, height: 8 },
   },
   nextBtnText: {
     fontFamily: 'PlusJakartaSans_800ExtraBold',
-    fontSize: 18, letterSpacing: 2, color: Colors.onPrimary, textTransform: 'uppercase',
+    fontSize: 16, letterSpacing: 2, color: Colors.onPrimary, textTransform: 'uppercase',
   },
-  skipBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 4 },
+  skipBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+    paddingVertical: 14,
+  },
   skipText: {
     fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 11, letterSpacing: 2, textTransform: 'uppercase', color: Colors.outline,
+    fontSize: 12, letterSpacing: 1, textTransform: 'uppercase', color: Colors.outline,
   },
-  modalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.7)' },
+
+  // Modal
+  modalOverlay: {
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'flex-end',
+  },
   modalSheet: {
-    backgroundColor: Colors.surfaceContainerHigh,
+    backgroundColor: Colors.surfaceContainer,
     borderTopLeftRadius: 28, borderTopRightRadius: 28,
-    padding: 32, gap: 16,
+    padding: 32, gap: 8,
   },
-  modalTitle: { fontFamily: 'PlusJakartaSans_800ExtraBold', fontSize: 24, color: Colors.onSurface },
+  modalTitle: {
+    fontFamily: 'PlusJakartaSans_800ExtraBold',
+    fontSize: 22, color: Colors.onSurface,
+  },
   modalSubtitle: {
     fontFamily: 'BeVietnamPro_400Regular',
-    fontSize: 14, color: Colors.onSurfaceVariant, lineHeight: 20,
+    fontSize: 14, color: Colors.onSurfaceVariant, marginBottom: 16,
   },
-  modalButtons: { flexDirection: 'row', gap: 12, marginTop: 8 },
-  modalBtn: { flex: 1, paddingVertical: 16, borderRadius: 16, alignItems: 'center' },
-  modalBtnText: {
+  modalBtns: { flexDirection: 'row', gap: 12 },
+  modalCancel: {
+    flex: 1, paddingVertical: 16, borderRadius: 16,
+    backgroundColor: Colors.surfaceContainerHighest,
+    alignItems: 'center',
+  },
+  modalCancelText: {
     fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 12, letterSpacing: 2, textTransform: 'uppercase', color: Colors.onSurface,
+    fontSize: 14, color: Colors.onSurface,
+  },
+  modalQuit: {
+    flex: 1, paddingVertical: 16, borderRadius: 16,
+    backgroundColor: Colors.error,
+    alignItems: 'center',
+  },
+  modalQuitText: {
+    fontFamily: 'PlusJakartaSans_700Bold',
+    fontSize: 14, color: '#fff',
   },
 });

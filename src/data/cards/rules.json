@@ -1,0 +1,437 @@
+[
+  {
+    "ruleId": "gums",
+    "start": {
+      "text": "🦷 RULE — GUMS! For the rest of this rule, nobody is allowed to smile or laugh while showing their teeth. Caught with teeth showing = {sip}.",
+      "action": "Rule begins!",
+      "icon": "happy",
+      "intensity": 1
+    },
+    "end": {
+      "text": "🦷 RULE OVER — GUMS! You may now smile freely without penalty. Teeth are back.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  },
+  {
+    "ruleId": "cavemen",
+    "start": {
+      "text": "🪨 RULE — CAVEMEN! Big words are banned. Short words only. Long word = {sip}.",
+      "action": "Rule begins!",
+      "icon": "chatbubble",
+      "intensity": 1
+    },
+    "end": {
+      "text": "🪨 RULE OVER — CAVEMEN! Vocabulary restored. Use all the syllables you like.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  },
+  {
+    "ruleId": "kesha",
+    "start": {
+      "text": "🎵 RULE — KESHA! You must repeat the last word of every sentence you say. Every sentence. Forget to repeat? Drink {sip}.",
+      "action": "Rule begins!",
+      "icon": "mic",
+      "intensity": 1
+    },
+    "end": {
+      "text": "🎵 RULE OVER — KESHA! No more double words. The echo has left the building.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  },
+  {
+    "ruleId": "royalty",
+    "start": {
+      "text": "👑 RULE — ROYALTY! No speaking in the first person. No \"I\", \"me\" or \"my\" — use your name instead. Offenders drink {sip}.",
+      "action": "Rule begins!",
+      "icon": "ribbon",
+      "intensity": 1
+    },
+    "end": {
+      "text": "👑 RULE OVER — ROYALTY! First person is restored. You are no longer royalty.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  },
+  {
+    "ruleId": "romantic",
+    "start": {
+      "text": "💕 RULE — ROMANTIC! Every time you tell someone to drink, you must hold their chin, look them in the eyes, and tell them how many sips they owe you. Skip the ceremony = {sip}.",
+      "action": "Rule begins!",
+      "icon": "heart",
+      "intensity": 2
+    },
+    "end": {
+      "text": "💕 RULE OVER — ROMANTIC! The romance is over. You may drink-order without eye contact again.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  },
+  {
+    "ruleId": "rude",
+    "start": {
+      "text": "☝️ RULE — RUDE! No using anyone's name. Point at people when addressing them instead. Use a name = {sip}.",
+      "action": "Rule begins!",
+      "icon": "finger-print",
+      "intensity": 1
+    },
+    "end": {
+      "text": "☝️ RULE OVER — RUDE! Pointing is over. Names are permitted again.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  },
+  {
+    "ruleId": "honhon",
+    "start": {
+      "text": "🥐 RULE — HON HON! Zut alors! Everyone must speak in a French accent until further notice. Drop ze accent = {sip}, non?",
+      "action": "Rule begins!",
+      "icon": "globe",
+      "intensity": 1
+    },
+    "end": {
+      "text": "🥐 RULE OVER — HON HON! C'est fini. English accents resume. Merci beaucoup.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  },
+  {
+    "ruleId": "myman",
+    "start": {
+      "text": "🤜 RULE — MY MAN! If you and another player drink at exactly the same time, you must immediately dap up and say \"My man!\" Fail to do so = {sip}.",
+      "action": "Rule begins!",
+      "icon": "hand-right",
+      "intensity": 1
+    },
+    "end": {
+      "text": "🤜 RULE OVER — MY MAN! Simultaneous drinking may now go unacknowledged.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  },
+  {
+    "ruleId": "secretservice",
+    "start": {
+      "text": "🕵️ RULE — SECRET SERVICE! {player1}, you are the President. At any moment you may put a finger to your ear — at which point EVERYONE must leap up and shout \"MR PRESIDENT!\" Last one to do so drinks {medium}.",
+      "action": "Rule begins!",
+      "icon": "shield",
+      "intensity": 2
+    },
+    "end": {
+      "text": "🕵️ RULE OVER — SECRET SERVICE! The President's detail stands down. No more drills.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  },
+  {
+    "ruleId": "fiddlesticks",
+    "start": {
+      "text": "🤬 RULE — FIDDLESTICKS! No swearing. Each slip costs {sip}. Watch your bloody mouth.",
+      "action": "Rule begins!",
+      "icon": "warning",
+      "intensity": 1
+    },
+    "end": {
+      "text": "🤬 RULE OVER — FIDDLESTICKS! Profanity amnesty. Swear freely once more.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  },
+  {
+    "ruleId": "therethere",
+    "start": {
+      "text": "🫂 RULE — THERE THERE! Every time a player takes a sip, the person to their right must rub their back and whisper \"there, there\" until they're done. Neglect your duty = {sip}.",
+      "action": "Rule begins!",
+      "icon": "heart-half",
+      "intensity": 1
+    },
+    "end": {
+      "text": "🫂 RULE OVER — THERE THERE! Back-rubbing duty is lifted. Drink in peace.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  },
+  {
+    "ruleId": "onyourfeet",
+    "start": {
+      "text": "🧍 RULE — ON YOUR FEET! Everyone must stand up. Sit down = {sip}.",
+      "action": "Rule begins!",
+      "icon": "body",
+      "intensity": 1
+    },
+    "end": {
+      "text": "🧍 RULE OVER — ON YOUR FEET! You may sit. Your legs have earned it.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  },
+  {
+    "ruleId": "niceguy",
+    "start": {
+      "text": "😇 RULE — NICE GUY! Every time you tell someone to drink, you must pay them a genuine compliment first. Skip it = drink yourself.",
+      "action": "Rule begins!",
+      "icon": "heart",
+      "intensity": 1
+    },
+    "end": {
+      "text": "😇 RULE OVER — NICE GUY! Compliments are optional again. Don't let that stop you.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  },
+  {
+    "ruleId": "sheetbeetch",
+    "start": {
+      "text": "💩 RULE — SHEET, BEETCH! Every sentence must start with \"shit\" and end with \"bitch.\" No exceptions. Forget either word = {sip}.",
+      "action": "Rule begins!",
+      "icon": "chatbubble-ellipses",
+      "intensity": 2
+    },
+    "end": {
+      "text": "💩 RULE OVER — SHEET, BEETCH! Sentence structure returns to normal.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  },
+  {
+    "ruleId": "soulmates",
+    "start": {
+      "text": "💑 RULE — SOULMATES! {player1}, you and {player2} are now bonded. Every time {player2} drinks, so do you — and vice versa. No exceptions.",
+      "action": "Rule begins!",
+      "icon": "link",
+      "intensity": 2
+    },
+    "end": {
+      "text": "💑 RULE OVER — SOULMATES! The bond is broken. Drink independently once more.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  },
+  {
+    "ruleId": "insta",
+    "start": {
+      "text": "#️⃣ RULE — INSTA! Every sentence must start with the word \"hashtag.\" Forget it = {sip}.",
+      "action": "Rule begins!",
+      "icon": "logo-instagram",
+      "intensity": 1
+    },
+    "end": {
+      "text": "#️⃣ RULE OVER — INSTA! Hashtags are gone. Speak like a normal person again.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  },
+  {
+    "ruleId": "pirate",
+    "start": {
+      "text": "🏴‍☠️ RULE — ARRRGH! Ye be pirates now, the lot of ye. Speak like a sea dog or walk the plank ({sip}).",
+      "action": "Rule begins!",
+      "icon": "boat",
+      "intensity": 1
+    },
+    "end": {
+      "text": "🏴‍☠️ RULE OVER — ARRRGH! Landlubber speech is restored. Sail on.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  },
+  {
+    "ruleId": "oneatatime",
+    "start": {
+      "text": "🔇 RULE — ONE AT A TIME! If you speak at the same time as another player, drink {sip}. Talk over each other and it's {small}.",
+      "action": "Rule begins!",
+      "icon": "volume-mute",
+      "intensity": 1
+    },
+    "end": {
+      "text": "🔇 RULE OVER — ONE AT A TIME! Talk freely. Chaos is permitted again.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  },
+  {
+    "ruleId": "tooshy",
+    "start": {
+      "text": "😶 RULE — TOO SHY! No eye contact allowed. Catch someone's gaze = {sip} each.",
+      "action": "Rule begins!",
+      "icon": "eye-off",
+      "intensity": 1
+    },
+    "end": {
+      "text": "😶 RULE OVER — TOO SHY! Eye contact amnesty. Look at each other again.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  },
+  {
+    "ruleId": "bertie",
+    "start": {
+      "text": "🎩 RULE — BERTIE! You must address every player as \"[Name], old chap.\" Drop the \"old chap\" = {sip}.",
+      "action": "Rule begins!",
+      "icon": "person",
+      "intensity": 1
+    },
+    "end": {
+      "text": "🎩 RULE OVER — BERTIE! Old chap is retired. First names only once more.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  },
+  {
+    "ruleId": "holmes",
+    "start": {
+      "text": "🔍 RULE — HOLMES! Surnames only. No first names — use last names to address everyone. Get it wrong = {sip}. (If you don't know someone's last name, ask — that's part of the fun.)",
+      "action": "Rule begins!",
+      "icon": "search",
+      "intensity": 1
+    },
+    "end": {
+      "text": "🔍 RULE OVER — HOLMES! First names resume. Elementary.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  },
+  {
+    "ruleId": "itchy",
+    "start": {
+      "text": "🤲 RULE — ITCHY! You may not touch any part of your own body with your hands until this rule ends. Caught scratching = {sip}.",
+      "action": "Rule begins!",
+      "icon": "hand-left",
+      "intensity": 1
+    },
+    "end": {
+      "text": "🤲 RULE OVER — ITCHY! Scratch away. Your hands are yours again.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  },
+  {
+    "ruleId": "giveusahand",
+    "start": {
+      "text": "🙌 RULE — GIVE US A HAND! No using your hands to drink. Find another way or take {sip} penalty.",
+      "action": "Rule begins!",
+      "icon": "hand-right",
+      "intensity": 1
+    },
+    "end": {
+      "text": "🙌 RULE OVER — GIVE US A HAND! Hands may touch glasses again. Thank goodness.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  },
+  {
+    "ruleId": "questionmaster",
+    "start": {
+      "text": "❓ RULE — QUESTION MASTER! {player1}, you are the Question Master. Anyone who answers a question you ask (directly or casually) must take {medium}. Use your power wisely.",
+      "action": "Rule begins!",
+      "icon": "help-circle",
+      "intensity": 2
+    },
+    "end": {
+      "text": "❓ RULE OVER — QUESTION MASTER! {player1}'s powers are revoked. Answer questions freely.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  },
+  {
+    "ruleId": "foreignaffairs",
+    "start": {
+      "text": "🌍 RULE — FOREIGN AFFAIRS! {player1}, you are the Minister of Foreign Affairs. You are the ONLY person allowed to speak to anyone not currently playing. All external comms go through you.",
+      "action": "Rule begins!",
+      "icon": "globe",
+      "intensity": 2
+    },
+    "end": {
+      "text": "🌍 RULE OVER — FOREIGN AFFAIRS! The Ministry is dissolved. Talk to outsiders freely.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  },
+  {
+    "ruleId": "lightning",
+    "start": {
+      "text": "⚡ RULE — LIGHTNING! Whenever you're told to drink, you get to make another player drink one less than you. Chain reactions are allowed.",
+      "action": "Rule begins!",
+      "icon": "flash",
+      "intensity": 2
+    },
+    "end": {
+      "text": "⚡ RULE OVER — LIGHTNING! Lightning chains are broken. Drink your own drinks.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  },
+  {
+    "ruleId": "radio",
+    "start": {
+      "text": "📻 RULE — RADIO! Every sentence must end with the word \"over.\" Forget it = {sip}. Over.",
+      "action": "Rule begins!",
+      "icon": "radio",
+      "intensity": 1
+    },
+    "end": {
+      "text": "📻 RULE OVER — RADIO! You no longer need to say over. Over and out.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  },
+  {
+    "ruleId": "yoda",
+    "start": {
+      "text": "🌌 RULE — GREEN I AM! Talk like Yoda you must. Normal word order = {sip}.",
+      "action": "Rule begins!",
+      "icon": "planet",
+      "intensity": 1
+    },
+    "end": {
+      "text": "🌌 RULE OVER — GREEN I AM! Normal grammar returns. Yoda speaks no more.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  },
+  {
+    "ruleId": "swapclothes",
+    "start": {
+      "text": "👗 RULE — SWAP! {player1} and {player2}, swap one item of clothing right now. You're wearing it until this rule ends. Refuse = {large}.",
+      "action": "Rule begins!",
+      "icon": "shirt",
+      "intensity": 2
+    },
+    "end": {
+      "text": "👗 RULE OVER — SWAP! Return the borrowed threads. You can stop pretending you suit that.",
+      "action": "Rule ends",
+      "icon": "checkmark-circle",
+      "intensity": 1
+    }
+  }
+]

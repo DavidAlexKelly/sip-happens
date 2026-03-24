@@ -1,0 +1,98 @@
+[
+  {
+    "text": "Drink {sip} if you're wearing socks right now.",
+    "action": "Drink up",
+    "icon": "beer",
+    "intensity": 1
+  },
+  {
+    "text": "{player1} picks two people. Those two race to finish their drinks — loser takes {medium}.",
+    "action": "Race!",
+    "icon": "trophy",
+    "intensity": 2
+  },
+  {
+    "text": "Anyone who's ordered a takeaway alone this week — drink {sip} and respect yourself.",
+    "action": "Drink up",
+    "icon": "pizza",
+    "intensity": 1
+  },
+  {
+    "text": "Everyone drinks {sip} for every notification on their phone right now.",
+    "action": "Check your phone",
+    "icon": "notifications",
+    "intensity": 2
+  },
+  {
+    "text": "{player1} gives out {large} — distribute however you want among the group.",
+    "action": "Power move",
+    "icon": "beer",
+    "intensity": 2
+  },
+  {
+    "text": "If you've sent a voice note in the last week, drink {sip}.",
+    "action": "Drink up",
+    "icon": "mic",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: never have I ever — say something and anyone who has done it drinks {sip}.",
+    "action": "Never have I ever",
+    "icon": "hand-left",
+    "intensity": 2
+  },
+  {
+    "text": "Drink {small} if you've ever gotten drunk alone.",
+    "action": "Drink up",
+    "icon": "wine",
+    "intensity": 2
+  },
+  {
+    "text": "Give out {large} if you've ever left the continent you were born on.",
+    "action": "Jet-setter tax",
+    "icon": "airplane",
+    "intensity": 1
+  },
+  {
+    "text": "Drink {sip} if you've ever gone horseback riding.",
+    "action": "Giddy up",
+    "icon": "beer",
+    "intensity": 1
+  },
+  {
+    "text": "Drink {sip} if you sleep like a baby after sex.",
+    "action": "Out cold",
+    "icon": "moon",
+    "intensity": 2
+  },
+  {
+    "text": "Drink {sip} if you've ever changed your hair colour.",
+    "action": "Drink up",
+    "icon": "color-palette",
+    "intensity": 1
+  },
+  {
+    "text": "GAME — Drugs. If you repeat or can't think of one, drink {sip}. {player1}, you start.",
+    "action": "Think fast",
+    "icon": "medkit",
+    "intensity": 2
+  },
+  {
+    "text": "Anyone with a pack of cigarettes — drink {sip} per cigarette (8 max).",
+    "action": "That's on you",
+    "icon": "flame",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: take {sip} and give out {max}.",
+    "action": "Power play",
+    "icon": "beer",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: give out {sip} for every person in the group.",
+    "action": "Share the love",
+    "icon": "beer",
+    "intensity": 2
+  }
+]

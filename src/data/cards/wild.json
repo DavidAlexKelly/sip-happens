@@ -1,0 +1,92 @@
+[
+  {
+    "text": "{player1}: show the group your most recent photo. Explain it or drink {medium}.",
+    "action": "Show or drink",
+    "icon": "camera",
+    "intensity": 3
+  },
+  {
+    "text": "Most controversial opinion wins. Group votes — worst take drinks {small}.",
+    "action": "Hot take!",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: read your last DM out loud, or drink {max}.",
+    "action": "Risk it",
+    "icon": "chatbubble",
+    "intensity": 3
+  },
+  {
+    "text": "Hot takes round. Go clockwise — weakest take drinks {medium}.",
+    "action": "Hot take!",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: rank everyone by how wild their night would be without inhibitions.",
+    "action": "Rank 'em",
+    "icon": "podium",
+    "intensity": 3
+  },
+  {
+    "text": "Everyone confesses their most chaotic life decision. Group picks the wildest — they pour a round for everyone.",
+    "action": "Chaos stories",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: what is the shadiest thing you have ever done? No lying. Drink {sip} first for courage.",
+    "action": "Confess",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "Group vote: who is most likely to be a secret millionaire? That person gives out {medium}.",
+    "action": "Vote",
+    "icon": "trophy",
+    "intensity": 3
+  },
+  {
+    "text": "Drink {sip} if your current partner is the best in bed you've ever had. (If they're not — we advise you to pretend!)",
+    "action": "Drink up",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "Drink {sip} if your last ex was the best in bed you've ever had.",
+    "action": "That's awkward",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "Drink {small} if you've ever had multiple situationships at the same time.",
+    "action": "Drink up",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "Drink {small} if you've ever hooked up with someone you met through a dating app.",
+    "action": "Modern romance",
+    "icon": "phone-portrait",
+    "intensity": 3
+  },
+  {
+    "text": "Take as many sips as there are people in this room you'd consider sleeping with.",
+    "action": "Count carefully",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "Drink {small} if you've ever measured yourself or a partner. You know what we mean.",
+    "action": "Drink up",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: take {sip} and let {player2} roast you for 30 seconds.",
+    "action": "Take it",
+    "icon": "flame",
+    "intensity": 3
+  }
+]
