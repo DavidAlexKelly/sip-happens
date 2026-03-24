@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "Electric Nocturne",
+    "slug": "electric-nocturne",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0e0e11",
+    "splash": {
+      "backgroundColor": "#0e0e11",
+      "resizeMode": "contain"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.yourname.electricnocturne",
+      "infoPlist": {
+        "UIRequiresFullScreen": true,
+        "NSCameraUsageDescription": "Used to set your player photo.",
+        "NSPhotoLibraryUsageDescription": "Used to access photos for your player icon."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0e0e11"
+      },
+      "package": "com.yourname.electricnocturne",
+      "permissions": [
+        "CAMERA"
+      ]
+    },
+    "plugins": [
+      "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Used to set your player photo.",
+          "photosPermission": "Used to access photos for your player icon."
+        }
+      ]
+    ]
+  }
+}
