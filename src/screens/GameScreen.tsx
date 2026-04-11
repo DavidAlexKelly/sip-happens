@@ -29,14 +29,13 @@ type Props = {
 };
 
 const TOTAL_ROUNDS = 20;
-const MULTIPLIER_STEPS = [1, 2, 3, 4] as const;
 
 // How often a rule card *can* appear: 1-in-N chance when no rule is active.
 // Normal cards are drawn the rest of the time, keeping rules rare.
 const RULE_DRAW_CHANCE = 0.15; // ~15% chance each round when no rule is active
 
 export default function GameScreen({ navigation }: Props) {
-  const { state, nextRound, skipRound, setSipMultiplier } = useGame();
+  const { state, nextRound, skipRound } = useGame();
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [displayText, setDisplayText] = useState('');
   const [usedIds, setUsedIds] = useState<Set<string>>(new Set());
@@ -50,7 +49,6 @@ export default function GameScreen({ navigation }: Props) {
   const cardOpacity = useRef(new Animated.Value(1)).current;
   const cardTranslate = useRef(new Animated.Value(0)).current;
   const cardScale = useRef(new Animated.Value(1)).current;
-  const multiplierAnim = useRef(new Animated.Value(state.sipMultiplier - 1)).current;
   const involvedRef = useRef<Set<number>>(new Set());
   const currentPlayersRef = useRef<Player[]>([]);
 
@@ -138,13 +136,6 @@ export default function GameScreen({ navigation }: Props) {
     setDisplayText(text);
   }, [state.selectedMode, state.players, state.currentRound, usedIds, usedRuleIds, buildPenaltyCtx]);
 
-  // Re-render display text when multiplier changes (no new card, keep same players)
-  useEffect(() => {
-    if (challenge) {
-      setDisplayText(substituteTokens(challenge.text, currentPlayersRef.current, buildPenaltyCtx(challenge)));
-    }
-  }, [state.sipMultiplier]);
-
   useEffect(() => {
     loadChallenge();
   }, []);
@@ -156,18 +147,6 @@ export default function GameScreen({ navigation }: Props) {
     });
     return () => handler.remove();
   }, []);
-
-  const handleMultiplierChange = (value: 1 | 2 | 3 | 4) => {
-    if (value === state.sipMultiplier) return;
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setSipMultiplier(value);
-    Animated.spring(multiplierAnim, {
-      toValue: value - 1,
-      tension: 120,
-      friction: 10,
-      useNativeDriver: true,
-    }).start();
-  };
 
   const animateCard = (onMidpoint: () => void) => {
     Animated.parallel([
@@ -229,12 +208,6 @@ export default function GameScreen({ navigation }: Props) {
     : isRuleEnd
     ? '✅ RULE OVER'
     : (challenge ? (ModeLabels[challenge.mode] || challenge.mode.toUpperCase()) : '');
-
-  const STEP_WIDTH = 160 / MULTIPLIER_STEPS.length;
-  const pillTranslateX = multiplierAnim.interpolate({
-    inputRange: [0, MULTIPLIER_STEPS.length - 1],
-    outputRange: [0, STEP_WIDTH * (MULTIPLIER_STEPS.length - 1)],
-  });
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
@@ -299,39 +272,6 @@ export default function GameScreen({ navigation }: Props) {
               <Text style={[styles.categoryLabel, { color: modeColor }]}>{modeLabel}</Text>
             </View>
 
-            {/* Multiplier slider — hidden on rule cards */}
-            {!isRuleCard && (
-              <View style={styles.multiplierWrapper}>
-                <Text style={styles.multiplierEyebrow}>SIPS ×</Text>
-                <View style={styles.multiplierTrack}>
-                  <Animated.View
-                    style={[
-                      styles.multiplierPill,
-                      {
-                        width: STEP_WIDTH,
-                        backgroundColor: modeColor,
-                        transform: [{ translateX: pillTranslateX }],
-                      },
-                    ]}
-                  />
-                  {MULTIPLIER_STEPS.map(step => (
-                    <TouchableOpacity
-                      key={step}
-                      style={styles.multiplierStep}
-                      onPress={() => handleMultiplierChange(step)}
-                      activeOpacity={0.7}
-                    >
-                      <Text style={[
-                        styles.multiplierStepLabel,
-                        state.sipMultiplier === step && { color: Colors.onPrimary, fontFamily: 'PlusJakartaSans_800ExtraBold' },
-                      ]}>
-                        {step}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-            )}
           </View>
 
           {/* Challenge text */}
@@ -469,28 +409,6 @@ const styles = StyleSheet.create({
   categoryLabel: {
     fontFamily: 'PlusJakartaSans_700Bold',
     fontSize: 10, letterSpacing: 2, textTransform: 'uppercase',
-  },
-
-  multiplierWrapper: { alignItems: 'flex-end', gap: 4 },
-  multiplierEyebrow: {
-    fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 8, letterSpacing: 2, textTransform: 'uppercase',
-    color: Colors.outline,
-  },
-  multiplierTrack: {
-    width: 160, height: 28,
-    backgroundColor: Colors.surfaceContainerHighest,
-    borderRadius: 999, flexDirection: 'row',
-    overflow: 'hidden', position: 'relative',
-  },
-  multiplierPill: {
-    position: 'absolute', top: 0, bottom: 0, borderRadius: 999,
-  },
-  multiplierStep: {
-    flex: 1, alignItems: 'center', justifyContent: 'center', zIndex: 1,
-  },
-  multiplierStepLabel: {
-    fontFamily: 'PlusJakartaSans_700Bold', fontSize: 11, color: Colors.outline,
   },
 
   cardBody: { flex: 1, justifyContent: 'center', paddingVertical: 24 },

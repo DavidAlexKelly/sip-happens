@@ -36,7 +36,7 @@
     "intensity": 3
   },
   {
-    "text": "GAME — Sex toys. Go around the group naming one each. Repeat or blank = {sip}. {player1}, you start.",
+    "text": "GAME — {topic}. Go around the group naming one each. Repeat or blank = {sip}. {player1}, you start.",
     "action": "Think fast",
     "icon": "flame",
     "intensity": 3

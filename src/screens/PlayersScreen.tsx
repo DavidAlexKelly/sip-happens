@@ -19,11 +19,14 @@ type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Players'>;
 };
 
+const MULTIPLIER_STEPS = [1, 2, 3, 4] as const;
+
 export default function PlayersScreen({ navigation }: Props) {
-  const { state, addPlayer, removePlayer, updatePlayerPhoto, startGame, setMode } = useGame();
+  const { state, addPlayer, removePlayer, updatePlayerPhoto, startGame, setMode, setSipMultiplier } = useGame();
   const [inputValue, setInputValue] = useState('');
   const [showModeModal, setShowModeModal] = useState(false);
   const shakeAnim = useRef(new Animated.Value(0)).current;
+  const multiplierAnim = useRef(new Animated.Value(state.sipMultiplier - 1)).current;
 
   const handleAdd = () => {
     if (!inputValue.trim()) return;
@@ -65,6 +68,18 @@ export default function PlayersScreen({ navigation }: Props) {
     setMode(id);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setShowModeModal(false);
+  };
+
+  const handleMultiplierChange = (value: 1 | 2 | 3 | 4) => {
+    if (value === state.sipMultiplier) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setSipMultiplier(value);
+    Animated.spring(multiplierAnim, {
+      toValue: value - 1,
+      tension: 120,
+      friction: 10,
+      useNativeDriver: true,
+    }).start();
   };
 
   const canStart = state.players.length >= 2;
@@ -211,6 +226,52 @@ export default function PlayersScreen({ navigation }: Props) {
             </TouchableOpacity>
           </View>
         )}
+
+        {/* Drink multiplier */}
+        {canStart && (() => {
+          const STEP_WIDTH = 200 / MULTIPLIER_STEPS.length;
+          const pillTranslateX = multiplierAnim.interpolate({
+            inputRange: [0, MULTIPLIER_STEPS.length - 1],
+            outputRange: [0, STEP_WIDTH * (MULTIPLIER_STEPS.length - 1)],
+          });
+          return (
+            <View style={styles.multiplierSection}>
+              <View style={styles.multiplierHeader}>
+                <Text style={styles.multiplierEyebrow}>DRINK STRENGTH</Text>
+                <Text style={[styles.multiplierValue, { color: activeMode.color }]}>×{state.sipMultiplier}</Text>
+              </View>
+              <View style={[styles.multiplierTrack, { borderColor: `${activeMode.color}20` }]}>
+                <Animated.View
+                  style={[
+                    styles.multiplierPill,
+                    { width: STEP_WIDTH, backgroundColor: activeMode.color, transform: [{ translateX: pillTranslateX }] },
+                  ]}
+                />
+                {MULTIPLIER_STEPS.map(step => (
+                  <TouchableOpacity
+                    key={step}
+                    style={styles.multiplierStep}
+                    onPress={() => handleMultiplierChange(step)}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={[
+                      styles.multiplierStepLabel,
+                      state.sipMultiplier === step && { color: Colors.onPrimary, fontFamily: 'PlusJakartaSans_800ExtraBold' },
+                    ]}>
+                      {step}×
+                    </Text>
+                    <Text style={[
+                      styles.multiplierStepSub,
+                      state.sipMultiplier === step && { color: Colors.onPrimary, opacity: 0.8 },
+                    ]}>
+                      {step === 1 ? 'normal' : step === 2 ? 'double' : step === 3 ? 'triple' : 'quad'}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          );
+        })()}
 
         {/* Start button */}
         {canStart && (
@@ -425,6 +486,37 @@ const styles = StyleSheet.create({
   modeSelectorChangeText: {
     fontFamily: 'PlusJakartaSans_700Bold',
     fontSize: 9, letterSpacing: 2, textTransform: 'uppercase',
+  },
+
+  multiplierSection: { marginTop: 24 },
+  multiplierHeader: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10,
+  },
+  multiplierEyebrow: {
+    fontFamily: 'PlusJakartaSans_700Bold',
+    fontSize: 10, letterSpacing: 3, textTransform: 'uppercase', color: Colors.outline,
+  },
+  multiplierValue: {
+    fontFamily: 'PlusJakartaSans_800ExtraBold_Italic',
+    fontSize: 22,
+  },
+  multiplierTrack: {
+    height: 52, borderRadius: 16,
+    backgroundColor: Colors.surfaceContainerLow,
+    borderWidth: 1,
+    flexDirection: 'row', overflow: 'hidden', position: 'relative',
+  },
+  multiplierPill: {
+    position: 'absolute', top: 0, bottom: 0, borderRadius: 14,
+  },
+  multiplierStep: {
+    flex: 1, alignItems: 'center', justifyContent: 'center', zIndex: 1, gap: 2,
+  },
+  multiplierStepLabel: {
+    fontFamily: 'PlusJakartaSans_700Bold', fontSize: 13, color: Colors.onSurfaceVariant,
+  },
+  multiplierStepSub: {
+    fontFamily: 'BeVietnamPro_400Regular', fontSize: 9, color: Colors.outline, textTransform: 'uppercase', letterSpacing: 0.5,
   },
 
   startBtnWrapper: { marginTop: 16 },

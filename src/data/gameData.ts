@@ -9,6 +9,7 @@ import truthCards     from './cards/truth.json';
 import drinkCards     from './cards/drink.json';
 import wildCards      from './cards/wild.json';
 import rulesData      from './cards/rules.json';
+import wordBanks      from './cards/word_banks.json';
 
 // ─────────────────────────────────────────────
 // TYPES
@@ -191,6 +192,8 @@ export function substituteTokens(
 ): string {
   if (players.length === 0) return text;
 
+  const banks = wordBanks as Record<string, Record<string, string[]>>;
+
   return text
     .replace(/{player1}/g, players[0].name)
     .replace(/{player2}/g, players.length > 1 ? players[1].name : players[0].name)
@@ -198,5 +201,12 @@ export function substituteTokens(
     .replace(/{small}/g,  formatPenalty(getPenalty('small',  ctx)))
     .replace(/{medium}/g, formatPenalty(getPenalty('medium', ctx)))
     .replace(/{large}/g,  formatPenalty(getPenalty('large',  ctx)))
-    .replace(/{max}/g,    formatPenalty(getPenalty('max',    ctx)));
+    .replace(/{max}/g,    formatPenalty(getPenalty('max',    ctx)))
+    .replace(/\{(\w+)\}/g, (match, key) => {
+      const bank = banks[key];
+      if (!bank) return match;
+      const list = bank[ctx.mode ?? 'default'] ?? bank['default'] ?? [];
+      if (list.length === 0) return match;
+      return list[Math.floor(Math.random() * list.length)];
+    });
 }

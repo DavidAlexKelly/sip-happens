@@ -72,7 +72,7 @@
     "intensity": 1
   },
   {
-    "text": "GAME — Drugs. If you repeat or can't think of one, drink {sip}. {player1}, you start.",
+    "text": "GAME — {topic}. If you repeat or can't think of one, drink {sip}. {player1}, you start.",
     "action": "Think fast",
     "icon": "medkit",
     "intensity": 2
