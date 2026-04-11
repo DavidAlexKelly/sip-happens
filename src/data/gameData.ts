@@ -8,6 +8,7 @@ import socialCards    from './cards/social.json';
 import truthCards     from './cards/truth.json';
 import drinkCards     from './cards/drink.json';
 import wildCards      from './cards/wild.json';
+import spicyCards     from './cards/spicy.json';
 import rulesData      from './cards/rules.json';
 import wordBanks      from './cards/word_banks.json';
 
@@ -124,6 +125,15 @@ export const MODES: GameMode[] = [
     time: '30-60 MIN',
   },
   {
+    id: 'spicy',
+    label: 'SPICY 🌶️',
+    icon: 'heart',
+    color: '#ff4500',
+    desc: 'Adults only. Explicit dares and confessions for the truly bold. 18+ strictly.',
+    intensity: 'Very Intense',
+    time: '20-40 MIN',
+  },
+  {
     id: 'all',
     label: 'MIX IT ALL',
     icon: 'shuffle',
@@ -147,6 +157,7 @@ const pools: Record<string, Challenge[]> = {
   truth:  buildPool(truthCards  as RawCard[], 'truth',  'truth'),
   drink:  buildPool(drinkCards  as RawCard[], 'drink',  'drink'),
   wild:   buildPool(wildCards   as RawCard[], 'wild',   'wild'),
+  spicy:  buildPool(spicyCards  as RawCard[], 'spicy',  'spicy'),
 };
 
 export const ALL_CHALLENGES: Challenge[] = Object.values(pools).flat();

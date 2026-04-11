@@ -45,6 +45,7 @@ export const ModeColors: Record<string, string> = {
   dare:   '#ed6ae9',
   drink:  '#00fbfb',
   wild:   '#ff6e84',
+  spicy:  '#ff4500',
 };
 
 export const ModeLabels: Record<string, string> = {
@@ -53,4 +54,5 @@ export const ModeLabels: Record<string, string> = {
   dare:   'Dare Mode',
   drink:  'Drink Mode',
   wild:   'Wild Mode 🔥',
+  spicy:  'Spicy Mode 🌶️',
 };
