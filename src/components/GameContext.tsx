@@ -16,7 +16,8 @@ interface GameState {
   totalRounds: number;
   skips: number;
   usedChallenges: Set<string>;
-  sipMultiplier: 1 | 2 | 3 | 4;
+  /** Additive sip bonus: 0 = standard, 1 = +1, 2 = +2, 3 = +3 */
+  sipBonus: 0 | 1 | 2 | 3;
 }
 
 interface GameContextType {
@@ -25,7 +26,7 @@ interface GameContextType {
   removePlayer: (id: number) => void;
   updatePlayerPhoto: (id: number, uri: string) => void;
   toggleMode: (mode: string) => void;
-  setSipMultiplier: (multiplier: 1 | 2 | 3 | 4) => void;
+  setSipBonus: (bonus: 0 | 1 | 2 | 3) => void;
   startGame: () => void;
   nextRound: () => void;
   skipRound: () => void;
@@ -39,7 +40,7 @@ const defaultState: GameState = {
   totalRounds: 20,
   skips: 0,
   usedChallenges: new Set(),
-  sipMultiplier: 1,
+  sipBonus: 0,
 };
 
 const GameContext = createContext<GameContextType | null>(null);
@@ -80,7 +81,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const toggleMode = (mode: string) => {
     setState(prev => {
       const already = prev.selectedModes.includes(mode);
-      // Must keep at least one mode selected
       if (already && prev.selectedModes.length === 1) return prev;
       return {
         ...prev,
@@ -91,8 +91,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const setSipMultiplier = (multiplier: 1 | 2 | 3 | 4) => {
-    setState(prev => ({ ...prev, sipMultiplier: multiplier }));
+  const setSipBonus = (bonus: 0 | 1 | 2 | 3) => {
+    setState(prev => ({ ...prev, sipBonus: bonus }));
   };
 
   const startGame = () => {
@@ -121,7 +121,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       ...defaultState,
       players: prev.players,
       selectedModes: prev.selectedModes,
-      sipMultiplier: prev.sipMultiplier,
+      sipBonus: prev.sipBonus,
     }));
   };
 
@@ -132,7 +132,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       removePlayer,
       updatePlayerPhoto,
       toggleMode,
-      setSipMultiplier,
+      setSipBonus,
       startGame,
       nextRound,
       skipRound,

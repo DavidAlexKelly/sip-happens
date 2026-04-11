@@ -36,10 +36,10 @@
     "intensity": 2
   },
   {
-    "text": "Anyone with a tattoo — show it or drink {small}.",
-    "action": "Show or drink",
-    "icon": "eye",
-    "intensity": 2
+    "text": "If you have a tattoo — {take_or_give_small}.",
+    "action": "Ink check",
+    "icon": "body",
+    "intensity": 1
   },
   {
     "text": "If you've ever told someone you were 'on your way' while still in bed — drink {sip}.",
@@ -82,12 +82,6 @@
     "action": "Get off the floor!",
     "icon": "warning",
     "intensity": 2
-  },
-  {
-    "text": "Everyone with a tattoo or piercing, drink {sip}.",
-    "action": "Drink up",
-    "icon": "body",
-    "intensity": 1
   },
   {
     "text": "Players who use Twitter/X, drink {sip}.",
@@ -228,12 +222,6 @@
     "intensity": 1
   },
   {
-    "text": "{player1}: spin around 5 times and take {sip} each time you end up face to face with another player.",
-    "action": "Spin!",
-    "icon": "refresh",
-    "intensity": 1
-  },
-  {
     "text": "Everyone pick a new nickname for {player1} — make it dirty, insulting, whatever. Until the end of the night, everyone must use it.",
     "action": "Choose wisely",
     "icon": "chatbubble-ellipses",
@@ -348,15 +336,9 @@
     "intensity": 1
   },
   {
-    "text": "{player1}: take {large} while {player2} blows in {player2}'s face.",
+    "text": "{player1}: take {large} while {player2} blows in your face.",
     "action": "Dare",
     "icon": "flame",
-    "intensity": 2
-  },
-  {
-    "text": "Harry and {player1}: each choose a stranger to be your Padawan. Whoever's Padawan goes to the restroom first, give out {small}.",
-    "action": "May the Force be with you",
-    "icon": "people",
     "intensity": 2
   },
   {
@@ -426,12 +408,6 @@
     "intensity": 2
   },
   {
-    "text": "Guys — take {sip} for each attractive girl in the room.",
-    "action": "Drink up",
-    "icon": "people",
-    "intensity": 2
-  },
-  {
     "text": "{player1}: who do you think would be more skillful helping a horse give birth — {player2} or someone else here? They can give out {small}.",
     "action": "Call it",
     "icon": "rose",
@@ -478,5 +454,257 @@
     "action": "Drink up",
     "icon": "beer",
     "intensity": 2
+  },
+  {
+    "text": "If you have pierced ears — {take_or_give_sip}.",
+    "action": "Ears check",
+    "icon": "body",
+    "intensity": 1
+  },
+  {
+    "text": "If you have curly hair — {take_or_give_small}.",
+    "action": "Hair check",
+    "icon": "happy",
+    "intensity": 1
+  },
+  {
+    "text": "If you have green eyes — {take_or_give_small}.",
+    "action": "Eye check",
+    "icon": "eye",
+    "intensity": 1
+  },
+  {
+    "text": "If you wear glasses — {take_or_give_sip}.",
+    "action": "Specs check",
+    "icon": "eye",
+    "intensity": 1
+  },
+  {
+    "text": "If you are smoking or vaping right now — {take_or_give_medium}.",
+    "action": "Smokers",
+    "icon": "flame",
+    "intensity": 1
+  },
+  {
+    "text": "People with iPhones — {take_or_give_sip}.",
+    "action": "Apple tax",
+    "icon": "phone-portrait",
+    "intensity": 1
+  },
+  {
+    "text": "If you have more than 3 one night stands under your belt — raise your glass and say \"To casual sex!\" then {take_or_give_small}.",
+    "action": "Cheers to that",
+    "icon": "beer",
+    "intensity": 2
+  },
+  {
+    "text": "Youngest player in the group — {take_or_give_small}.",
+    "action": "Baby of the group",
+    "icon": "gift",
+    "intensity": 1
+  },
+  {
+    "text": "Oldest player in the group — {take_or_give_small}.",
+    "action": "Elder statesman",
+    "icon": "trophy",
+    "intensity": 1
+  },
+  {
+    "text": "If your legs aren't shaved right now — {take_or_give_sip}.",
+    "action": "Smooth check",
+    "icon": "body",
+    "intensity": 1
+  },
+  {
+    "text": "If you've ever donated blood — {take_or_give_sip}.",
+    "action": "Good deed",
+    "icon": "medkit",
+    "intensity": 1
+  },
+  {
+    "text": "Go up to the bar and ask for something random — a sock, a used napkin, a paperclip. Come back with something or take {large}.",
+    "action": "Dare",
+    "icon": "beer",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: go find a stranger, tell them they look great, and ask for their LinkedIn. Come back with a name or take {medium}.",
+    "action": "Network!",
+    "icon": "people",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: flirt with {player2} for 30 seconds straight. Group votes if it was convincing — if not, take {medium}.",
+    "action": "Turn on the charm",
+    "icon": "heart",
+    "intensity": 2
+  },
+  {
+    "text": "{player1} must shout something of the group's choosing — group decides what, then {player1} shouts it or takes {large}.",
+    "action": "Say it loud!",
+    "icon": "mic",
+    "intensity": 2
+  },
+  {
+    "text": "BOGIES! {player1} must walk up to a stranger and say 'bogies' progressively louder until they reach a shout — or take {large}.",
+    "action": "BOGIES!",
+    "icon": "mic",
+    "intensity": 2
+  },
+  {
+    "text": "SPIN THE BOTTLE! Everyone sits in a circle. {player1} spins. Whoever it lands on must take {medium}. They spin next.",
+    "action": "Spin!",
+    "icon": "wine",
+    "intensity": 2
+  },
+  {
+    "text": "If you've ever taken a dump at a nightclub — {take_or_give_small}.",
+    "action": "Confess",
+    "icon": "warning",
+    "intensity": 2
+  },
+  {
+    "text": "Who wants to volunteer to take {large}? If no one steps up in 5 seconds, everyone takes {small}.",
+    "action": "Any heroes?",
+    "icon": "trophy",
+    "intensity": 2
+  },
+  {
+    "text": "The most thicc player in the group, as voted by everyone, gives out {medium}.",
+    "action": "Vote!",
+    "icon": "body",
+    "intensity": 2
+  },
+  {
+    "text": "First person to pull a condom out of their bag or pocket gives out {large}.",
+    "action": "Check your pockets",
+    "icon": "medkit",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: let another player write whatever they want on your forehead with a pen, or take {large}.",
+    "action": "Dare",
+    "icon": "color-palette",
+    "intensity": 3
+  },
+  {
+    "text": "If you've ever slept with someone and then forgot their name — {take_or_give_small}.",
+    "action": "Confess",
+    "icon": "flame",
+    "intensity": 2
+  },
+  {
+    "text": "If you've ever gone to dance classes — {take_or_give_sip}.",
+    "action": "Dancer check",
+    "icon": "musical-notes",
+    "intensity": 1
+  },
+  {
+    "text": "If you've ever been on the news — {take_or_give_large}.",
+    "action": "Famous check",
+    "icon": "radio",
+    "intensity": 2
+  },
+  {
+    "text": "Try to move a coin from your forehead to your mouth using only your face. Fail and take {small}.",
+    "action": "Focus!",
+    "icon": "cash",
+    "intensity": 1
+  },
+  {
+    "text": "{player1} and {player2}: play the tortilla slap game. Slap each other with a tortilla until one gives up. Loser takes {large}.",
+    "action": "Slap off!",
+    "icon": "hand-left",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: get on all fours and let every player give you one spank, or take {max}.",
+    "action": "Dare",
+    "icon": "warning",
+    "intensity": 3
+  },
+  {
+    "text": "If you've ever had sex on public transport — {take_or_give_small}.",
+    "action": "Commuter confess",
+    "icon": "car",
+    "intensity": 3
+  },
+  {
+    "text": "Anyone who has lived in 3 or more towns or cities — {take_or_give_sip}.",
+    "action": "Nomad check",
+    "icon": "airplane",
+    "intensity": 1
+  },
+  {
+    "text": "If you've ever squished a bug on purpose — {take_or_give_sip}.",
+    "action": "Bug killer check",
+    "icon": "warning",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: get on {player2}'s back and ride them like a horse across the room. {sip} each on refusal.",
+    "action": "Giddy up!",
+    "icon": "body",
+    "intensity": 2
+  },
+  {
+    "text": "Give out one {sip} for each item of white clothing you're wearing right now.",
+    "action": "White check",
+    "icon": "shirt",
+    "intensity": 1
+  },
+  {
+    "text": "{player1} or {player2} — who's more likely to overthrow the government? That player gives out {medium}.",
+    "action": "Call it",
+    "icon": "globe",
+    "intensity": 2
+  },
+  {
+    "text": "If you have slept with 2 different people on the same day — {take_or_give_small}.",
+    "action": "Confess",
+    "icon": "flame",
+    "intensity": 2
+  },
+  {
+    "text": "{player1} and {player2}: say 'aaaaaah' at the same time. Whoever stops first takes {small}.",
+    "action": "Hold it!",
+    "icon": "mic",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: draw a monobrow on your face right now or take {medium}.",
+    "action": "Dare",
+    "icon": "happy",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: spin around 5 times and take {small}. Then give out {sip} to whoever you end up face-to-face with.",
+    "action": "Spin!",
+    "icon": "refresh",
+    "intensity": 1
+  },
+  {
+    "text": "If you've ever slept with someone whose native language wasn't English — {take_or_give_small}.",
+    "action": "Confess",
+    "icon": "globe",
+    "intensity": 2
+  },
+  {
+    "text": "If you and another player in this group have ever slept with the same person — both take {medium}.",
+    "action": "Confess",
+    "icon": "people",
+    "intensity": 3
+  },
+  {
+    "text": "If you didn't bring food or drink to this party — take {medium}.",
+    "action": "Freeloaders tax",
+    "icon": "beer",
+    "intensity": 2
+  },
+  {
+    "text": "If you're a {topic} — {take_or_give_sip}.",
+    "action": "Star sign check",
+    "icon": "planet",
+    "intensity": 1
   }
 ]

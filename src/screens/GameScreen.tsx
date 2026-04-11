@@ -52,10 +52,9 @@ export default function GameScreen({ navigation }: Props) {
     currentRound: state.currentRound,
     totalRounds: state.totalRounds,
     intensity: c.intensity,
-    // Pass first selected mode for word bank lookups
     mode: state.selectedModes[0] ?? 'social',
-    multiplier: state.sipMultiplier,
-  }), [state.currentRound, state.totalRounds, state.selectedModes, state.sipMultiplier]);
+    bonus: state.sipBonus,
+  }), [state.currentRound, state.totalRounds, state.selectedModes, state.sipBonus]);
 
   const loadChallenge = useCallback(() => {
     const round = state.currentRound;

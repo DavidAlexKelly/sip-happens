@@ -66,8 +66,8 @@
     "intensity": 2
   },
   {
-    "text": "Drink {sip} if you've ever changed your hair colour.",
-    "action": "Drink up",
+    "text": "If you've ever changed your hair colour — {take_or_give_sip}.",
+    "action": "Hair check",
     "icon": "color-palette",
     "intensity": 1
   },
@@ -166,5 +166,101 @@
     "action": "Drink up",
     "icon": "car",
     "intensity": 1
+  },
+  {
+    "text": "If you have a tattoo — {take_or_give_small}.",
+    "action": "Ink check",
+    "icon": "body",
+    "intensity": 1
+  },
+  {
+    "text": "If you've ever donated blood — {take_or_give_sip}.",
+    "action": "Good deed",
+    "icon": "medkit",
+    "intensity": 1
+  },
+  {
+    "text": "If you are smoking or vaping right now — {take_or_give_medium}.",
+    "action": "Smokers",
+    "icon": "flame",
+    "intensity": 1
+  },
+  {
+    "text": "SPIN THE BOTTLE! Everyone sits in a circle. {player1} spins. Whoever it lands on must take {medium}. They spin next.",
+    "action": "Spin!",
+    "icon": "wine",
+    "intensity": 2
+  },
+  {
+    "text": "Who wants to volunteer to take {large}? If no one steps up in 5 seconds, everyone takes {small}.",
+    "action": "Any heroes?",
+    "icon": "trophy",
+    "intensity": 2
+  },
+  {
+    "text": "Hold the glasses of the two players either side of you and feed them {sip} each.",
+    "action": "Generous!",
+    "icon": "wine",
+    "intensity": 2
+  },
+  {
+    "text": "If you arrived late today — {take_or_give_sip}.",
+    "action": "Latecomer tax",
+    "icon": "timer",
+    "intensity": 1
+  },
+  {
+    "text": "If you've ever had sex on public transport — {take_or_give_small}.",
+    "action": "Commuter confess",
+    "icon": "car",
+    "intensity": 3
+  },
+  {
+    "text": "If you've slept with 2 different people on the same day — {take_or_give_small}.",
+    "action": "Confess",
+    "icon": "flame",
+    "intensity": 2
+  },
+  {
+    "text": "Give out one {sip} for each item of white clothing you're wearing right now.",
+    "action": "White check",
+    "icon": "shirt",
+    "intensity": 1
+  },
+  {
+    "text": "If you've ever squished a bug on purpose — {take_or_give_sip}.",
+    "action": "Bug killer",
+    "icon": "warning",
+    "intensity": 1
+  },
+  {
+    "text": "Anyone who has lived in 3 or more towns or cities — {take_or_give_sip}.",
+    "action": "Nomad check",
+    "icon": "airplane",
+    "intensity": 1
+  },
+  {
+    "text": "First person to pull a condom out of their bag or pocket gives out {large}.",
+    "action": "Check your pockets",
+    "icon": "medkit",
+    "intensity": 2
+  },
+  {
+    "text": "People with iPhones — {take_or_give_sip}.",
+    "action": "Apple tax",
+    "icon": "phone-portrait",
+    "intensity": 1
+  },
+  {
+    "text": "If your legs aren't shaved right now — {take_or_give_sip}.",
+    "action": "Smooth check",
+    "icon": "body",
+    "intensity": 1
+  },
+  {
+    "text": "Take {sip} for every testicle you have. Own it.",
+    "action": "Count carefully",
+    "icon": "flame",
+    "intensity": 2
   }
 ]

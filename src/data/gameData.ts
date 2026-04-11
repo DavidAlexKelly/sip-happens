@@ -59,7 +59,8 @@ export interface PenaltyContext {
   totalRounds?: number;
   intensity?: 1 | 2 | 3;
   mode?: string;
-  multiplier?: number;
+  /** Additive bonus sips: 0 = standard, 1 = +1, 2 = +2, 3 = +3 */
+  bonus?: number;
 }
 
 export const PENALTY = {
@@ -74,7 +75,7 @@ export const PENALTY = {
 export function getPenalty(base: keyof typeof PENALTY, ctx: PenaltyContext = {}): number {
   const value = PENALTY[base];
   if (value === 99) return 99;
-  return value * (ctx.multiplier ?? 1);
+  return value + (ctx.bonus ?? 0);
 }
 
 export function formatPenalty(count: number): string {
@@ -82,8 +83,17 @@ export function formatPenalty(count: number): string {
   return count === 1 ? '1 sip' : `${count} sips`;
 }
 
+/**
+ * Randomly resolves to either "take X sips" or "give out X sips".
+ * Called once per token per card draw so the whole card is consistent.
+ */
+function resolveTakeOrGive(base: keyof typeof PENALTY, ctx: PenaltyContext): string {
+  const amount = formatPenalty(getPenalty(base, ctx));
+  return Math.random() < 0.5 ? `take ${amount}` : `give out ${amount}`;
+}
+
 // ─────────────────────────────────────────────
-// MODES — no 'all' entry; mixing is handled by multi-select
+// MODES
 // ─────────────────────────────────────────────
 
 export const MODES: GameMode[] = [
@@ -152,10 +162,6 @@ const pools: Record<string, Challenge[]> = {
 
 export const ALL_CHALLENGES: Challenge[] = Object.values(pools).flat();
 
-/**
- * Returns a merged pool from one or more mode ids.
- * Passing all mode ids is equivalent to the old 'all' behaviour.
- */
 export function getChallengePool(modes: string[]): Challenge[] {
   if (modes.length === 0) return ALL_CHALLENGES;
   return modes.flatMap(m => pools[m] ?? []);
@@ -199,7 +205,23 @@ export function substituteTokens(
 
   const banks = wordBanks as Record<string, Record<string, string[]>>;
 
-  return text
+  // Pre-resolve each unique {take_or_give_X} token once per draw
+  const tog: Record<string, string> = {};
+  const togPattern = /\{take_or_give_(sip|small|medium|large|max)\}/g;
+  let togMatch: RegExpExecArray | null;
+  while ((togMatch = togPattern.exec(text)) !== null) {
+    const key = togMatch[0];
+    if (!tog[key]) {
+      tog[key] = resolveTakeOrGive(togMatch[1] as keyof typeof PENALTY, ctx);
+    }
+  }
+
+  let resolved = text;
+  for (const [token, value] of Object.entries(tog)) {
+    resolved = resolved.split(token).join(value);
+  }
+
+  return resolved
     .replace(/{player1}/g, players[0].name)
     .replace(/{player2}/g, players.length > 1 ? players[1].name : players[0].name)
     .replace(/{sip}/g,    formatPenalty(getPenalty('sip',    ctx)))

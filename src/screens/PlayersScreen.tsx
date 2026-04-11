@@ -19,13 +19,15 @@ type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Players'>;
 };
 
-const MULTIPLIER_STEPS = [1, 2, 3, 4] as const;
+const BONUS_STEPS = [0, 1, 2, 3] as const;
+const BONUS_LABELS = ['standard', '+1', '+2', '+3'] as const;
+const BONUS_DISPLAY = ['Standard', '+1 sip', '+2 sips', '+3 sips'] as const;
 
 export default function PlayersScreen({ navigation }: Props) {
-  const { state, addPlayer, removePlayer, updatePlayerPhoto, startGame, toggleMode, setSipMultiplier } = useGame();
+  const { state, addPlayer, removePlayer, updatePlayerPhoto, startGame, toggleMode, setSipBonus } = useGame();
   const [inputValue, setInputValue] = useState('');
   const shakeAnim = useRef(new Animated.Value(0)).current;
-  const multiplierAnim = useRef(new Animated.Value(state.sipMultiplier - 1)).current;
+  const bonusAnim = useRef(new Animated.Value(state.sipBonus)).current;
 
   const handleAdd = () => {
     if (!inputValue.trim()) return;
@@ -61,12 +63,12 @@ export default function PlayersScreen({ navigation }: Props) {
     navigation.navigate('Game');
   };
 
-  const handleMultiplierChange = (value: 1 | 2 | 3 | 4) => {
-    if (value === state.sipMultiplier) return;
+  const handleBonusChange = (value: 0 | 1 | 2 | 3) => {
+    if (value === state.sipBonus) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setSipMultiplier(value);
-    Animated.spring(multiplierAnim, {
-      toValue: value - 1,
+    setSipBonus(value);
+    Animated.spring(bonusAnim, {
+      toValue: value,
       tension: 120,
       friction: 10,
       useNativeDriver: true,
@@ -74,14 +76,7 @@ export default function PlayersScreen({ navigation }: Props) {
   };
 
   const canStart = state.players.length >= 2;
-
-  // For display: pick the "primary" colour from the first selected mode
   const firstMode = MODES.find(m => state.selectedModes.includes(m.id)) ?? MODES[0];
-  const deckLabel = state.selectedModes.length === MODES.length
-    ? 'ALL DECKS'
-    : state.selectedModes.length === 1
-    ? (MODES.find(m => m.id === state.selectedModes[0])?.label ?? state.selectedModes[0])
-    : `${state.selectedModes.length} DECKS`;
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -179,8 +174,6 @@ export default function PlayersScreen({ navigation }: Props) {
         {canStart && (
           <View style={styles.modeSelectorSection}>
             <Text style={styles.modeSelectorEyebrow}>ACTIVE DECKS</Text>
-
-            {/* Quick-toggle chips */}
             <View style={styles.deckChipsRow}>
               {MODES.map(mode => {
                 const active = state.selectedModes.includes(mode.id);
@@ -210,7 +203,6 @@ export default function PlayersScreen({ navigation }: Props) {
                 );
               })}
             </View>
-
             <TouchableOpacity
               onPress={() => navigation.navigate('Modes')}
               activeOpacity={0.7}
@@ -222,48 +214,49 @@ export default function PlayersScreen({ navigation }: Props) {
           </View>
         )}
 
-        {/* Drink multiplier */}
+        {/* Sip bonus selector */}
         {canStart && (() => {
-          const STEP_WIDTH = 200 / MULTIPLIER_STEPS.length;
-          const pillTranslateX = multiplierAnim.interpolate({
-            inputRange: [0, MULTIPLIER_STEPS.length - 1],
-            outputRange: [0, STEP_WIDTH * (MULTIPLIER_STEPS.length - 1)],
+          const STEP_WIDTH = 200 / BONUS_STEPS.length;
+          const pillTranslateX = bonusAnim.interpolate({
+            inputRange: [0, BONUS_STEPS.length - 1],
+            outputRange: [0, STEP_WIDTH * (BONUS_STEPS.length - 1)],
           });
           return (
-            <View style={styles.multiplierSection}>
-              <View style={styles.multiplierHeader}>
-                <Text style={styles.multiplierEyebrow}>DRINK STRENGTH</Text>
-                <Text style={[styles.multiplierValue, { color: firstMode.color }]}>×{state.sipMultiplier}</Text>
+            <View style={styles.bonusSection}>
+              <View style={styles.bonusHeader}>
+                <Text style={styles.bonusEyebrow}>DRINK STRENGTH</Text>
+                <Text style={[styles.bonusValue, { color: firstMode.color }]}>
+                  {BONUS_DISPLAY[state.sipBonus]}
+                </Text>
               </View>
-              <View style={[styles.multiplierTrack, { borderColor: `${firstMode.color}20` }]}>
+              <View style={[styles.bonusTrack, { borderColor: `${firstMode.color}20` }]}>
                 <Animated.View
                   style={[
-                    styles.multiplierPill,
+                    styles.bonusPill,
                     { width: STEP_WIDTH, backgroundColor: firstMode.color, transform: [{ translateX: pillTranslateX }] },
                   ]}
                 />
-                {MULTIPLIER_STEPS.map(step => (
+                {BONUS_STEPS.map(step => (
                   <TouchableOpacity
                     key={step}
-                    style={styles.multiplierStep}
-                    onPress={() => handleMultiplierChange(step)}
+                    style={styles.bonusStep}
+                    onPress={() => handleBonusChange(step)}
                     activeOpacity={0.7}
                   >
                     <Text style={[
-                      styles.multiplierStepLabel,
-                      state.sipMultiplier === step && { color: Colors.onPrimary, fontFamily: 'PlusJakartaSans_800ExtraBold' },
+                      styles.bonusStepLabel,
+                      state.sipBonus === step && { color: Colors.onPrimary, fontFamily: 'PlusJakartaSans_800ExtraBold' },
                     ]}>
-                      {step}×
-                    </Text>
-                    <Text style={[
-                      styles.multiplierStepSub,
-                      state.sipMultiplier === step && { color: Colors.onPrimary, opacity: 0.8 },
-                    ]}>
-                      {step === 1 ? 'normal' : step === 2 ? 'double' : step === 3 ? 'triple' : 'quad'}
+                      {BONUS_LABELS[step]}
                     </Text>
                   </TouchableOpacity>
                 ))}
               </View>
+              <Text style={styles.bonusHint}>
+                {state.sipBonus === 0
+                  ? 'Cards play at their base sip values.'
+                  : `Every sip value on every card is increased by ${state.sipBonus}.`}
+              </Text>
             </View>
           );
         })()}
@@ -413,37 +406,40 @@ const styles = StyleSheet.create({
     fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', color: Colors.onSurfaceVariant,
   },
 
-  multiplierSection: { marginTop: 24 },
-  multiplierHeader: {
+  // Bonus selector
+  bonusSection: { marginTop: 24 },
+  bonusHeader: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10,
   },
-  multiplierEyebrow: {
+  bonusEyebrow: {
     fontFamily: 'PlusJakartaSans_700Bold',
     fontSize: 10, letterSpacing: 3, textTransform: 'uppercase', color: Colors.outline,
   },
-  multiplierValue: {
+  bonusValue: {
     fontFamily: 'PlusJakartaSans_800ExtraBold_Italic',
     fontSize: 22,
   },
-  multiplierTrack: {
+  bonusTrack: {
     height: 52, borderRadius: 16,
     backgroundColor: Colors.surfaceContainerLow,
     borderWidth: 1,
     flexDirection: 'row', overflow: 'hidden', position: 'relative',
   },
-  multiplierPill: {
+  bonusPill: {
     position: 'absolute', top: 0, bottom: 0, borderRadius: 14,
   },
-  multiplierStep: {
-    flex: 1, alignItems: 'center', justifyContent: 'center', zIndex: 1, gap: 2,
+  bonusStep: {
+    flex: 1, alignItems: 'center', justifyContent: 'center', zIndex: 1,
   },
-  multiplierStepLabel: {
-    fontFamily: 'PlusJakartaSans_700Bold', fontSize: 13, color: Colors.onSurfaceVariant,
+  bonusStepLabel: {
+    fontFamily: 'PlusJakartaSans_700Bold',
+    fontSize: 13, color: Colors.onSurfaceVariant,
   },
-  multiplierStepSub: {
-    fontFamily: 'BeVietnamPro_400Regular', fontSize: 9, color: Colors.outline,
-    textTransform: 'uppercase', letterSpacing: 0.5,
+  bonusHint: {
+    fontFamily: 'BeVietnamPro_400Regular',
+    fontSize: 11, color: Colors.outline, marginTop: 8, textAlign: 'center',
   },
+
   startBtnWrapper: { marginTop: 16 },
   startBtn: {
     paddingVertical: 20, borderRadius: 999,

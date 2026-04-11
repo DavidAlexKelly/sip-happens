@@ -130,5 +130,113 @@
     "action": "Shout it!",
     "icon": "mic",
     "intensity": 3
+  },
+  {
+    "text": "If you've ever taken a dump at a nightclub — {take_or_give_small}.",
+    "action": "Confess",
+    "icon": "warning",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: let another player write whatever they want on your forehead with a pen, or take {large}.",
+    "action": "Dare",
+    "icon": "color-palette",
+    "intensity": 3
+  },
+  {
+    "text": "If you've ever slept with someone and then forgot their name — {take_or_give_small}.",
+    "action": "Confess",
+    "icon": "flame",
+    "intensity": 2
+  },
+  {
+    "text": "If you and another player here have ever slept with the same person — both take {medium}.",
+    "action": "Confess",
+    "icon": "people",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: get on all fours and let every player give you one spank, or take {max}.",
+    "action": "Dare",
+    "icon": "warning",
+    "intensity": 3
+  },
+  {
+    "text": "BOGIES! {player1} must approach a stranger and say 'bogies' progressively louder until they reach a shout. Refuse and take {large}.",
+    "action": "BOGIES!",
+    "icon": "mic",
+    "intensity": 2
+  },
+  {
+    "text": "{player1} must shout something of the group's choosing — group decides right now. Refuse and take {large}.",
+    "action": "Say it loud!",
+    "icon": "mic",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: flirt with {player2} for 30 seconds straight. Group votes if it was convincing — if not, take {medium}.",
+    "action": "Turn on the charm",
+    "icon": "heart",
+    "intensity": 2
+  },
+  {
+    "text": "{player1} and {player2}: play the tortilla slap game. Slap each other with a tortilla until one gives up. Loser takes {large}.",
+    "action": "Slap off!",
+    "icon": "hand-left",
+    "intensity": 2
+  },
+  {
+    "text": "If you've ever had sex on public transport — {take_or_give_small}.",
+    "action": "Commuter confess",
+    "icon": "car",
+    "intensity": 3
+  },
+  {
+    "text": "If you've slept with 2 different people on the same day — {take_or_give_small}.",
+    "action": "Confess",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "SPIN THE BOTTLE! Everyone sits in a circle. {player1} spins. Whoever it lands on must take {medium}. They spin next.",
+    "action": "Spin!",
+    "icon": "wine",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: get on {player2}'s back and ride them like a horse across the room. {sip} each on refusal.",
+    "action": "Giddy up!",
+    "icon": "body",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: draw a monobrow on your face right now or take {medium}.",
+    "action": "Dare",
+    "icon": "happy",
+    "intensity": 2
+  },
+  {
+    "text": "Take {sip} for every testicle you have. Own it.",
+    "action": "Count carefully",
+    "icon": "flame",
+    "intensity": 2
+  },
+  {
+    "text": "If you've ever spit on someone — {take_or_give_small}.",
+    "action": "Confess",
+    "icon": "warning",
+    "intensity": 2
+  },
+  {
+    "text": "Vote on the biggest scaredy cat of the group. They take {medium}.",
+    "action": "Vote!",
+    "icon": "warning",
+    "intensity": 2
+  },
+  {
+    "text": "If you didn't bring food or drink to this party — take {medium}.",
+    "action": "Freeloaders tax",
+    "icon": "beer",
+    "intensity": 2
   }
 ]
