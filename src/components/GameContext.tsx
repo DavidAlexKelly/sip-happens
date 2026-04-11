@@ -48,7 +48,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<GameState>(defaultState);
 
   const addPlayer = (name: string) => {
-    if (!name.trim() || state.players.length >= 8) return;
+    if (!name.trim()) return;
     setState(prev => ({
       ...prev,
       players: [
