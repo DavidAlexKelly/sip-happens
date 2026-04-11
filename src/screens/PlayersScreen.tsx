@@ -27,14 +27,6 @@ export default function PlayersScreen({ navigation }: Props) {
 
   const handleAdd = () => {
     if (!inputValue.trim()) return;
-    if (state.players.length >= 8) {
-      Animated.sequence([
-        Animated.timing(shakeAnim, { toValue: 8, duration: 60, useNativeDriver: true }),
-        Animated.timing(shakeAnim, { toValue: -8, duration: 60, useNativeDriver: true }),
-        Animated.timing(shakeAnim, { toValue: 0, duration: 60, useNativeDriver: true }),
-      ]).start();
-      return;
-    }
     addPlayer(inputValue);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setInputValue('');
@@ -188,15 +180,6 @@ export default function PlayersScreen({ navigation }: Props) {
           </View>
         )}
 
-        {/* Invite slot */}
-        {state.players.length > 0 && state.players.length < 8 && (
-          <View style={styles.inviteSlot}>
-            <Ionicons name="person-add-outline" size={28} color={Colors.outlineVariant} />
-            <Text style={styles.inviteText}>
-              Room for {8 - state.players.length} more legend{8 - state.players.length !== 1 ? 's' : ''}.
-            </Text>
-          </View>
-        )}
 
         {/* Mode selector */}
         {canStart && (

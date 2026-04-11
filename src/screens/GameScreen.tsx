@@ -15,7 +15,14 @@ import {
   getChallengePool, substituteTokens, Challenge, PenaltyContext,
   ALL_RULE_STARTS, ALL_RULE_ENDS,
 } from '../data/gameData';
-import { useGame } from '../components/GameContext';
+import { useGame, Player } from '../components/GameContext';
+
+function prioritizeUninvolved(players: Player[], involved: Set<number>): Player[] {
+  const shuffle = <T,>(arr: T[]) => [...arr].sort(() => Math.random() - 0.5);
+  const uninvolved = players.filter(p => !involved.has(p.id));
+  const alreadyInvolved = players.filter(p => involved.has(p.id));
+  return [...shuffle(uninvolved), ...shuffle(alreadyInvolved)];
+}
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Game'>;
@@ -44,6 +51,8 @@ export default function GameScreen({ navigation }: Props) {
   const cardTranslate = useRef(new Animated.Value(0)).current;
   const cardScale = useRef(new Animated.Value(1)).current;
   const multiplierAnim = useRef(new Animated.Value(state.sipMultiplier - 1)).current;
+  const involvedRef = useRef<Set<number>>(new Set());
+  const currentPlayersRef = useRef<Player[]>([]);
 
   const buildPenaltyCtx = useCallback((c: Challenge): PenaltyContext => ({
     currentRound: state.currentRound,
@@ -64,7 +73,11 @@ export default function GameScreen({ navigation }: Props) {
       const endCard = pendingEndCard.current.card;
       pendingEndCard.current = null;
       activeRuleId.current = null;
-      const text = substituteTokens(endCard.text, state.players, buildPenaltyCtx(endCard));
+      const orderedEnd = prioritizeUninvolved(state.players, involvedRef.current);
+      currentPlayersRef.current = orderedEnd;
+      involvedRef.current.add(orderedEnd[0]?.id);
+      if (endCard.text.includes('{player2}') && orderedEnd[1]) involvedRef.current.add(orderedEnd[1].id);
+      const text = substituteTokens(endCard.text, orderedEnd, buildPenaltyCtx(endCard));
       setChallenge(endCard);
       setDisplayText(text);
       return;
@@ -95,7 +108,11 @@ export default function GameScreen({ navigation }: Props) {
           };
         }
 
-        const text = substituteTokens(picked.text, state.players, buildPenaltyCtx(picked));
+        const orderedStart = prioritizeUninvolved(state.players, involvedRef.current);
+        currentPlayersRef.current = orderedStart;
+        involvedRef.current.add(orderedStart[0]?.id);
+        if (picked.text.includes('{player2}') && orderedStart[1]) involvedRef.current.add(orderedStart[1].id);
+        const text = substituteTokens(picked.text, orderedStart, buildPenaltyCtx(picked));
         setChallenge(picked);
         setDisplayText(text);
         return;
@@ -112,15 +129,19 @@ export default function GameScreen({ navigation }: Props) {
     const picked = available[Math.floor(Math.random() * available.length)];
     setUsedIds(prev => new Set([...prev, picked.id]));
 
-    const text = substituteTokens(picked.text, state.players, buildPenaltyCtx(picked));
+    const orderedNormal = prioritizeUninvolved(state.players, involvedRef.current);
+    currentPlayersRef.current = orderedNormal;
+    involvedRef.current.add(orderedNormal[0]?.id);
+    if (picked.text.includes('{player2}') && orderedNormal[1]) involvedRef.current.add(orderedNormal[1].id);
+    const text = substituteTokens(picked.text, orderedNormal, buildPenaltyCtx(picked));
     setChallenge(picked);
     setDisplayText(text);
   }, [state.selectedMode, state.players, state.currentRound, usedIds, usedRuleIds, buildPenaltyCtx]);
 
-  // Re-render display text when multiplier changes (no new card)
+  // Re-render display text when multiplier changes (no new card, keep same players)
   useEffect(() => {
     if (challenge) {
-      setDisplayText(substituteTokens(challenge.text, state.players, buildPenaltyCtx(challenge)));
+      setDisplayText(substituteTokens(challenge.text, currentPlayersRef.current, buildPenaltyCtx(challenge)));
     }
   }, [state.sipMultiplier]);
 
@@ -164,9 +185,12 @@ export default function GameScreen({ navigation }: Props) {
     });
   };
 
+  const allInvolved = state.players.every(p => involvedRef.current.has(p.id));
+  const canEnd = state.currentRound >= TOTAL_ROUNDS && allInvolved;
+
   const handleNext = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    if (state.currentRound >= TOTAL_ROUNDS) {
+    if (canEnd) {
       navigation.replace('GameOver');
       return;
     }
@@ -178,7 +202,7 @@ export default function GameScreen({ navigation }: Props) {
 
   const handleSkip = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    if (state.currentRound >= TOTAL_ROUNDS) {
+    if (canEnd) {
       navigation.replace('GameOver');
       return;
     }
@@ -188,7 +212,7 @@ export default function GameScreen({ navigation }: Props) {
     });
   };
 
-  const progress = Math.max(0.04, state.currentRound / TOTAL_ROUNDS);
+  const progress = Math.min(1, Math.max(0.04, state.currentRound / TOTAL_ROUNDS));
 
   // Rule cards get a distinct gold/amber colour so they're visually distinct
   const isRuleCard = challenge?.isRule !== undefined;

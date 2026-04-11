@@ -191,10 +191,9 @@ export function substituteTokens(
 ): string {
   if (players.length === 0) return text;
 
-  const shuffled = [...players].sort(() => Math.random() - 0.5);
   return text
-    .replace(/{player1}/g, shuffled[0].name)
-    .replace(/{player2}/g, shuffled.length > 1 ? shuffled[1].name : shuffled[0].name)
+    .replace(/{player1}/g, players[0].name)
+    .replace(/{player2}/g, players.length > 1 ? players[1].name : players[0].name)
     .replace(/{sip}/g,    formatPenalty(getPenalty('sip',    ctx)))
     .replace(/{small}/g,  formatPenalty(getPenalty('small',  ctx)))
     .replace(/{medium}/g, formatPenalty(getPenalty('medium', ctx)))
