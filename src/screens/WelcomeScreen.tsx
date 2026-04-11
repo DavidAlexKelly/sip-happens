@@ -54,7 +54,7 @@ export default function WelcomeScreen({ navigation }: Props) {
         {/* Hero */}
         <Animated.View style={[styles.hero, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
           <Text style={styles.eyebrow}>Experience the Pulse</Text>
-          <Text style={styles.heroLine1}>ELECTRIC</Text>
+          <Text style={styles.heroLine1}></Text>
           <LinearGradient
             colors={[Colors.primary, Colors.primaryContainer, Colors.secondary]}
             start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
