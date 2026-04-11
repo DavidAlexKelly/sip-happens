@@ -29,10 +29,7 @@ type Props = {
 };
 
 const TOTAL_ROUNDS = 20;
-
-// How often a rule card *can* appear: 1-in-N chance when no rule is active.
-// Normal cards are drawn the rest of the time, keeping rules rare.
-const RULE_DRAW_CHANCE = 0.15; // ~15% chance each round when no rule is active
+const RULE_DRAW_CHANCE = 0.15;
 
 export default function GameScreen({ navigation }: Props) {
   const { state, nextRound, skipRound } = useGame();
@@ -42,7 +39,6 @@ export default function GameScreen({ navigation }: Props) {
   const [usedRuleIds, setUsedRuleIds] = useState<Set<string>>(new Set());
   const [showQuitModal, setShowQuitModal] = useState(false);
 
-  // Rule state: which rule is currently active + its scheduled end card
   const activeRuleId = useRef<string | null>(null);
   const pendingEndCard = useRef<{ card: Challenge; fireOnRound: number } | null>(null);
 
@@ -56,18 +52,16 @@ export default function GameScreen({ navigation }: Props) {
     currentRound: state.currentRound,
     totalRounds: state.totalRounds,
     intensity: c.intensity,
-    mode: state.selectedMode,
+    // Pass first selected mode for word bank lookups
+    mode: state.selectedModes[0] ?? 'social',
     multiplier: state.sipMultiplier,
-  }), [state.currentRound, state.totalRounds, state.selectedMode, state.sipMultiplier]);
+  }), [state.currentRound, state.totalRounds, state.selectedModes, state.sipMultiplier]);
 
   const loadChallenge = useCallback(() => {
     const round = state.currentRound;
 
     // 1. Fire a pending rule-end card if it's due
-    if (
-      pendingEndCard.current &&
-      round >= pendingEndCard.current.fireOnRound
-    ) {
+    if (pendingEndCard.current && round >= pendingEndCard.current.fireOnRound) {
       const endCard = pendingEndCard.current.card;
       pendingEndCard.current = null;
       activeRuleId.current = null;
@@ -82,30 +76,17 @@ export default function GameScreen({ navigation }: Props) {
     }
 
     // 2. Maybe draw a rule-start card (only if no rule is active)
-    if (
-      !activeRuleId.current &&
-      Math.random() < RULE_DRAW_CHANCE
-    ) {
-      const available = ALL_RULE_STARTS.filter(
-        r => !usedRuleIds.has(r.ruleId!)
-      );
+    if (!activeRuleId.current && Math.random() < RULE_DRAW_CHANCE) {
+      const available = ALL_RULE_STARTS.filter(r => !usedRuleIds.has(r.ruleId!));
       if (available.length > 0) {
         const picked = available[Math.floor(Math.random() * available.length)];
-
-        // Register the active rule
         activeRuleId.current = picked.ruleId!;
         setUsedRuleIds(prev => new Set([...prev, picked.ruleId!]));
-
-        // Schedule the end card 4–6 rounds from now
-        const endDelay = 4 + Math.floor(Math.random() * 3); // 4, 5, or 6
+        const endDelay = 4 + Math.floor(Math.random() * 3);
         const endCard = ALL_RULE_ENDS[picked.ruleId!];
         if (endCard) {
-          pendingEndCard.current = {
-            card: endCard,
-            fireOnRound: round + endDelay,
-          };
+          pendingEndCard.current = { card: endCard, fireOnRound: round + endDelay };
         }
-
         const orderedStart = prioritizeUninvolved(state.players, involvedRef.current);
         currentPlayersRef.current = orderedStart;
         involvedRef.current.add(orderedStart[0]?.id);
@@ -117,8 +98,8 @@ export default function GameScreen({ navigation }: Props) {
       }
     }
 
-    // 3. Draw a normal challenge card
-    const pool = getChallengePool(state.selectedMode);
+    // 3. Draw a normal challenge card from the selected decks
+    const pool = getChallengePool(state.selectedModes);
     let available = pool.filter(c => !usedIds.has(c.id));
     if (available.length === 0) {
       setUsedIds(new Set());
@@ -134,7 +115,7 @@ export default function GameScreen({ navigation }: Props) {
     const text = substituteTokens(picked.text, orderedNormal, buildPenaltyCtx(picked));
     setChallenge(picked);
     setDisplayText(text);
-  }, [state.selectedMode, state.players, state.currentRound, usedIds, usedRuleIds, buildPenaltyCtx]);
+  }, [state.selectedModes, state.players, state.currentRound, usedIds, usedRuleIds, buildPenaltyCtx]);
 
   useEffect(() => {
     loadChallenge();
@@ -169,34 +150,22 @@ export default function GameScreen({ navigation }: Props) {
 
   const handleNext = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    if (canEnd) {
-      navigation.replace('GameOver');
-      return;
-    }
-    animateCard(() => {
-      nextRound();
-      loadChallenge();
-    });
+    if (canEnd) { navigation.replace('GameOver'); return; }
+    animateCard(() => { nextRound(); loadChallenge(); });
   };
 
   const handleSkip = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    if (canEnd) {
-      navigation.replace('GameOver');
-      return;
-    }
-    animateCard(() => {
-      skipRound();
-      loadChallenge();
-    });
+    if (canEnd) { navigation.replace('GameOver'); return; }
+    animateCard(() => { skipRound(); loadChallenge(); });
   };
 
   const progress = Math.min(1, Math.max(0.04, state.currentRound / TOTAL_ROUNDS));
 
-  // Rule cards get a distinct gold/amber colour so they're visually distinct
-  const isRuleCard = challenge?.isRule !== undefined;
   const isRuleStart = challenge?.isRule === true;
-  const isRuleEnd = challenge?.isRule === false;
+  const isRuleEnd = challenge?.isRule === false && challenge?.ruleId !== undefined;
+  const isRuleCard = isRuleStart || isRuleEnd;
+
   const modeColor = isRuleStart
     ? '#f5c842'
     : isRuleEnd
@@ -224,8 +193,6 @@ export default function GameScreen({ navigation }: Props) {
           <TouchableOpacity onPress={() => setShowQuitModal(true)} style={styles.quitBtn}>
             <Ionicons name="close" size={22} color={Colors.onSurfaceVariant} />
           </TouchableOpacity>
-
-          {/* Player avatars */}
           <View style={styles.avatarRow}>
             {state.players.slice(0, 5).map((p) => (
               <View key={p.id} style={[styles.avatar, { marginLeft: -10, borderColor: p.color }]}>
@@ -266,21 +233,17 @@ export default function GameScreen({ navigation }: Props) {
             start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
           />
 
-          {/* Card top */}
           <View style={styles.cardTop}>
             <View style={[styles.categoryBadge, { backgroundColor: `${modeColor}18`, borderColor: `${modeColor}30` }]}>
               <Text style={[styles.categoryLabel, { color: modeColor }]}>{modeLabel}</Text>
             </View>
-
           </View>
 
-          {/* Challenge text */}
           <View style={styles.cardBody}>
             <Text style={styles.challengeText}>{displayText}</Text>
             <View style={[styles.cardDivider, { backgroundColor: modeColor }]} />
           </View>
 
-          {/* Card bottom */}
           <View style={styles.cardBottom}>
             <View style={styles.actionRow}>
               <Ionicons name={(challenge?.icon as any) || 'beer'} size={20} color={modeColor} />
@@ -336,19 +299,12 @@ export default function GameScreen({ navigation }: Props) {
             <Text style={styles.modalTitle}>Quit the game?</Text>
             <Text style={styles.modalSubtitle}>Progress will be lost.</Text>
             <View style={styles.modalBtns}>
-              <TouchableOpacity
-                style={styles.modalCancel}
-                onPress={() => setShowQuitModal(false)}
-                activeOpacity={0.7}
-              >
+              <TouchableOpacity style={styles.modalCancel} onPress={() => setShowQuitModal(false)} activeOpacity={0.7}>
                 <Text style={styles.modalCancelText}>Keep Playing</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.modalQuit}
-                onPress={() => {
-                  setShowQuitModal(false);
-                  navigation.replace('Welcome');
-                }}
+                onPress={() => { setShowQuitModal(false); navigation.replace('Welcome'); }}
                 activeOpacity={0.7}
               >
                 <Text style={styles.modalQuitText}>Quit</Text>
@@ -365,11 +321,8 @@ const { width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  topGlow: {
-    position: 'absolute', top: 0, left: 0, right: 0, height: 300, zIndex: 0,
-  },
+  topGlow: { position: 'absolute', top: 0, left: 0, right: 0, height: 300, zIndex: 0 },
   inner: { flex: 1, paddingHorizontal: 20, paddingTop: 8, gap: 16 },
-
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   quitBtn: {
     width: 40, height: 40, borderRadius: 12,
@@ -384,33 +337,19 @@ const styles = StyleSheet.create({
   },
   avatarPhoto: { width: 36, height: 36, borderRadius: 18 },
   avatarText: { fontFamily: 'PlusJakartaSans_800ExtraBold', fontSize: 14 },
-
-  progressBarBg: {
-    height: 3, borderRadius: 2,
-    backgroundColor: Colors.surfaceContainerHighest,
-    overflow: 'hidden',
-  },
+  progressBarBg: { height: 3, borderRadius: 2, backgroundColor: Colors.surfaceContainerHighest, overflow: 'hidden' },
   progressBarFill: { height: '100%', borderRadius: 2 },
-
   cardWrapper: {
-    flex: 1,
-    backgroundColor: Colors.surfaceContainerLow,
-    borderRadius: 24,
-    padding: 24,
-    borderWidth: 1,
-    borderColor: Colors.outlineVariant,
-    overflow: 'hidden',
+    flex: 1, backgroundColor: Colors.surfaceContainerLow,
+    borderRadius: 24, padding: 24, borderWidth: 1,
+    borderColor: Colors.outlineVariant, overflow: 'hidden',
   },
   cardTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  categoryBadge: {
-    paddingHorizontal: 12, paddingVertical: 6,
-    borderRadius: 999, borderWidth: 1,
-  },
+  categoryBadge: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, borderWidth: 1 },
   categoryLabel: {
     fontFamily: 'PlusJakartaSans_700Bold',
     fontSize: 10, letterSpacing: 2, textTransform: 'uppercase',
   },
-
   cardBody: { flex: 1, justifyContent: 'center', paddingVertical: 24 },
   challengeText: {
     fontFamily: 'PlusJakartaSans_800ExtraBold',
@@ -430,67 +369,38 @@ const styles = StyleSheet.create({
   },
   intensityDots: { flexDirection: 'row', gap: 4 },
   intensityDot: { width: 8, height: 8, borderRadius: 4 },
-
-  watermark: {
-    position: 'absolute', bottom: -40, right: -40,
-    opacity: 0.03, pointerEvents: 'none',
-  },
-
+  watermark: { position: 'absolute', bottom: -40, right: -40, opacity: 0.03 },
   actions: { gap: 10, paddingBottom: 8 },
   nextBtn: {
     paddingVertical: 20, borderRadius: 999,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
-    shadowColor: Colors.primary, shadowOpacity: 0.4, shadowRadius: 20,
-    shadowOffset: { width: 0, height: 8 },
+    shadowColor: Colors.primary, shadowOpacity: 0.4, shadowRadius: 20, shadowOffset: { width: 0, height: 8 },
   },
   nextBtnText: {
     fontFamily: 'PlusJakartaSans_800ExtraBold',
     fontSize: 16, letterSpacing: 2, color: Colors.onPrimary, textTransform: 'uppercase',
   },
   skipBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    paddingVertical: 14,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 14,
   },
   skipText: {
     fontFamily: 'PlusJakartaSans_700Bold',
     fontSize: 12, letterSpacing: 1, textTransform: 'uppercase', color: Colors.outline,
   },
-
-  // Modal
-  modalOverlay: {
-    flex: 1, backgroundColor: 'rgba(0,0,0,0.7)',
-    justifyContent: 'flex-end',
-  },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
   modalSheet: {
     backgroundColor: Colors.surfaceContainer,
     borderTopLeftRadius: 28, borderTopRightRadius: 28,
     padding: 32, gap: 8,
   },
-  modalTitle: {
-    fontFamily: 'PlusJakartaSans_800ExtraBold',
-    fontSize: 22, color: Colors.onSurface,
-  },
-  modalSubtitle: {
-    fontFamily: 'BeVietnamPro_400Regular',
-    fontSize: 14, color: Colors.onSurfaceVariant, marginBottom: 16,
-  },
+  modalTitle: { fontFamily: 'PlusJakartaSans_800ExtraBold', fontSize: 22, color: Colors.onSurface },
+  modalSubtitle: { fontFamily: 'BeVietnamPro_400Regular', fontSize: 14, color: Colors.onSurfaceVariant, marginBottom: 16 },
   modalBtns: { flexDirection: 'row', gap: 12 },
   modalCancel: {
     flex: 1, paddingVertical: 16, borderRadius: 16,
-    backgroundColor: Colors.surfaceContainerHighest,
-    alignItems: 'center',
+    backgroundColor: Colors.surfaceContainerHighest, alignItems: 'center',
   },
-  modalCancelText: {
-    fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 14, color: Colors.onSurface,
-  },
-  modalQuit: {
-    flex: 1, paddingVertical: 16, borderRadius: 16,
-    backgroundColor: Colors.error,
-    alignItems: 'center',
-  },
-  modalQuitText: {
-    fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 14, color: '#fff',
-  },
+  modalCancelText: { fontFamily: 'PlusJakartaSans_700Bold', fontSize: 14, color: Colors.onSurface },
+  modalQuit: { flex: 1, paddingVertical: 16, borderRadius: 16, backgroundColor: Colors.error, alignItems: 'center' },
+  modalQuitText: { fontFamily: 'PlusJakartaSans_700Bold', fontSize: 14, color: '#fff' },
 });

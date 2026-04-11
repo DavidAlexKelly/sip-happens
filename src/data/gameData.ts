@@ -4,13 +4,13 @@
 // All card content lives in src/data/cards/*.json — edit those, not this file.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import socialCards    from './cards/social.json';
-import truthCards     from './cards/truth.json';
-import drinkCards     from './cards/drink.json';
-import wildCards      from './cards/wild.json';
-import spicyCards     from './cards/spicy.json';
-import rulesData      from './cards/rules.json';
-import wordBanks      from './cards/word_banks.json';
+import socialCards from './cards/social.json';
+import truthCards  from './cards/truth.json';
+import drinkCards  from './cards/drink.json';
+import wildCards   from './cards/wild.json';
+import spicyCards  from './cards/spicy.json';
+import rulesData   from './cards/rules.json';
+import wordBanks   from './cards/word_banks.json';
 
 // ─────────────────────────────────────────────
 // TYPES
@@ -37,7 +37,6 @@ export interface GameMode {
   time: string;
 }
 
-// Shape expected in each cards/*.json file (no id or mode — those get injected)
 interface RawCard {
   text: string;
   action: string;
@@ -84,7 +83,7 @@ export function formatPenalty(count: number): string {
 }
 
 // ─────────────────────────────────────────────
-// MODES
+// MODES — no 'all' entry; mixing is handled by multi-select
 // ─────────────────────────────────────────────
 
 export const MODES: GameMode[] = [
@@ -133,15 +132,6 @@ export const MODES: GameMode[] = [
     intensity: 'Very Intense',
     time: '20-40 MIN',
   },
-  {
-    id: 'all',
-    label: 'MIX IT ALL',
-    icon: 'shuffle',
-    color: '#f0edf1',
-    desc: 'A curated shuffle of every mode. The ultimate Betterlo experience.',
-    intensity: 'Varies',
-    time: '30-60 MIN',
-  },
 ];
 
 // ─────────────────────────────────────────────
@@ -162,9 +152,13 @@ const pools: Record<string, Challenge[]> = {
 
 export const ALL_CHALLENGES: Challenge[] = Object.values(pools).flat();
 
-export function getChallengePool(mode: string): Challenge[] {
-  if (mode === 'all') return ALL_CHALLENGES;
-  return pools[mode] ?? [];
+/**
+ * Returns a merged pool from one or more mode ids.
+ * Passing all mode ids is equivalent to the old 'all' behaviour.
+ */
+export function getChallengePool(modes: string[]): Challenge[] {
+  if (modes.length === 0) return ALL_CHALLENGES;
+  return modes.flatMap(m => pools[m] ?? []);
 }
 
 // ─────────────────────────────────────────────

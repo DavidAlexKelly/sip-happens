@@ -11,7 +11,7 @@ export interface Player {
 
 interface GameState {
   players: Player[];
-  selectedMode: string;
+  selectedModes: string[];
   currentRound: number;
   totalRounds: number;
   skips: number;
@@ -24,7 +24,7 @@ interface GameContextType {
   addPlayer: (name: string) => void;
   removePlayer: (id: number) => void;
   updatePlayerPhoto: (id: number, uri: string) => void;
-  setMode: (mode: string) => void;
+  toggleMode: (mode: string) => void;
   setSipMultiplier: (multiplier: 1 | 2 | 3 | 4) => void;
   startGame: () => void;
   nextRound: () => void;
@@ -34,7 +34,7 @@ interface GameContextType {
 
 const defaultState: GameState = {
   players: [],
-  selectedMode: 'all',
+  selectedModes: ['social'],
   currentRound: 0,
   totalRounds: 20,
   skips: 0,
@@ -77,8 +77,18 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }));
   };
 
-  const setMode = (mode: string) => {
-    setState(prev => ({ ...prev, selectedMode: mode }));
+  const toggleMode = (mode: string) => {
+    setState(prev => {
+      const already = prev.selectedModes.includes(mode);
+      // Must keep at least one mode selected
+      if (already && prev.selectedModes.length === 1) return prev;
+      return {
+        ...prev,
+        selectedModes: already
+          ? prev.selectedModes.filter(m => m !== mode)
+          : [...prev.selectedModes, mode],
+      };
+    });
   };
 
   const setSipMultiplier = (multiplier: 1 | 2 | 3 | 4) => {
@@ -91,7 +101,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
       currentRound: 1,
       skips: 0,
       usedChallenges: new Set(),
-      // multiplier intentionally preserved — player set it before starting
     }));
   };
 
@@ -111,7 +120,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setState(prev => ({
       ...defaultState,
       players: prev.players,
-      selectedMode: prev.selectedMode,
+      selectedModes: prev.selectedModes,
       sipMultiplier: prev.sipMultiplier,
     }));
   };
@@ -122,7 +131,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       addPlayer,
       removePlayer,
       updatePlayerPhoto,
-      setMode,
+      toggleMode,
       setSipMultiplier,
       startGame,
       nextRound,

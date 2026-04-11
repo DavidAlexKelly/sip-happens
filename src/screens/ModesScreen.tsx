@@ -17,18 +17,23 @@ type Props = {
 };
 
 export default function ModesScreen({ navigation }: Props) {
-  const { state, setMode } = useGame();
+  const { state, toggleMode } = useGame();
 
-  const handleSelect = (id: string) => {
-    setMode(id);
-    setTimeout(() => navigation.navigate('Players'), 250);
-  };
+  const selectedCount = state.selectedModes.length;
+  const allSelected = selectedCount === MODES.length;
 
-  const handleSurprise = () => {
-    const options = MODES.filter(m => m.id !== 'all');
-    const pick = options[Math.floor(Math.random() * options.length)];
-    setMode(pick.id);
-    setTimeout(() => navigation.navigate('Players'), 250);
+  const handleSelectAll = () => {
+    // If all are already selected, reset to just social
+    if (allSelected) {
+      MODES.forEach(m => {
+        if (state.selectedModes.includes(m.id) && m.id !== 'social') toggleMode(m.id);
+      });
+      if (!state.selectedModes.includes('social')) toggleMode('social');
+    } else {
+      MODES.forEach(m => {
+        if (!state.selectedModes.includes(m.id)) toggleMode(m.id);
+      });
+    }
   };
 
   return (
@@ -38,55 +43,102 @@ export default function ModesScreen({ navigation }: Props) {
           <Ionicons name="arrow-back" size={24} color={Colors.onSurface} style={{ opacity: 0.7 }} />
         </TouchableOpacity>
         <LinearGradient colors={[Colors.primary, Colors.primaryContainer]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.titleGradient}>
-          <Text style={styles.headerTitle}>BETTERLO</Text>
+          <Text style={styles.headerTitle}>ELECTRIC NOCTURNE</Text>
         </LinearGradient>
         <Ionicons name="person-circle-outline" size={24} color={Colors.onSurface} style={{ opacity: 0.7 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.pageHeader}>
-          <Text style={styles.eyebrow}>CHOOSE YOUR VIBE</Text>
-          <Text style={styles.pageTitle}>MATCH THE{'\n'}<Text style={styles.pageTitleAccent}>ENERGY</Text></Text>
-          <Text style={styles.pageSubtitle}>Select a challenge pack to set the tone.</Text>
+          <Text style={styles.eyebrow}>BUILD YOUR DECK</Text>
+          <Text style={styles.pageTitle}>PICK YOUR{'\n'}<Text style={styles.pageTitleAccent}>DECKS</Text></Text>
+          <Text style={styles.pageSubtitle}>
+            Select one or more decks to mix into your game. Tap a deck to toggle it.
+          </Text>
+        </View>
+
+        {/* Selected count pill */}
+        <View style={styles.selectedBadgeRow}>
+          <View style={styles.selectedBadge}>
+            <Text style={styles.selectedBadgeText}>
+              {selectedCount === MODES.length
+                ? 'ALL DECKS — FULL MIX'
+                : `${selectedCount} DECK${selectedCount !== 1 ? 'S' : ''} SELECTED`}
+            </Text>
+          </View>
+          <TouchableOpacity onPress={handleSelectAll} activeOpacity={0.7}>
+            <Text style={styles.selectAllText}>{allSelected ? 'RESET' : 'SELECT ALL'}</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.modesList}>
           {MODES.map(mode => {
-            const isSelected = state.selectedMode === mode.id;
+            const isSelected = state.selectedModes.includes(mode.id);
+            const isLast = state.selectedModes.length === 1 && isSelected;
             return (
               <TouchableOpacity
                 key={mode.id}
-                onPress={() => handleSelect(mode.id)}
+                onPress={() => toggleMode(mode.id)}
                 activeOpacity={0.85}
+                disabled={isLast} // can't deselect the last deck
               >
-                <View style={[styles.modeCard, isSelected && { shadowColor: mode.color, shadowOpacity: 0.4, shadowRadius: 16, shadowOffset: { width: 0, height: 4 } }]}>
+                <View style={[
+                  styles.modeCard,
+                  isSelected && {
+                    borderColor: `${mode.color}50`,
+                    shadowColor: mode.color,
+                    shadowOpacity: 0.3,
+                    shadowRadius: 16,
+                    shadowOffset: { width: 0, height: 4 },
+                  },
+                  !isSelected && styles.modeCardUnselected,
+                ]}>
                   {isSelected && (
                     <LinearGradient
-                      colors={[`${mode.color}08`, `${mode.color}18`]}
+                      colors={[`${mode.color}10`, `${mode.color}20`]}
                       style={StyleSheet.absoluteFillObject}
                       start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
                     />
                   )}
-                  {/* Background watermark icon */}
+
+                  {/* Background watermark */}
                   <View style={styles.modeWatermark}>
-                    <Ionicons name={mode.icon as any} size={80} color={mode.color} style={{ opacity: 0.1 }} />
+                    <Ionicons name={mode.icon as any} size={80} color={mode.color} style={{ opacity: isSelected ? 0.1 : 0.04 }} />
                   </View>
 
-                  <View style={styles.modeIconCircle}>
-                    <Ionicons name={mode.icon as any} size={22} color={mode.color} />
+                  <View style={styles.modeRow}>
+                    <View style={[styles.modeIconCircle, { backgroundColor: isSelected ? `${mode.color}18` : Colors.surfaceContainerHighest }]}>
+                      <Ionicons name={mode.icon as any} size={22} color={isSelected ? mode.color : Colors.outline} />
+                    </View>
+
+                    <View style={styles.modeInfo}>
+                      <Text style={[styles.modeLabel, { color: isSelected ? mode.color : Colors.onSurfaceVariant }]}>
+                        {mode.label}
+                      </Text>
+                      <Text style={styles.modeDesc} numberOfLines={2}>{mode.desc}</Text>
+                    </View>
+
+                    {/* Checkbox */}
+                    <View style={[
+                      styles.checkbox,
+                      isSelected
+                        ? { backgroundColor: mode.color, borderColor: mode.color }
+                        : { borderColor: Colors.outlineVariant },
+                    ]}>
+                      {isSelected && <Ionicons name="checkmark" size={14} color="#fff" />}
+                    </View>
                   </View>
-                  <Text style={styles.modeLabel}>{mode.label}</Text>
-                  <Text style={styles.modeDesc}>{mode.desc}</Text>
+
                   <View style={styles.modeTags}>
-                    <View style={styles.modeTag}>
-                      <Text style={[styles.modeTagText, { color: mode.color }]}>{mode.intensity}</Text>
+                    <View style={[styles.modeTag, { backgroundColor: isSelected ? `${mode.color}15` : Colors.surfaceContainerHighest }]}>
+                      <Text style={[styles.modeTagText, { color: isSelected ? mode.color : Colors.outline }]}>{mode.intensity}</Text>
                     </View>
                     <View style={styles.modeTag}>
                       <Text style={styles.modeTagTextMuted}>{mode.time}</Text>
                     </View>
-                    {isSelected && (
-                      <View style={{ marginLeft: 'auto' }}>
-                        <Ionicons name="checkmark-circle" size={20} color={mode.color} />
+                    {isLast && (
+                      <View style={styles.modeTag}>
+                        <Text style={[styles.modeTagTextMuted, { color: Colors.outline }]}>MIN 1 DECK</Text>
                       </View>
                     )}
                   </View>
@@ -96,18 +148,21 @@ export default function ModesScreen({ navigation }: Props) {
           })}
         </View>
 
-        {/* Randomiser */}
-        <View style={styles.randomiser}>
-          <Text style={styles.randomiserLabel}>Can't decide? Try our randomizer.</Text>
-          <View style={styles.randomiserRow}>
-            <TouchableOpacity style={styles.randomiserBtn} onPress={() => navigation.navigate('Players')}>
-              <Text style={styles.randomiserBtnTextMuted}>QUICK PLAY</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.randomiserBtn, styles.randomiserBtnActive]} onPress={handleSurprise}>
-              <Text style={[styles.randomiserBtnText, { color: Colors.secondary }]}>SURPRISE ME</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        {/* CTA */}
+        <TouchableOpacity
+          style={styles.continueBtn}
+          onPress={() => navigation.navigate('Players')}
+          activeOpacity={0.85}
+        >
+          <LinearGradient
+            colors={[Colors.primary, Colors.primaryContainer]}
+            start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+            style={styles.continueBtnInner}
+          >
+            <Text style={styles.continueBtnText}>CONTINUE WITH {selectedCount} DECK{selectedCount !== 1 ? 'S' : ''}</Text>
+            <Ionicons name="arrow-forward" size={20} color={Colors.onPrimary} />
+          </LinearGradient>
+        </TouchableOpacity>
       </ScrollView>
 
       <BottomNav current="modes" navigation={navigation} />
@@ -128,7 +183,7 @@ const styles = StyleSheet.create({
     fontSize: 17, letterSpacing: -0.5, color: Colors.onPrimary, paddingHorizontal: 4,
   },
   scrollContent: { paddingHorizontal: 24, paddingBottom: 120 },
-  pageHeader: { marginTop: 24, marginBottom: 32 },
+  pageHeader: { marginTop: 24, marginBottom: 24 },
   eyebrow: {
     fontFamily: 'PlusJakartaSans_700Bold',
     fontSize: 10, letterSpacing: 4, color: Colors.primary,
@@ -141,30 +196,57 @@ const styles = StyleSheet.create({
   pageTitleAccent: { color: Colors.primary },
   pageSubtitle: {
     fontFamily: 'BeVietnamPro_400Regular',
-    fontSize: 14, color: Colors.onSurfaceVariant,
+    fontSize: 14, color: Colors.onSurfaceVariant, lineHeight: 20,
   },
-  modesList: { gap: 12 },
+  selectedBadgeRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  selectedBadge: {
+    backgroundColor: Colors.surfaceContainerHighest,
+    paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999,
+  },
+  selectedBadgeText: {
+    fontFamily: 'PlusJakartaSans_700Bold',
+    fontSize: 10, letterSpacing: 2, color: Colors.primary, textTransform: 'uppercase',
+  },
+  selectAllText: {
+    fontFamily: 'PlusJakartaSans_700Bold',
+    fontSize: 10, letterSpacing: 2, color: Colors.onSurfaceVariant, textTransform: 'uppercase',
+  },
+  modesList: { gap: 10 },
   modeCard: {
     backgroundColor: Colors.surfaceContainerLow,
-    borderRadius: 16, padding: 24, overflow: 'hidden', position: 'relative',
+    borderRadius: 16, padding: 16,
+    overflow: 'hidden', position: 'relative',
+    borderWidth: 1, borderColor: 'transparent',
   },
+  modeCardUnselected: {
+    opacity: 0.6,
+  },
+  modeRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 },
   modeWatermark: { position: 'absolute', top: 8, right: 8 },
   modeIconCircle: {
     width: 44, height: 44, borderRadius: 22,
-    backgroundColor: Colors.surfaceContainerHighest,
-    alignItems: 'center', justifyContent: 'center', marginBottom: 16,
+    alignItems: 'center', justifyContent: 'center',
+    flexShrink: 0,
   },
+  modeInfo: { flex: 1 },
   modeLabel: {
     fontFamily: 'PlusJakartaSans_800ExtraBold_Italic',
-    fontSize: 24, letterSpacing: -1, color: Colors.onSurface, marginBottom: 8,
+    fontSize: 20, letterSpacing: -0.5, marginBottom: 4,
   },
   modeDesc: {
     fontFamily: 'BeVietnamPro_400Regular',
-    fontSize: 13, color: Colors.onSurfaceVariant, lineHeight: 19, marginBottom: 16,
+    fontSize: 12, color: Colors.onSurfaceVariant, lineHeight: 17,
+  },
+  checkbox: {
+    width: 24, height: 24, borderRadius: 8, borderWidth: 2,
+    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
   modeTags: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   modeTag: {
-    paddingHorizontal: 12, paddingVertical: 4,
+    paddingHorizontal: 10, paddingVertical: 4,
     backgroundColor: Colors.surfaceContainerHighest, borderRadius: 999,
   },
   modeTagText: {
@@ -175,23 +257,14 @@ const styles = StyleSheet.create({
     fontFamily: 'PlusJakartaSans_700Bold',
     fontSize: 10, letterSpacing: 1.5, textTransform: 'uppercase', color: Colors.onSurfaceVariant,
   },
-  randomiser: { marginTop: 40, alignItems: 'center' },
-  randomiserLabel: {
-    fontFamily: 'BeVietnamPro_400Regular',
-    fontSize: 13, color: Colors.onSurfaceVariant, marginBottom: 16,
+  continueBtn: { marginTop: 24 },
+  continueBtnInner: {
+    paddingVertical: 20, borderRadius: 999,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
+    shadowColor: Colors.primary, shadowOpacity: 0.4, shadowRadius: 20, shadowOffset: { width: 0, height: 8 },
   },
-  randomiserRow: {
-    flexDirection: 'row', backgroundColor: Colors.surfaceContainer,
-    borderRadius: 999, padding: 4,
-  },
-  randomiserBtn: { paddingHorizontal: 24, paddingVertical: 12, borderRadius: 999 },
-  randomiserBtnActive: { backgroundColor: Colors.surfaceContainerHighest },
-  randomiserBtnText: {
-    fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 11, letterSpacing: 2, textTransform: 'uppercase',
-  },
-  randomiserBtnTextMuted: {
-    fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 11, letterSpacing: 2, textTransform: 'uppercase', color: Colors.onSurfaceVariant,
+  continueBtnText: {
+    fontFamily: 'PlusJakartaSans_800ExtraBold',
+    fontSize: 15, letterSpacing: 2, color: Colors.onPrimary, textTransform: 'uppercase',
   },
 });
