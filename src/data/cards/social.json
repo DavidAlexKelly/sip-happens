@@ -126,7 +126,7 @@
     "intensity": 2
   },
   {
-    "text": "GAME — Video game consoles. Go around the group, if you repeat or can't think of one, drink {sip}. {player1}, you start.",
+    "text": "GAME — {topic}. Go around the group, if you repeat or can't think of one, drink {sip}. {player1}, you start.",
     "action": "Think fast",
     "icon": "game-controller",
     "intensity": 2
