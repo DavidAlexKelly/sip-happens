@@ -208,5 +208,275 @@
     "action": "Strut!",
     "icon": "body",
     "intensity": 2
+  },
+  {
+    "text": "If you're an only child, take {sip}.",
+    "action": "Drink up",
+    "icon": "person",
+    "intensity": 1
+  },
+  {
+    "text": "Give out {small} if you haven't seen any of the Lord of the Rings movies.",
+    "action": "Drink up",
+    "icon": "film",
+    "intensity": 1
+  },
+  {
+    "text": "Take {sip} if you got your driver's licence on your first try. Take {small} if you ever failed it. Take {medium} if you still don't have one.",
+    "action": "Drink up",
+    "icon": "car",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: spin around 5 times and take {sip} each time you end up face to face with another player.",
+    "action": "Spin!",
+    "icon": "refresh",
+    "intensity": 1
+  },
+  {
+    "text": "Everyone pick a new nickname for {player1} — make it dirty, insulting, whatever. Until the end of the night, everyone must use it.",
+    "action": "Choose wisely",
+    "icon": "chatbubble-ellipses",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: give out one {sip} for every uncle you have.",
+    "action": "Count 'em up",
+    "icon": "people",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: give out as many {sip} as you have siblings.",
+    "action": "Count 'em up",
+    "icon": "people",
+    "intensity": 1
+  },
+  {
+    "text": "If the clock shows an odd number of minutes, everyone takes {medium}. If not, {player1} gives out {large}.",
+    "action": "Check the time",
+    "icon": "timer",
+    "intensity": 2
+  },
+  {
+    "text": "The first person to touch {player1}'s feet gives out {medium}.",
+    "action": "Go for it!",
+    "icon": "flash",
+    "intensity": 1
+  },
+  {
+    "text": "{player1} and {player2}: compare your drinks. The player with the fullest glass takes {sip}.",
+    "action": "Check your glass",
+    "icon": "beer",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: lick the forearm of the player to your left or take {sip}.",
+    "action": "Dare",
+    "icon": "flame",
+    "intensity": 2
+  },
+  {
+    "text": "The last player to shout \"{player1}, lick my balls!\" takes {max}.",
+    "action": "Shout it!",
+    "icon": "mic",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: any player who doesn't follow you on Instagram takes {sip}.",
+    "action": "Check your followers",
+    "icon": "logo-instagram",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: if {player2} killed someone, would you help hide the body? Give out {large} if yes. If not, you take them.",
+    "action": "Be honest",
+    "icon": "eye",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: if you've ever slept in all your clothes because you were too drunk, take {medium}. If not, give them out.",
+    "action": "Be honest",
+    "icon": "beer",
+    "intensity": 2
+  },
+  {
+    "text": "Take {small} if you've ever had a tactical vomit on a night out.",
+    "action": "Drink up",
+    "icon": "warning",
+    "intensity": 2
+  },
+  {
+    "text": "Take {sip} if you've never smoked weed.",
+    "action": "Drink up",
+    "icon": "flame",
+    "intensity": 1
+  },
+  {
+    "text": "GAME — {player1}: tell us the first name and age of each player. Anyone whose name or age you get wrong can give out {small}.",
+    "action": "Think fast",
+    "icon": "people",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: say something you've NEVER done. Anyone who has done it takes {sip}.",
+    "action": "Never have I ever",
+    "icon": "hand-left",
+    "intensity": 2
+  },
+  {
+    "text": "2 penalties for the player who most recently cracked open a beer.",
+    "action": "Drink up",
+    "icon": "beer",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: if you can name 2 reasons {player2} will be allowed into heaven, give out {small}. If not, you take them.",
+    "action": "Make the case",
+    "icon": "trophy",
+    "intensity": 2
+  },
+  {
+    "text": "PUNISHMENT — {player1}: take {max} while everyone insults you for 30 seconds.",
+    "action": "Take it",
+    "icon": "warning",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: do a handstand or take {sip}.",
+    "action": "Dare",
+    "icon": "body",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: take {large} while {player2} blows in {player2}'s face.",
+    "action": "Dare",
+    "icon": "flame",
+    "intensity": 2
+  },
+  {
+    "text": "Harry and {player1}: each choose a stranger to be your Padawan. Whoever's Padawan goes to the restroom first, give out {small}.",
+    "action": "May the Force be with you",
+    "icon": "people",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: give out as many {sip} as there are attractive people in this bar, not including your friends.",
+    "action": "Look around",
+    "icon": "eye",
+    "intensity": 2
+  },
+  {
+    "text": "PICONARY! {player1}: draw something ridiculous. Ask a stranger to guess what it is. If they get it, give out {small}. If not, you take them.",
+    "action": "Draw!",
+    "icon": "color-palette",
+    "intensity": 2
+  },
+  {
+    "text": "Is it happy hour? If so, {player1} takes {sip}. If not, {player2} takes it instead.",
+    "action": "Check the time",
+    "icon": "timer",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: who would you choose to give you a bed bath — {player2} or someone else here? Your chosen nurse can give out {large}.",
+    "action": "Choose wisely",
+    "icon": "medkit",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: put one of your shoes on the table or take {sip}.",
+    "action": "Dare",
+    "icon": "body",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: go barefoot for the rest of the round or take {small}.",
+    "action": "Dare",
+    "icon": "body",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: act like a slug for 5 long seconds or take {small}.",
+    "action": "Perform",
+    "icon": "body",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: put on a coat and go ask a stranger for some ice, or take {large}.",
+    "action": "Dare",
+    "icon": "people",
+    "intensity": 2
+  },
+  {
+    "text": "Out of {player1} and {player2}, whoever has spent the most time single can give out {small}.",
+    "action": "Be honest",
+    "icon": "heart",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: who do you think always gets the drunkest fastest — {player2} or someone else here? They take {max}.",
+    "action": "Call it",
+    "icon": "beer",
+    "intensity": 2
+  },
+  {
+    "text": "{player1} and {player2}: plank off! Hold as long as you can. The loser takes {large}.",
+    "action": "Drop and hold!",
+    "icon": "body",
+    "intensity": 2
+  },
+  {
+    "text": "Guys — take {sip} for each attractive girl in the room.",
+    "action": "Drink up",
+    "icon": "people",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: who do you think would be more skillful helping a horse give birth — {player2} or someone else here? They can give out {small}.",
+    "action": "Call it",
+    "icon": "rose",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: who do you think is more likely to sit on a hen's eggs until they hatch — {player2} or someone else? Mother Hen takes {small}.",
+    "action": "Call it",
+    "icon": "rose",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: who do you think would be more likely to go out to a nightclub alone — {player2} or someone else here? They take {small}.",
+    "action": "Call it",
+    "icon": "people",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: if you know all of {player2}'s names (first, middle, last) — they take {sip}. If not, you take it.",
+    "action": "Test your knowledge",
+    "icon": "person",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: kiss {player2} on the nose or take {small}.",
+    "action": "Dare",
+    "icon": "heart",
+    "intensity": 2
+  },
+  {
+    "text": "The three players voted most stupid take {large}. If you can't reach a majority, {player1} decides.",
+    "action": "Vote!",
+    "icon": "podium",
+    "intensity": 3
+  },
+  {
+    "text": "{player1} and {player2}: if either of you has been baptised, you both take {max}. If not, choose a player to take them.",
+    "action": "Confess",
+    "icon": "globe",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: take {sip} and give {small} to {player2}. They must pinch your nose while you drink.",
+    "action": "Drink up",
+    "icon": "beer",
+    "intensity": 2
   }
 ]

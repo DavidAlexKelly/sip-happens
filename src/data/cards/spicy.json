@@ -1,0 +1,200 @@
+[
+  {
+    "text": "The player who most recently visited a porn site, give out {small}.",
+    "action": "Confess",
+    "icon": "eye",
+    "intensity": 3
+  },
+  {
+    "text": "Take {large} if you've ever sucked someone off to wake them up. Guys — take them if it's ever happened to you.",
+    "action": "Drink up",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: who do you think gives the best head out of everyone here? They can give out {max} — or {player2} picks two people to kiss. Take {max} if either refuses.",
+    "action": "Answer honestly",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "Take {large} if you've ever gotten hurt because your partner was using their teeth.",
+    "action": "Drink up",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "Take {small} if you've ever had sex while watching porn.",
+    "action": "Drink up",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "Take {large} if you've had a threesome. If all three people are in the room right now, take double!",
+    "action": "Drink up",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "GAME — Sex toys. Go around the group naming one each. Repeat or blank = {sip}. {player1}, you start.",
+    "action": "Think fast",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "Players who've already kissed each other at some point — kiss again or take {large}.",
+    "action": "Kiss or drink",
+    "icon": "heart",
+    "intensity": 3
+  },
+  {
+    "text": "GAME — Would you rather kiss the person to your left or your right? Everyone votes at once. Losing group takes {small}.",
+    "action": "Vote!",
+    "icon": "heart",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: choose a player to kiss your chest. Take {large} if either of you refuses.",
+    "action": "Choose wisely",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: choose 2 players to French kiss each other and take {max}. Take {max} if either refuses.",
+    "action": "Make it happen",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "The player who's sucked the smallest dick takes {small}.",
+    "action": "Drink up",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "Take {large} if you've ever used your shower head to get yourself off.",
+    "action": "Drink up",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: who do you think likes anal stimulation the most out of everyone here? They can give out {medium}.",
+    "action": "Call it",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "Take {large} if you've ever sent nudes.",
+    "action": "Drink up",
+    "icon": "phone-portrait",
+    "intensity": 3
+  },
+  {
+    "text": "Take {medium} if you're into dirty talk.",
+    "action": "Drink up",
+    "icon": "mic",
+    "intensity": 3
+  },
+  {
+    "text": "Take {medium} if you've ever watched a stripper.",
+    "action": "Drink up",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: if you've ever slept with someone who was in a relationship, take {small}. If not, give them out.",
+    "action": "Be honest",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: choose a player to lick one of your body parts. Take {small} if either of you refuses.",
+    "action": "Choose wisely",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "Take {large} if you think you could make the player to your right come in under 10 minutes.",
+    "action": "Drink up",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: take one {sip} for every dick you've ever sucked.",
+    "action": "Count carefully",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: if you've ever gotten someone to drink your pee, give out {medium}. If not, you take them.",
+    "action": "Confess",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "GAME — What's your ideal length of time for sex? Everyone answers at the same time. {player1}: give out {large} to anyone who said shorter than you. If yours was the lowest, take {max}.",
+    "action": "Answer up",
+    "icon": "timer",
+    "intensity": 3
+  },
+  {
+    "text": "{player1} and {player2}: each tell us the most unusual place you've had sex. Group votes for the most impressive — winner gives out {max}.",
+    "action": "Story time",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: give {large} to the player {player2} has the best chance of hooking up with tonight.",
+    "action": "Call it",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: if you've ever inserted 3 or more fingers into a vagina, take {small}. If not, give them out.",
+    "action": "Be honest",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: act out a sex position with another player. Take {small} if either of you refuses.",
+    "action": "Perform",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "Girls — remove your top keeping only your bra, or take {small}.",
+    "action": "Dare",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: if you've ever shown your anus to someone, take {small}. If not, give them out.",
+    "action": "Be honest",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "Take {small} if you've ever thought about a friend's sibling while getting yourself off.",
+    "action": "Drink up",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: {player2} puts their face on your butt or takes {large}.",
+    "action": "Dare",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: take {medium} while {player2} caresses your 'intimate areas' for 5 seconds.",
+    "action": "Dare",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: pretend to make {player2} come using only your mouth sounds. Take {max} if you refuse.",
+    "action": "Perform",
+    "icon": "flame",
+    "intensity": 3
+  }
+]

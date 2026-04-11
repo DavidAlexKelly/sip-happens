@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Electric Nocturne",
-    "slug": "electric-nocturne",
+    "slug": "betterlo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -26,7 +26,10 @@
       },
       "package": "com.yourname.electricnocturne",
       "permissions": [
-        "CAMERA"
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "plugins": [
@@ -38,6 +41,18 @@
           "photosPermission": "Used to access photos for your player icon."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "9c1b8c73-7891-4001-bb46-aa2fdccd67aa"
+      }
+    },
+    "owner": "dkellyyyys-organization",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/9c1b8c73-7891-4001-bb46-aa2fdccd67aa"
+    }
   }
 }

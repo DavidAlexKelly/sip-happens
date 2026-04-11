@@ -30,7 +30,7 @@
     "intensity": 3
   },
   {
-    "text": "{player1}: if you had to delete one person from your life — who here would it be? (Drink {sip} before answering.)",
+    "text": "{player1}: if you had to delete one person from your life — who here would it be? Drink {sip} before answering.",
     "action": "Be honest",
     "icon": "eye",
     "intensity": 3
@@ -58,5 +58,53 @@
     "action": "Open it up",
     "icon": "chatbubble",
     "intensity": 3
+  },
+  {
+    "text": "{player1}: ask {player2} any question you want. They must answer honestly or take {max}.",
+    "action": "Answer or drink",
+    "icon": "chatbubble",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: if {player2} killed someone, would you help hide the body? Give out {large} if yes. If not, you take them.",
+    "action": "Be honest",
+    "icon": "eye",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: who do you think always gets the drunkest fastest — {player2} or someone else here? They take {max}.",
+    "action": "Call it",
+    "icon": "beer",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: if you know all of {player2}'s names (first, middle, last) — they take {sip}. If not, you take it.",
+    "action": "Test your knowledge",
+    "icon": "person",
+    "intensity": 1
+  },
+  {
+    "text": "GAME — {player1}: tell us the first name and age of each player. Anyone whose name or age you get wrong can give out {small}.",
+    "action": "Think fast",
+    "icon": "people",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: if you can name 2 reasons {player2} will be allowed into heaven, give out {small}. If not, you take them.",
+    "action": "Make the case",
+    "icon": "trophy",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: who do you think would be more likely to go out to a nightclub alone — {player2} or someone else here? They take {small}.",
+    "action": "Call it",
+    "icon": "people",
+    "intensity": 2
+  },
+  {
+    "text": "Out of {player1} and {player2}, whoever has spent the most time single can give out {small}.",
+    "action": "Be honest",
+    "icon": "heart",
+    "intensity": 2
   }
 ]

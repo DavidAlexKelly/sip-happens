@@ -88,5 +88,47 @@
     "action": "Take it",
     "icon": "flame",
     "intensity": 3
+  },
+  {
+    "text": "PUNISHMENT — {player1}: take {max} while everyone insults you for 30 seconds.",
+    "action": "Take it",
+    "icon": "warning",
+    "intensity": 3
+  },
+  {
+    "text": "The three players voted most stupid take {large}. If you can't reach a majority, {player1} decides.",
+    "action": "Vote!",
+    "icon": "podium",
+    "intensity": 3
+  },
+  {
+    "text": "Everyone pick a new nickname for {player1} — make it dirty, insulting, whatever. Until the end of the night, everyone must use it.",
+    "action": "Choose wisely",
+    "icon": "chatbubble-ellipses",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: who do you think has the face most out of proportion here? They take {small}.",
+    "action": "Call it",
+    "icon": "happy",
+    "intensity": 3
+  },
+  {
+    "text": "PICONARY! {player1}: draw something ridiculous. Ask a stranger to guess what it is. If they get it, give out {small}. If not, you take them.",
+    "action": "Draw!",
+    "icon": "color-palette",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: go barefoot and go ask a stranger for some ice, or take {large}.",
+    "action": "Dare",
+    "icon": "people",
+    "intensity": 3
+  },
+  {
+    "text": "The last player to shout \"{player1}, lick my balls!\" takes {max}.",
+    "action": "Shout it!",
+    "icon": "mic",
+    "intensity": 3
   }
 ]

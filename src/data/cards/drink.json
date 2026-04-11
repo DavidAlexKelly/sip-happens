@@ -94,5 +94,77 @@
     "action": "Share the love",
     "icon": "beer",
     "intensity": 2
+  },
+  {
+    "text": "Take {small} if you've ever had a tactical vomit on a night out.",
+    "action": "Drink up",
+    "icon": "warning",
+    "intensity": 2
+  },
+  {
+    "text": "Take {sip} if you've never smoked weed.",
+    "action": "Drink up",
+    "icon": "flame",
+    "intensity": 1
+  },
+  {
+    "text": "Take {small} if you've ever gone with friends to get tested for STDs.",
+    "action": "Drink up",
+    "icon": "medkit",
+    "intensity": 2
+  },
+  {
+    "text": "The player who most recently cracked open a beer gives out {small}.",
+    "action": "Drink up",
+    "icon": "beer",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: give out one {sip} for every uncle you have.",
+    "action": "Count 'em up",
+    "icon": "people",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: give out as many {sip} as you have siblings.",
+    "action": "Count 'em up",
+    "icon": "people",
+    "intensity": 1
+  },
+  {
+    "text": "If the clock shows an odd number of minutes, everyone takes {medium}. If not, {player1} gives out {large}.",
+    "action": "Check the time",
+    "icon": "timer",
+    "intensity": 2
+  },
+  {
+    "text": "{player1} and {player2}: compare your drinks. The player with the fullest glass takes {sip}.",
+    "action": "Check your glass",
+    "icon": "beer",
+    "intensity": 1
+  },
+  {
+    "text": "Is it happy hour? If so, {player1} takes {sip}. If not, {player2} takes it instead.",
+    "action": "Check the time",
+    "icon": "timer",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: any player who doesn't follow you on Instagram takes {sip}.",
+    "action": "Check your followers",
+    "icon": "logo-instagram",
+    "intensity": 1
+  },
+  {
+    "text": "Give out {small} if you haven't seen any of the Lord of the Rings movies.",
+    "action": "Drink up",
+    "icon": "film",
+    "intensity": 1
+  },
+  {
+    "text": "Take {sip} if you got your driver's licence on your first try. Take {small} if you ever failed it. Take {medium} if you still don't have one.",
+    "action": "Drink up",
+    "icon": "car",
+    "intensity": 1
   }
 ]
