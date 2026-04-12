@@ -50,9 +50,9 @@ interface RawRulePair {
   end: RawCard;
 }
 
-// ─────────────────────────────────────────────
+// ────────────────────────────────────────────
 // PENALTY SYSTEM
-// ─────────────────────────────────────────────
+// ────────────────────────────────────────────
 
 export interface PenaltyContext {
   currentRound?: number;
@@ -128,7 +128,7 @@ export const MODES: GameMode[] = [
     label: 'MIX IT ALL',
     icon: 'shuffle',
     color: '#f0edf1',
-    desc: 'A curated shuffle of every mode. The ultimate Electric Nocturne experience.',
+    desc: 'A curated shuffle of every mode. The ultimate Betterlo experience.',
     intensity: 'Varies',
     time: '30-60 MIN',
   },

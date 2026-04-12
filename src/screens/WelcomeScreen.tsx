@@ -45,7 +45,7 @@ export default function WelcomeScreen({ navigation }: Props) {
           start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
           style={styles.titleGradient}
         >
-          <Text style={styles.headerTitle}>ELECTRIC NOCTURNE</Text>
+          <Text style={styles.headerTitle}>BETTERLO</Text>
         </LinearGradient>
         <Ionicons name="person-circle-outline" size={24} color={Colors.onSurface} style={{ opacity: 0.7 }} />
       </View>
@@ -54,13 +54,13 @@ export default function WelcomeScreen({ navigation }: Props) {
         {/* Hero */}
         <Animated.View style={[styles.hero, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
           <Text style={styles.eyebrow}>Experience the Pulse</Text>
-          <Text style={styles.heroLine1}>ELECTRIC</Text>
+          <Text style={styles.heroLine1}></Text>
           <LinearGradient
             colors={[Colors.primary, Colors.primaryContainer, Colors.secondary]}
             start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
             style={styles.gradientTextWrapper}
           >
-            <Text style={styles.heroLine2}>NOCTURNE</Text>
+            <Text style={styles.heroLine2}>BETTERLO</Text>
           </LinearGradient>
           <View style={styles.divider} />
         </Animated.View>
@@ -148,7 +148,7 @@ export function BottomNav({
               colors={[Colors.primary, Colors.primaryContainer]}
               style={styles.navItemActive}
             >
-              <Ionicons name={tab.icon as any} size={22} color={Colors.onPrimary} style={{ fontVariationSettings: "'FILL' 1" }} />
+              <Ionicons name={tab.icon as any} size={22} color={Colors.onPrimary} />
               <Text style={[styles.navLabel, { color: Colors.onPrimary }]}>{tab.label}</Text>
             </LinearGradient>
           );
