@@ -38,8 +38,8 @@ const RULE_DRAW_CHANCE = 0.15;
 export default function GameScreen({ navigation }: Props) {
   const { state, nextRound, skipRound } = useGame();
 
-  // Dynamic round count based on player count, minimum 20
-  const TOTAL_ROUNDS = Math.max(20, state.players.length * 6);
+  // 20 rounds for 2 players, +6 per additional player
+  const TOTAL_ROUNDS = 20 + (state.players.length - 2) * 6;
 
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [displayText, setDisplayText] = useState('');
@@ -85,14 +85,16 @@ export default function GameScreen({ navigation }: Props) {
       return;
     }
 
-    // 2. Maybe draw a rule-start card (only if no rule is active)
-    if (!activeRuleId.current && Math.random() < RULE_DRAW_CHANCE) {
+    // 2. Maybe draw a rule-start card (only if no rule is active and
+    //    enough rounds remain for the rule end card to fire before the game ends)
+    const endDelay = 4 + Math.floor(Math.random() * 3); // 4, 5, or 6
+    const roundsRemaining = TOTAL_ROUNDS - round;
+    if (!activeRuleId.current && roundsRemaining > endDelay && Math.random() < RULE_DRAW_CHANCE) {
       const available = ALL_RULE_STARTS.filter(r => !usedRuleIds.has(r.ruleId!));
       if (available.length > 0) {
         const picked = available[Math.floor(Math.random() * available.length)];
         activeRuleId.current = picked.ruleId!;
         setUsedRuleIds(prev => new Set([...prev, picked.ruleId!]));
-        const endDelay = 4 + Math.floor(Math.random() * 3);
         const endCard = ALL_RULE_ENDS[picked.ruleId!];
         if (endCard) {
           pendingEndCard.current = { card: endCard, fireOnRound: round + endDelay };
