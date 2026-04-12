@@ -257,7 +257,7 @@
   {
     "ruleId": "oneatatime",
     "start": {
-      "text": "🔇 RULE — ONE AT A TIME! If you speak at the same time as another player, drink {sip}. Talk over each other and it's {small}.",
+      "text": "🔇 RULE — ONE AT A TIME! No talking over each other. If two people speak at once, both drink {sip}. If you keep interrupting after that, it's {small}.",
       "action": "Rule begins!",
       "icon": "volume-mute",
       "intensity": 1
@@ -317,7 +317,7 @@
   {
     "ruleId": "itchy",
     "start": {
-      "text": "🤲 RULE — ITCHY! You may not touch any part of your own body with your hands until this rule ends. Caught scratching = {sip}.",
+      "text": "🤲 RULE — ITCHY! You may not touch any part of your own body with your hands until this rule ends — except to drink. Caught scratching = {sip}.",
       "action": "Rule begins!",
       "icon": "hand-left",
       "intensity": 1

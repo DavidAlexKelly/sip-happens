@@ -6,7 +6,7 @@
     "intensity": 3
   },
   {
-    "text": "Most controversial opinion wins. Group votes — worst take drinks {small}.",
+    "text": "Most controversial opinion round. Group votes — tamest take drinks {small}.",
     "action": "Hot take!",
     "icon": "flame",
     "intensity": 3
@@ -36,7 +36,7 @@
     "intensity": 3
   },
   {
-    "text": "{player1}: what is the shadiest thing you have ever done? No lying. Drink {sip} first for courage.",
+    "text": "{player1}: what's the shadiest thing you've ever done? No lying. Drink {sip} first for courage.",
     "action": "Confess",
     "icon": "flame",
     "intensity": 3
@@ -72,7 +72,7 @@
     "intensity": 3
   },
   {
-    "text": "Take as many sips as there are people in this room you'd consider sleeping with.",
+    "text": "Take a sip for every person in this room you'd consider sleeping with.",
     "action": "Count carefully",
     "icon": "flame",
     "intensity": 3
@@ -108,12 +108,6 @@
     "intensity": 2
   },
   {
-    "text": "{player1}: who do you think has the face most out of proportion here? They take {small}.",
-    "action": "Call it",
-    "icon": "happy",
-    "intensity": 3
-  },
-  {
     "text": "PICONARY! {player1}: draw something ridiculous. Ask a stranger to guess what it is. If they get it, give out {small}. If not, you take them.",
     "action": "Draw!",
     "icon": "color-palette",
@@ -126,7 +120,7 @@
     "intensity": 3
   },
   {
-    "text": "The last player to shout \"{player1}, lick my balls!\" takes {max}.",
+    "text": "Last person to shout \"{player1}, lick my balls!\" takes {max}.",
     "action": "Shout it!",
     "icon": "mic",
     "intensity": 3
@@ -239,12 +233,52 @@
     "icon": "beer",
     "intensity": 2
   },
-  {"text": "{player1}: rank the group from most to least likely to survive a zombie apocalypse. Last place drinks {large}.", "action": "Rank 'em", "icon": "podium", "intensity": 3},
-  {"text": "Most unhinged group confession round. Wildest story pours a round for everyone.", "action": "Chaos stories", "icon": "flame", "intensity": 3},
-  {"text": "{player1}: what’s the pettiest thing you’ve ever done for revenge? Tell us or drink {max}.", "action": "Confess", "icon": "flame", "intensity": 3},
-  {"text": "Group vote: who here is most likely to go viral for the wrong reasons? They drink {large}.", "action": "Vote", "icon": "trophy", "intensity": 3},
-  {"text": "{player1}: describe your most embarrassing wardrobe malfunction in detail or drink {max}.", "action": "Risk it", "icon": "shirt", "intensity": 3},
-  {"text": "{player1}: rank the group from most to least chaotic when drunk. Last place drinks {large}.", "action": "Rank 'em", "icon": "podium", "intensity": 3},
-  {"text": "{player1}: what’s the most ridiculous lie you’ve told to get out of something? Tell or drink {max}.", "action": "Confess", "icon": "flame", "intensity": 3},
-  {"text": "Group vote: who here is most likely to start a dance circle? They give out {medium}.", "action": "Vote", "icon": "trophy", "intensity": 3}
+  {
+    "text": "{player1}: rank the group from most to least likely to survive a zombie apocalypse. Last place drinks {large}.",
+    "action": "Rank 'em",
+    "icon": "podium",
+    "intensity": 3
+  },
+  {
+    "text": "Most unhinged group confession round. Wildest story pours a round for everyone.",
+    "action": "Chaos stories",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: what's the pettiest thing you've ever done for revenge? Tell us or drink {max}.",
+    "action": "Confess",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "Group vote: who here is most likely to go viral for the wrong reasons? They drink {large}.",
+    "action": "Vote",
+    "icon": "trophy",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: describe your most embarrassing wardrobe malfunction in detail or drink {max}.",
+    "action": "Risk it",
+    "icon": "shirt",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: rank the group from most to least chaotic when drunk. Last place drinks {large}.",
+    "action": "Rank 'em",
+    "icon": "podium",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: what's the most ridiculous lie you've told to get out of something? Tell or drink {max}.",
+    "action": "Confess",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "Group vote: who here is most likely to start a dance circle? They give out {medium}.",
+    "action": "Vote",
+    "icon": "trophy",
+    "intensity": 3
+  }
 ]

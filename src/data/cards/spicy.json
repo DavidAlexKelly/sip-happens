@@ -48,13 +48,13 @@
     "intensity": 3
   },
   {
-    "text": "GAME — Would you rather kiss the person to your left or your right? Everyone votes at once. Losing group takes {small}.",
+    "text": "GAME — Would you rather kiss the person to your left or your right? Everyone votes at once. Minority vote takes {small}.",
     "action": "Vote!",
     "icon": "heart",
     "intensity": 3
   },
   {
-    "text": "{player1}: choose a player to kiss your chest. Take {large} if either of you refuses.",
+    "text": "{player1}: choose a player to kiss your chest. Take {large} if you or they refuse.",
     "action": "Choose wisely",
     "icon": "flame",
     "intensity": 3
@@ -102,19 +102,19 @@
     "intensity": 3
   },
   {
-    "text": "{player1}: choose a player to lick one of your body parts. Take {small} if either of you refuses.",
+    "text": "{player1}: choose a player to lick one of your body parts. Take {small} if you or they refuse.",
     "action": "Choose wisely",
     "icon": "flame",
     "intensity": 3
   },
   {
-    "text": "Take {large} if you think you could make the player to your right come in under 10 minutes.",
+    "text": "Take {large} if you think you could make the player to your right finish in under 10 minutes.",
     "action": "Drink up",
     "icon": "flame",
     "intensity": 3
   },
   {
-    "text": "{player1}: take one {sip} for every person you've ever slept with.",
+    "text": "{player1}: take {sip} for every person you've ever slept with.",
     "action": "Count carefully",
     "icon": "flame",
     "intensity": 3
@@ -138,7 +138,7 @@
     "intensity": 3
   },
   {
-    "text": "{player1}: act out a sex position with another player. Take {small} if either of you refuses.",
+    "text": "{player1}: act out a sex position with another player. Take {small} if you or they refuse.",
     "action": "Perform",
     "icon": "flame",
     "intensity": 3
@@ -186,7 +186,7 @@
     "intensity": 3
   },
   {
-    "text": "If you've ever had a one night stand that turned into a relationship — {take_or_give_sip}.",
+    "text": "If you've ever had a one night stand that turned into a relationship — {take_or_give_small}.",
     "action": "Confess",
     "icon": "heart",
     "intensity": 3
@@ -204,7 +204,7 @@
     "intensity": 3
   },
   {
-    "text": "If you've ever had sex completely sober — {take_or_give_sip}.",
+    "text": "If you've ever had sex completely sober — {take_or_give_small}.",
     "action": "Rare species",
     "icon": "beer",
     "intensity": 3
@@ -215,10 +215,40 @@
     "icon": "flame",
     "intensity": 3
   },
-  {"text": "If you've ever had sex somewhere you could have been caught — {take_or_give_large}.", "action": "Drink up", "icon": "flame", "intensity": 3},
-  {"text": "{player1}: who do you think gives the best head out of everyone here? They can give out {max}.", "action": "Answer honestly", "icon": "flame", "intensity": 3},
-  {"text": "If you've ever been walked in on during sex — {take_or_give_medium}.", "action": "Confess", "icon": "eye", "intensity": 3},
-  {"text": "{player1}: choose someone to sit on your lap for the next 3 rounds or both drink {large}.", "action": "Choose wisely", "icon": "heart", "intensity": 3},
-  {"text": "{player1} and {player2}: describe your ideal one-night stand in detail. Group votes who was hornier — loser drinks {max}.", "action": "Story time", "icon": "flame", "intensity": 3},
-  {"text": "{player1}: act out your favourite sex position with another player (no contact). Refuse = {small}.", "action": "Perform", "icon": "flame", "intensity": 3}
+  {
+    "text": "If you've ever had sex somewhere you could have been caught — {take_or_give_large}.",
+    "action": "Drink up",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: who do you think gives the best head out of everyone here? They can give out {max}.",
+    "action": "Answer honestly",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "If you've ever been walked in on during sex — {take_or_give_medium}.",
+    "action": "Confess",
+    "icon": "eye",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: choose someone to sit on your lap for the next 3 rounds or both drink {large}.",
+    "action": "Choose wisely",
+    "icon": "heart",
+    "intensity": 3
+  },
+  {
+    "text": "{player1} and {player2}: describe your ideal one-night stand in detail. Group votes who was hornier — loser drinks {max}.",
+    "action": "Story time",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: act out your favourite sex position with another player (no contact). Refuse = {small}.",
+    "action": "Perform",
+    "icon": "flame",
+    "intensity": 3
+  }
 ]

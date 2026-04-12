@@ -72,13 +72,13 @@
     "intensity": 2
   },
   {
-    "text": "Stand up! The last player to stand up has to drink {sip}.",
+    "text": "Stand up! Last one to their feet drinks {sip}.",
     "action": "Move it!",
     "icon": "body",
     "intensity": 1
   },
   {
-    "text": "Lava monster! The last person with their feet still on the ground takes {large}.",
+    "text": "LAVA MONSTER! Everyone get off the ground — last person with feet on the floor takes {large}.",
     "action": "Get off the floor!",
     "icon": "warning",
     "intensity": 2
@@ -120,7 +120,7 @@
     "intensity": 2
   },
   {
-    "text": "GAME — {topic}. Go around the group, if you repeat or can't think of one, drink {sip}. {player1}, you start.",
+    "text": "GAME — {topic}. Go around naming one each. Repeat or blank = drink {sip}. {player1}, you start.",
     "action": "Think fast",
     "icon": "game-controller",
     "intensity": 2
@@ -264,7 +264,7 @@
     "intensity": 2
   },
   {
-    "text": "The last player to shout \"{player1}, lick my balls!\" takes {max}.",
+    "text": "Last person to shout \"{player1}, lick my balls!\" takes {max}.",
     "action": "Shout it!",
     "icon": "mic",
     "intensity": 2
@@ -312,7 +312,7 @@
     "intensity": 2
   },
   {
-    "text": "2 penalties for the player who most recently cracked open a beer.",
+    "text": "The player who most recently cracked open a beer gives out {small}.",
     "action": "Drink up",
     "icon": "beer",
     "intensity": 1
@@ -456,7 +456,7 @@
     "intensity": 2
   },
   {
-    "text": "If you have pierced ears — {take_or_give_sip}.",
+    "text": "If you have pierced ears — {take_or_give_small}.",
     "action": "Ears check",
     "icon": "body",
     "intensity": 1
@@ -474,7 +474,7 @@
     "intensity": 1
   },
   {
-    "text": "If you wear glasses — {take_or_give_sip}.",
+    "text": "If you wear glasses — {take_or_give_small}.",
     "action": "Specs check",
     "icon": "eye",
     "intensity": 1
@@ -486,7 +486,7 @@
     "intensity": 1
   },
   {
-    "text": "People with iPhones — {take_or_give_sip}.",
+    "text": "People with iPhones — {take_or_give_small}.",
     "action": "Apple tax",
     "icon": "phone-portrait",
     "intensity": 1
@@ -510,13 +510,13 @@
     "intensity": 1
   },
   {
-    "text": "If your legs aren't shaved right now — {take_or_give_sip}.",
+    "text": "If your legs aren't shaved right now — {take_or_give_small}.",
     "action": "Smooth check",
     "icon": "body",
     "intensity": 1
   },
   {
-    "text": "If you've ever donated blood — {take_or_give_sip}.",
+    "text": "If you've ever donated blood — {take_or_give_small}.",
     "action": "Good deed",
     "icon": "medkit",
     "intensity": 1
@@ -594,7 +594,7 @@
     "intensity": 2
   },
   {
-    "text": "If you've ever gone to dance classes — {take_or_give_sip}.",
+    "text": "If you've ever gone to dance classes — {take_or_give_small}.",
     "action": "Dancer check",
     "icon": "musical-notes",
     "intensity": 1
@@ -630,13 +630,13 @@
     "intensity": 3
   },
   {
-    "text": "Anyone who has lived in 3 or more towns or cities — {take_or_give_sip}.",
+    "text": "Anyone who has lived in 3 or more towns or cities — {take_or_give_small}.",
     "action": "Nomad check",
     "icon": "airplane",
     "intensity": 1
   },
   {
-    "text": "If you've ever squished a bug on purpose — {take_or_give_sip}.",
+    "text": "If you've ever squished a bug on purpose — {take_or_give_small}.",
     "action": "Bug killer check",
     "icon": "warning",
     "intensity": 1
@@ -678,9 +678,9 @@
     "intensity": 2
   },
   {
-    "text": "{player1}: spin around 5 times and take {small}. Then give out {sip} to whoever you end up face-to-face with.",
+    "text": "{player1}: spin around 5 times and take {small}. Then give out {sip} to whoever you end up facing.",
     "action": "Spin!",
-    "icon": "refresh",
+    "icon": "timer",
     "intensity": 1
   },
   {
@@ -702,21 +702,81 @@
     "intensity": 2
   },
   {
-    "text": "If you're a {topic} — {take_or_give_sip}.",
+    "text": "If you're a {topic} — {take_or_give_small}.",
     "action": "Star sign check",
     "icon": "planet",
     "intensity": 1
   },
-  {"text": "Everyone who has a pet drinks {sip}!", "action": "Drink up", "icon": "beer", "intensity": 1},
-  {"text": "{player1}: assign everyone in the group a superpower. The person with the lamest one drinks {small}.", "action": "Power assign", "icon": "flash", "intensity": 2},
-  {"text": "Everyone who has ever cried at a film drinks {sip}.", "action": "Drink up", "icon": "beer", "intensity": 1},
-  {"text": "GAME — {topic}. Go around the circle. First person who repeats or hesitates drinks {small}. {player1} starts.", "action": "Think fast", "icon": "game-controller", "intensity": 2},
-  {"text": "Point at the person most likely to survive a zombie apocalypse. That person drinks {small}.", "action": "Drink up", "icon": "warning", "intensity": 2},
-  {"text": "{player1} and {player2}: do your best impressions of each other for 15 seconds. Group votes the worst — loser drinks {medium}.", "action": "Impression battle", "icon": "happy", "intensity": 2},
-  {"text": "The player with the messiest hair right now gives out {small}.", "action": "Hair check", "icon": "happy", "intensity": 1},
-  {"text": "Most likely to survive a zombie apocalypse — point on 3! That person gives out {small}.", "action": "Vote!", "icon": "warning", "intensity": 2},
-  {"text": "{player1}: give everyone a new ridiculous nickname they must use until this card is drawn again.", "action": "Nickname time", "icon": "chatbubble-ellipses", "intensity": 2},
-  {"text": "Everyone who has ever been to a music festival drinks {sip}.", "action": "Drink up", "icon": "musical-notes", "intensity": 1},
-  {"text": "Point at the person most likely to cry during a film. They drink {small}.", "action": "Vote!", "icon": "beer", "intensity": 2},
-  {"text": "{player1} and {player2}: do your best impressions of the person to your right. Group votes worst — loser drinks {medium}.", "action": "Impression battle", "icon": "happy", "intensity": 2}
+  {
+    "text": "Everyone who has a pet drinks {sip}!",
+    "action": "Drink up",
+    "icon": "beer",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: assign everyone in the group a superpower. The person with the lamest one drinks {small}.",
+    "action": "Power assign",
+    "icon": "flash",
+    "intensity": 2
+  },
+  {
+    "text": "Everyone who has ever cried at a film drinks {sip}.",
+    "action": "Drink up",
+    "icon": "beer",
+    "intensity": 1
+  },
+  {
+    "text": "GAME — {topic}. Go around the circle. First person who repeats or hesitates drinks {small}. {player1} starts.",
+    "action": "Think fast",
+    "icon": "game-controller",
+    "intensity": 2
+  },
+  {
+    "text": "Point at the person most likely to survive a zombie apocalypse. That person drinks {small}.",
+    "action": "Drink up",
+    "icon": "warning",
+    "intensity": 2
+  },
+  {
+    "text": "{player1} and {player2}: do your best impressions of each other for 15 seconds. Group votes the worst — loser drinks {medium}.",
+    "action": "Impression battle",
+    "icon": "happy",
+    "intensity": 2
+  },
+  {
+    "text": "The player with the messiest hair right now gives out {small}.",
+    "action": "Hair check",
+    "icon": "happy",
+    "intensity": 1
+  },
+  {
+    "text": "Most likely to survive a zombie apocalypse — point on 3! That person gives out {small}.",
+    "action": "Vote!",
+    "icon": "warning",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: give everyone a new ridiculous nickname they must use until this card is drawn again.",
+    "action": "Nickname time",
+    "icon": "chatbubble-ellipses",
+    "intensity": 2
+  },
+  {
+    "text": "Everyone who has ever been to a music festival drinks {sip}.",
+    "action": "Drink up",
+    "icon": "musical-notes",
+    "intensity": 1
+  },
+  {
+    "text": "Point at the person most likely to cry during a film. They drink {small}.",
+    "action": "Vote!",
+    "icon": "beer",
+    "intensity": 2
+  },
+  {
+    "text": "{player1} and {player2}: do your best impressions of the person to your right. Group votes worst — loser drinks {medium}.",
+    "action": "Impression battle",
+    "icon": "happy",
+    "intensity": 2
+  }
 ]

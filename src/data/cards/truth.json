@@ -12,7 +12,7 @@
     "intensity": 3
   },
   {
-    "text": "Round the circle: everyone says their most embarrassing childhood memory. The group votes on the best one — winner dishes out {medium}.",
+    "text": "Round the circle: everyone shares their most embarrassing childhood memory. The group votes on the most embarrassing one — winner dishes out {medium}.",
     "action": "Cringe time",
     "icon": "chatbubble",
     "intensity": 2
@@ -36,7 +36,7 @@
     "intensity": 3
   },
   {
-    "text": "{player1}: read out the last voice note you sent. Refuse and drink {max}.",
+    "text": "{player1}: play the group your last voice note or drink {max}.",
     "action": "Play it",
     "icon": "mic",
     "intensity": 3
@@ -48,7 +48,7 @@
     "intensity": 2
   },
   {
-    "text": "Everyone who has told a lie this week — take {sip}. Liars who deny it take {medium}.",
+    "text": "Everyone take {sip} — if you claim you haven't lied this week, take {medium} instead.",
     "action": "Honesty hour",
     "icon": "eye",
     "intensity": 2
@@ -107,15 +107,70 @@
     "icon": "heart",
     "intensity": 2
   },
-  {"text": "{player1}: what's the most illegal thing you've ever done? Tell us or drink {medium}.", "action": "Confess", "icon": "eye", "intensity": 3},
-  {"text": "{player1}: who in this room would you least want to see you naked? Drink {sip} before answering.", "action": "Be honest", "icon": "eye", "intensity": 2},
-  {"text": "Round the circle: most awkward childhood memory. Group votes the best one — winner gives out {medium}.", "action": "Cringe time", "icon": "chatbubble", "intensity": 2},
-  {"text": "{player1}: what's one thing you've done that would make your mum disown you?", "action": "Spill it", "icon": "eye", "intensity": 3},
-  {"text": "{player1}: what's the weirdest dream you've had in the last month?", "action": "Dream time", "icon": "moon", "intensity": 2},
-  {"text": "{player1}: what’s the pettiest thing you’ve ever done for revenge? Tell us or drink {medium}.", "action": "Confess", "icon": "eye", "intensity": 3},
-  {"text": "{player1}: who in this room would you least want as your roommate and why? Drink {sip} first.", "action": "Be honest", "icon": "eye", "intensity": 2},
-  {"text": "Round the circle: most awkward first date story. Group votes best — winner gives out {medium}.", "action": "Cringe time", "icon": "chatbubble", "intensity": 2},
-  {"text": "{player1}: what’s one thing you’ve done that would get you cancelled if everyone knew?", "action": "Spill it", "icon": "eye", "intensity": 3},
-  {"text": "{player1}: what’s the weirdest dream you’ve had about someone in this room?", "action": "Dream time", "icon": "moon", "intensity": 3},
-  {"text": "Everyone: most embarrassing childhood memory. Group votes the winner — they give out {medium}.", "action": "Cringe time", "icon": "chatbubble", "intensity": 2}
+  {
+    "text": "{player1}: what's the most illegal thing you've ever done? Tell us or drink {medium}.",
+    "action": "Confess",
+    "icon": "eye",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: who in this room would you least want to see you naked? Drink {sip} before answering.",
+    "action": "Be honest",
+    "icon": "eye",
+    "intensity": 2
+  },
+  {
+    "text": "Round the circle: most awkward childhood memory. Group votes the most cringe-worthy — winner gives out {medium}.",
+    "action": "Cringe time",
+    "icon": "chatbubble",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: what's one thing you've done that would make your mum disown you?",
+    "action": "Spill it",
+    "icon": "eye",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: what's the weirdest dream you've had in the last month?",
+    "action": "Dream time",
+    "icon": "moon",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: what's the pettiest thing you've ever done for revenge? Tell us or drink {medium}.",
+    "action": "Confess",
+    "icon": "eye",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: who in this room would you least want as your roommate and why? Drink {sip} first.",
+    "action": "Be honest",
+    "icon": "eye",
+    "intensity": 2
+  },
+  {
+    "text": "Round the circle: most awkward first date story. Group votes the best one — winner gives out {medium}.",
+    "action": "Cringe time",
+    "icon": "chatbubble",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: what's one thing you've done that would get you cancelled if everyone knew?",
+    "action": "Spill it",
+    "icon": "eye",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: what's the weirdest dream you've had about someone in this room?",
+    "action": "Dream time",
+    "icon": "moon",
+    "intensity": 3
+  },
+  {
+    "text": "Everyone: share your most embarrassing childhood memory. Group votes the winner — they give out {medium}.",
+    "action": "Cringe time",
+    "icon": "chatbubble",
+    "intensity": 2
+  }
 ]

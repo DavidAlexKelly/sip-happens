@@ -66,19 +66,19 @@
     "intensity": 2
   },
   {
-    "text": "If you've ever changed your hair colour — {take_or_give_sip}.",
+    "text": "If you've ever changed your hair colour — {take_or_give_small}.",
     "action": "Hair check",
     "icon": "color-palette",
     "intensity": 1
   },
   {
-    "text": "GAME — {topic}. If you repeat or can't think of one, drink {sip}. {player1}, you start.",
+    "text": "GAME — {topic}. Go around naming one each. Repeat or blank = drink {sip}. {player1}, you start.",
     "action": "Think fast",
     "icon": "medkit",
     "intensity": 2
   },
   {
-    "text": "Anyone with a pack of cigarettes — drink {sip} per cigarette (8 max).",
+    "text": "Anyone with cigarettes on them — drink {sip} per cigarette, up to 8.",
     "action": "That's on you",
     "icon": "flame",
     "intensity": 2
@@ -156,27 +156,9 @@
     "intensity": 1
   },
   {
-    "text": "Give out {small} if you haven't seen any of the Lord of the Rings movies.",
-    "action": "Drink up",
-    "icon": "film",
-    "intensity": 1
-  },
-  {
     "text": "Take {sip} if you got your driver's licence on your first try. Take {small} if you ever failed it. Take {medium} if you still don't have one.",
     "action": "Drink up",
     "icon": "car",
-    "intensity": 1
-  },
-  {
-    "text": "If you have a tattoo — {take_or_give_small}.",
-    "action": "Ink check",
-    "icon": "body",
-    "intensity": 1
-  },
-  {
-    "text": "If you've ever donated blood — {take_or_give_sip}.",
-    "action": "Good deed",
-    "icon": "medkit",
     "intensity": 1
   },
   {
@@ -204,7 +186,7 @@
     "intensity": 2
   },
   {
-    "text": "If you arrived late today — {take_or_give_sip}.",
+    "text": "If you arrived late today — {take_or_give_small}.",
     "action": "Latecomer tax",
     "icon": "timer",
     "intensity": 1
@@ -228,13 +210,13 @@
     "intensity": 1
   },
   {
-    "text": "If you've ever squished a bug on purpose — {take_or_give_sip}.",
+    "text": "If you've ever squished a bug on purpose — {take_or_give_small}.",
     "action": "Bug killer",
     "icon": "warning",
     "intensity": 1
   },
   {
-    "text": "Anyone who has lived in 3 or more towns or cities — {take_or_give_sip}.",
+    "text": "Anyone who has lived in 3 or more towns or cities — {take_or_give_small}.",
     "action": "Nomad check",
     "icon": "airplane",
     "intensity": 1
@@ -246,13 +228,13 @@
     "intensity": 2
   },
   {
-    "text": "People with iPhones — {take_or_give_sip}.",
+    "text": "People with iPhones — {take_or_give_small}.",
     "action": "Apple tax",
     "icon": "phone-portrait",
     "intensity": 1
   },
   {
-    "text": "If your legs aren't shaved right now — {take_or_give_sip}.",
+    "text": "If your legs aren't shaved right now — {take_or_give_small}.",
     "action": "Smooth check",
     "icon": "body",
     "intensity": 1
@@ -263,13 +245,58 @@
     "icon": "flame",
     "intensity": 2
   },
-  {"text": "Drink {sip} if you're wearing mismatched socks right now.", "action": "Drink up", "icon": "shirt", "intensity": 1},
-  {"text": "{player1} gives out {small} to everyone wearing the same colour as you right now.", "action": "Colour match", "icon": "shirt", "intensity": 1},
-  {"text": "Drink {sip} if you've ever been to a music festival.", "action": "Drink up", "icon": "musical-notes", "intensity": 1},
-  {"text": "{player1}: take {sip} then give out {large} however you want.", "action": "Power move", "icon": "beer", "intensity": 2},
-  {"text": "Drink {small} if you've ever pretended to be sober when you weren't.", "action": "Drink up", "icon": "warning", "intensity": 2},
-  {"text": "Drink {sip} if you’ve ever pretended to know a song lyric when you didn’t.", "action": "Drink up", "icon": "musical-notes", "intensity": 1},
-  {"text": "Drink {sip} if you’ve ever been kicked out of a bar or club.", "action": "Drink up", "icon": "warning", "intensity": 2},
-  {"text": "Everyone who has ever cried in public drinks {sip}.", "action": "Drink up", "icon": "beer", "intensity": 1},
-  {"text": "The player who arrived latest today gives out {small}.", "action": "Latecomer tax", "icon": "timer", "intensity": 1}
+  {
+    "text": "Drink {sip} if you're wearing mismatched socks right now.",
+    "action": "Drink up",
+    "icon": "shirt",
+    "intensity": 1
+  },
+  {
+    "text": "{player1} gives out {small} to everyone wearing the same colour as you right now.",
+    "action": "Colour match",
+    "icon": "shirt",
+    "intensity": 1
+  },
+  {
+    "text": "Drink {sip} if you've ever been to a music festival.",
+    "action": "Drink up",
+    "icon": "musical-notes",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: take {sip} then give out {large} however you want.",
+    "action": "Power move",
+    "icon": "beer",
+    "intensity": 2
+  },
+  {
+    "text": "Drink {small} if you've ever pretended to be sober when you weren't.",
+    "action": "Drink up",
+    "icon": "warning",
+    "intensity": 2
+  },
+  {
+    "text": "Drink {sip} if you've ever pretended to know a song lyric when you didn't.",
+    "action": "Drink up",
+    "icon": "musical-notes",
+    "intensity": 1
+  },
+  {
+    "text": "Drink {sip} if you've ever been kicked out of a bar or club.",
+    "action": "Drink up",
+    "icon": "warning",
+    "intensity": 2
+  },
+  {
+    "text": "Everyone who has ever cried in public drinks {sip}.",
+    "action": "Drink up",
+    "icon": "beer",
+    "intensity": 1
+  },
+  {
+    "text": "The player who arrived latest today gives out {small}.",
+    "action": "Latecomer tax",
+    "icon": "timer",
+    "intensity": 1
+  }
 ]
