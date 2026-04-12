@@ -706,5 +706,17 @@
     "action": "Star sign check",
     "icon": "planet",
     "intensity": 1
-  }
+  },
+  {"text": "Everyone who has a pet drinks {sip}!", "action": "Drink up", "icon": "beer", "intensity": 1},
+  {"text": "{player1}: assign everyone in the group a superpower. The person with the lamest one drinks {small}.", "action": "Power assign", "icon": "flash", "intensity": 2},
+  {"text": "Everyone who has ever cried at a film drinks {sip}.", "action": "Drink up", "icon": "beer", "intensity": 1},
+  {"text": "GAME — {topic}. Go around the circle. First person who repeats or hesitates drinks {small}. {player1} starts.", "action": "Think fast", "icon": "game-controller", "intensity": 2},
+  {"text": "Point at the person most likely to survive a zombie apocalypse. That person drinks {small}.", "action": "Drink up", "icon": "warning", "intensity": 2},
+  {"text": "{player1} and {player2}: do your best impressions of each other for 15 seconds. Group votes the worst — loser drinks {medium}.", "action": "Impression battle", "icon": "happy", "intensity": 2},
+  {"text": "The player with the messiest hair right now gives out {small}.", "action": "Hair check", "icon": "happy", "intensity": 1},
+  {"text": "Most likely to survive a zombie apocalypse — point on 3! That person gives out {small}.", "action": "Vote!", "icon": "warning", "intensity": 2},
+  {"text": "{player1}: give everyone a new ridiculous nickname they must use until this card is drawn again.", "action": "Nickname time", "icon": "chatbubble-ellipses", "intensity": 2},
+  {"text": "Everyone who has ever been to a music festival drinks {sip}.", "action": "Drink up", "icon": "musical-notes", "intensity": 1},
+  {"text": "Point at the person most likely to cry during a film. They drink {small}.", "action": "Vote!", "icon": "beer", "intensity": 2},
+  {"text": "{player1} and {player2}: do your best impressions of the person to your right. Group votes worst — loser drinks {medium}.", "action": "Impression battle", "icon": "happy", "intensity": 2}
 ]

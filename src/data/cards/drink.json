@@ -262,5 +262,14 @@
     "action": "Count carefully",
     "icon": "flame",
     "intensity": 2
-  }
+  },
+  {"text": "Drink {sip} if you're wearing mismatched socks right now.", "action": "Drink up", "icon": "shirt", "intensity": 1},
+  {"text": "{player1} gives out {small} to everyone wearing the same colour as you right now.", "action": "Colour match", "icon": "shirt", "intensity": 1},
+  {"text": "Drink {sip} if you've ever been to a music festival.", "action": "Drink up", "icon": "musical-notes", "intensity": 1},
+  {"text": "{player1}: take {sip} then give out {large} however you want.", "action": "Power move", "icon": "beer", "intensity": 2},
+  {"text": "Drink {small} if you've ever pretended to be sober when you weren't.", "action": "Drink up", "icon": "warning", "intensity": 2},
+  {"text": "Drink {sip} if you’ve ever pretended to know a song lyric when you didn’t.", "action": "Drink up", "icon": "musical-notes", "intensity": 1},
+  {"text": "Drink {sip} if you’ve ever been kicked out of a bar or club.", "action": "Drink up", "icon": "warning", "intensity": 2},
+  {"text": "Everyone who has ever cried in public drinks {sip}.", "action": "Drink up", "icon": "beer", "intensity": 1},
+  {"text": "The player who arrived latest today gives out {small}.", "action": "Latecomer tax", "icon": "timer", "intensity": 1}
 ]

@@ -214,5 +214,11 @@
     "action": "Confess",
     "icon": "flame",
     "intensity": 3
-  }
+  },
+  {"text": "If you've ever had sex somewhere you could have been caught — {take_or_give_large}.", "action": "Drink up", "icon": "flame", "intensity": 3},
+  {"text": "{player1}: who do you think gives the best head out of everyone here? They can give out {max}.", "action": "Answer honestly", "icon": "flame", "intensity": 3},
+  {"text": "If you've ever been walked in on during sex — {take_or_give_medium}.", "action": "Confess", "icon": "eye", "intensity": 3},
+  {"text": "{player1}: choose someone to sit on your lap for the next 3 rounds or both drink {large}.", "action": "Choose wisely", "icon": "heart", "intensity": 3},
+  {"text": "{player1} and {player2}: describe your ideal one-night stand in detail. Group votes who was hornier — loser drinks {max}.", "action": "Story time", "icon": "flame", "intensity": 3},
+  {"text": "{player1}: act out your favourite sex position with another player (no contact). Refuse = {small}.", "action": "Perform", "icon": "flame", "intensity": 3}
 ]

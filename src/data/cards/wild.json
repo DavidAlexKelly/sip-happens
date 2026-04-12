@@ -238,5 +238,13 @@
     "action": "Freeloaders tax",
     "icon": "beer",
     "intensity": 2
-  }
+  },
+  {"text": "{player1}: rank the group from most to least likely to survive a zombie apocalypse. Last place drinks {large}.", "action": "Rank 'em", "icon": "podium", "intensity": 3},
+  {"text": "Most unhinged group confession round. Wildest story pours a round for everyone.", "action": "Chaos stories", "icon": "flame", "intensity": 3},
+  {"text": "{player1}: what’s the pettiest thing you’ve ever done for revenge? Tell us or drink {max}.", "action": "Confess", "icon": "flame", "intensity": 3},
+  {"text": "Group vote: who here is most likely to go viral for the wrong reasons? They drink {large}.", "action": "Vote", "icon": "trophy", "intensity": 3},
+  {"text": "{player1}: describe your most embarrassing wardrobe malfunction in detail or drink {max}.", "action": "Risk it", "icon": "shirt", "intensity": 3},
+  {"text": "{player1}: rank the group from most to least chaotic when drunk. Last place drinks {large}.", "action": "Rank 'em", "icon": "podium", "intensity": 3},
+  {"text": "{player1}: what’s the most ridiculous lie you’ve told to get out of something? Tell or drink {max}.", "action": "Confess", "icon": "flame", "intensity": 3},
+  {"text": "Group vote: who here is most likely to start a dance circle? They give out {medium}.", "action": "Vote", "icon": "trophy", "intensity": 3}
 ]
