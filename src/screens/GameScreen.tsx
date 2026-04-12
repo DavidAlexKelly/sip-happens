@@ -17,6 +17,11 @@ import {
 } from '../data/gameData';
 import { useGame, Player } from '../components/GameContext';
 
+// Persists across game sessions within the same app session.
+// Seeded into usedIds on mount so play-again never repeats last game's cards.
+// Cleared after the first round of a new game so they can return after that.
+let previousGameUsedIds: Set<string> = new Set();
+
 function prioritizeUninvolved(players: Player[], involved: Set<number>): Player[] {
   const shuffle = <T,>(arr: T[]) => [...arr].sort(() => Math.random() - 0.5);
   const uninvolved = players.filter(p => !involved.has(p.id));
@@ -28,14 +33,20 @@ type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Game'>;
 };
 
-const TOTAL_ROUNDS = 20;
 const RULE_DRAW_CHANCE = 0.15;
 
 export default function GameScreen({ navigation }: Props) {
   const { state, nextRound, skipRound } = useGame();
+
+  // Dynamic round count based on player count, minimum 20
+  const TOTAL_ROUNDS = Math.max(20, state.players.length * 6);
+
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [displayText, setDisplayText] = useState('');
-  const [usedIds, setUsedIds] = useState<Set<string>>(new Set());
+
+  // Seed usedIds from the previous game so those cards are excluded on play-again
+  const [usedIds, setUsedIds] = useState<Set<string>>(new Set(previousGameUsedIds));
+
   const [usedRuleIds, setUsedRuleIds] = useState<Set<string>>(new Set());
   const [showQuitModal, setShowQuitModal] = useState(false);
 
@@ -149,22 +160,37 @@ export default function GameScreen({ navigation }: Props) {
 
   const handleNext = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    if (canEnd) { navigation.replace('GameOver'); return; }
+    if (canEnd) {
+      // Save this game's used cards so play-again excludes them on round 1
+      previousGameUsedIds = new Set(usedIds);
+      navigation.replace('GameOver');
+      return;
+    }
+    // After round 1 of a new game, let previous cards back into the pool
+    if (state.currentRound === 1) {
+      previousGameUsedIds = new Set();
+    }
     animateCard(() => { nextRound(); loadChallenge(); });
   };
 
   const handleSkip = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    if (canEnd) { navigation.replace('GameOver'); return; }
+    if (canEnd) {
+      previousGameUsedIds = new Set(usedIds);
+      navigation.replace('GameOver');
+      return;
+    }
+    if (state.currentRound === 1) {
+      previousGameUsedIds = new Set();
+    }
     animateCard(() => { skipRound(); loadChallenge(); });
   };
 
   const progress = Math.min(1, Math.max(0.04, state.currentRound / TOTAL_ROUNDS));
 
+  const isRuleCard = challenge?.isRule !== undefined;
   const isRuleStart = challenge?.isRule === true;
-  const isRuleEnd = challenge?.isRule === false && challenge?.ruleId !== undefined;
-  const isRuleCard = isRuleStart || isRuleEnd;
-
+  const isRuleEnd = challenge?.isRule === false;
   const modeColor = isRuleStart
     ? '#f5c842'
     : isRuleEnd
