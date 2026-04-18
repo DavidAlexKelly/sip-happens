@@ -6,12 +6,6 @@
     "intensity": 1
   },
   {
-    "text": "{player1} picks two people. Those two race to finish their drinks — loser takes {medium}.",
-    "action": "Race!",
-    "icon": "trophy",
-    "intensity": 2
-  },
-  {
     "text": "Anyone who's ordered a takeaway alone this week — drink {sip} and respect yourself.",
     "action": "Drink up",
     "icon": "pizza",
@@ -36,12 +30,6 @@
     "intensity": 1
   },
   {
-    "text": "{player1}: never have I ever — say something and anyone who has done it drinks {sip}.",
-    "action": "Never have I ever",
-    "icon": "hand-left",
-    "intensity": 2
-  },
-  {
     "text": "Drink {small} if you've ever gotten drunk alone.",
     "action": "Drink up",
     "icon": "wine",
@@ -55,7 +43,7 @@
   },
   {
     "text": "Drink {sip} if you've ever gone horseback riding.",
-    "action": "Giddy up",
+    "action": "Drink up",
     "icon": "beer",
     "intensity": 1
   },
@@ -70,12 +58,6 @@
     "action": "Hair check",
     "icon": "color-palette",
     "intensity": 1
-  },
-  {
-    "text": "GAME — {topic}. Go around naming one each. Repeat or blank = drink {sip}. {player1}, you start.",
-    "action": "Think fast",
-    "icon": "medkit",
-    "intensity": 2
   },
   {
     "text": "Anyone with cigarettes on them — drink {sip} per cigarette, up to 8.",
@@ -120,18 +102,6 @@
     "intensity": 1
   },
   {
-    "text": "{player1}: give out one {sip} for every uncle you have.",
-    "action": "Count 'em up",
-    "icon": "people",
-    "intensity": 1
-  },
-  {
-    "text": "{player1}: give out as many {sip} as you have siblings.",
-    "action": "Count 'em up",
-    "icon": "people",
-    "intensity": 1
-  },
-  {
     "text": "If the clock shows an odd number of minutes, everyone takes {medium}. If not, {player1} gives out {large}.",
     "action": "Check the time",
     "icon": "timer",
@@ -144,46 +114,10 @@
     "intensity": 1
   },
   {
-    "text": "Is it happy hour? If so, {player1} takes {sip}. If not, {player2} takes it instead.",
-    "action": "Check the time",
-    "icon": "timer",
-    "intensity": 1
-  },
-  {
-    "text": "{player1}: any player who doesn't follow you on Instagram takes {sip}.",
-    "action": "Check your followers",
-    "icon": "logo-instagram",
-    "intensity": 1
-  },
-  {
-    "text": "Take {sip} if you got your driver's licence on your first try. Take {small} if you ever failed it. Take {medium} if you still don't have one.",
-    "action": "Drink up",
-    "icon": "car",
-    "intensity": 1
-  },
-  {
     "text": "If you are smoking or vaping right now — {take_or_give_medium}.",
     "action": "Smokers",
     "icon": "flame",
     "intensity": 1
-  },
-  {
-    "text": "SPIN THE BOTTLE! Everyone sits in a circle. {player1} spins. Whoever it lands on must take {medium}. They spin next.",
-    "action": "Spin!",
-    "icon": "wine",
-    "intensity": 2
-  },
-  {
-    "text": "Who wants to volunteer to take {large}? If no one steps up in 5 seconds, everyone takes {small}.",
-    "action": "Any heroes?",
-    "icon": "trophy",
-    "intensity": 2
-  },
-  {
-    "text": "Hold the glasses of the two players either side of you and feed them {sip} each.",
-    "action": "Generous!",
-    "icon": "wine",
-    "intensity": 2
   },
   {
     "text": "If you arrived late today — {take_or_give_small}.",
@@ -192,68 +126,8 @@
     "intensity": 1
   },
   {
-    "text": "If you've ever had sex on public transport — {take_or_give_small}.",
-    "action": "Commuter confess",
-    "icon": "car",
-    "intensity": 3
-  },
-  {
-    "text": "If you've slept with 2 different people on the same day — {take_or_give_small}.",
-    "action": "Confess",
-    "icon": "flame",
-    "intensity": 2
-  },
-  {
     "text": "Give out one {sip} for each item of white clothing you're wearing right now.",
     "action": "White check",
-    "icon": "shirt",
-    "intensity": 1
-  },
-  {
-    "text": "If you've ever squished a bug on purpose — {take_or_give_small}.",
-    "action": "Bug killer",
-    "icon": "warning",
-    "intensity": 1
-  },
-  {
-    "text": "Anyone who has lived in 3 or more towns or cities — {take_or_give_small}.",
-    "action": "Nomad check",
-    "icon": "airplane",
-    "intensity": 1
-  },
-  {
-    "text": "First person to pull a condom out of their bag or pocket gives out {large}.",
-    "action": "Check your pockets",
-    "icon": "medkit",
-    "intensity": 2
-  },
-  {
-    "text": "People with iPhones — {take_or_give_small}.",
-    "action": "Apple tax",
-    "icon": "phone-portrait",
-    "intensity": 1
-  },
-  {
-    "text": "If your legs aren't shaved right now — {take_or_give_small}.",
-    "action": "Smooth check",
-    "icon": "body",
-    "intensity": 1
-  },
-  {
-    "text": "Take {sip} for every testicle you have. Own it.",
-    "action": "Count carefully",
-    "icon": "flame",
-    "intensity": 2
-  },
-  {
-    "text": "Drink {sip} if you're wearing mismatched socks right now.",
-    "action": "Drink up",
-    "icon": "shirt",
-    "intensity": 1
-  },
-  {
-    "text": "{player1} gives out {small} to everyone wearing the same colour as you right now.",
-    "action": "Colour match",
     "icon": "shirt",
     "intensity": 1
   },
@@ -262,12 +136,6 @@
     "action": "Drink up",
     "icon": "musical-notes",
     "intensity": 1
-  },
-  {
-    "text": "{player1}: take {sip} then give out {large} however you want.",
-    "action": "Power move",
-    "icon": "beer",
-    "intensity": 2
   },
   {
     "text": "Drink {small} if you've ever pretended to be sober when you weren't.",
@@ -294,9 +162,327 @@
     "intensity": 1
   },
   {
-    "text": "The player who arrived latest today gives out {small}.",
-    "action": "Latecomer tax",
-    "icon": "timer",
+    "text": "Everyone who has a pet, take {sip}!",
+    "action": "Drink up",
+    "icon": "beer",
     "intensity": 1
+  },
+  {
+    "text": "Anyone who's been on a date in the last month — drink {sip}!",
+    "action": "Drink up",
+    "icon": "beer",
+    "intensity": 1
+  },
+  {
+    "text": "Everyone who's cried at a film this year, drink {sip}.",
+    "action": "Drink up",
+    "icon": "beer",
+    "intensity": 1
+  },
+  {
+    "text": "Everyone who's checked their phone in the last 5 minutes, drink {sip}.",
+    "action": "Drink up",
+    "icon": "beer",
+    "intensity": 1
+  },
+  {
+    "text": "If you've ever ghosted someone — take {small}.",
+    "action": "Drink up",
+    "icon": "beer",
+    "intensity": 2
+  },
+  {
+    "text": "Last person to text their ex — take {small} and own it.",
+    "action": "Drink up",
+    "icon": "beer",
+    "intensity": 2
+  },
+  {
+    "text": "If you have a tattoo — {take_or_give_small}.",
+    "action": "Ink check",
+    "icon": "body",
+    "intensity": 1
+  },
+  {
+    "text": "If you've ever told someone you were 'on your way' while still in bed — drink {sip}.",
+    "action": "Drink up",
+    "icon": "beer",
+    "intensity": 1
+  },
+  {
+    "text": "People in relationships, give {small} to another player.",
+    "action": "Couples tax",
+    "icon": "heart",
+    "intensity": 1
+  },
+  {
+    "text": "The player with the most recent birthday, give out {small}.",
+    "action": "Power move",
+    "icon": "gift",
+    "intensity": 1
+  },
+  {
+    "text": "Everyone with the letter 'O' in their first name, drink {sip}.",
+    "action": "Drink up",
+    "icon": "beer",
+    "intensity": 1
+  },
+  {
+    "text": "Players who use Twitter/X, drink {sip}.",
+    "action": "Drink up",
+    "icon": "logo-twitter",
+    "intensity": 1
+  },
+  {
+    "text": "Anyone with a coin in their pocket can give {sip} to anyone who doesn't.",
+    "action": "Check your pockets",
+    "icon": "cash",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: give out one {sip} for every uncle you have.",
+    "action": "Count 'em up",
+    "icon": "people",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: give out as many {sip} as you have siblings.",
+    "action": "Count 'em up",
+    "icon": "people",
+    "intensity": 1
+  },
+  {
+    "text": "If you have pierced ears — {take_or_give_small}.",
+    "action": "Ears check",
+    "icon": "body",
+    "intensity": 1
+  },
+  {
+    "text": "If you have curly hair — {take_or_give_small}.",
+    "action": "Hair check",
+    "icon": "happy",
+    "intensity": 1
+  },
+  {
+    "text": "If you have green eyes — {take_or_give_small}.",
+    "action": "Eye check",
+    "icon": "eye",
+    "intensity": 1
+  },
+  {
+    "text": "If you wear glasses — {take_or_give_small}.",
+    "action": "Specs check",
+    "icon": "eye",
+    "intensity": 1
+  },
+  {
+    "text": "People with iPhones — {take_or_give_small}.",
+    "action": "Apple tax",
+    "icon": "phone-portrait",
+    "intensity": 1
+  },
+  {
+    "text": "Youngest player in the group — {take_or_give_small}.",
+    "action": "Baby of the group",
+    "icon": "gift",
+    "intensity": 1
+  },
+  {
+    "text": "Oldest player in the group — {take_or_give_small}.",
+    "action": "Elder statesman",
+    "icon": "trophy",
+    "intensity": 1
+  },
+  {
+    "text": "If your legs aren't shaved right now — {take_or_give_small}.",
+    "action": "Smooth check",
+    "icon": "body",
+    "intensity": 1
+  },
+  {
+    "text": "If you've ever donated blood — {take_or_give_small}.",
+    "action": "Good deed",
+    "icon": "medkit",
+    "intensity": 1
+  },
+  {
+    "text": "If you're a {topic} — {take_or_give_small}.",
+    "action": "Star sign check",
+    "icon": "planet",
+    "intensity": 1
+  },
+  {
+    "text": "If you've ever squished a bug on purpose — {take_or_give_small}.",
+    "action": "Bug killer check",
+    "icon": "warning",
+    "intensity": 1
+  },
+  {
+    "text": "Anyone who has lived in 3 or more towns or cities — {take_or_give_small}.",
+    "action": "Nomad check",
+    "icon": "airplane",
+    "intensity": 1
+  },
+  {
+    "text": "Take {sip} if you got your driver's licence on your first try. Take {small} if you ever failed it. Take {medium} if you still don't have one.",
+    "action": "Drink up",
+    "icon": "car",
+    "intensity": 1
+  },
+  {
+    "text": "If you have more than 3 one night stands under your belt — raise your glass and say \"To casual sex!\" then {take_or_give_small}.",
+    "action": "Cheers to that",
+    "icon": "beer",
+    "intensity": 2
+  },
+  {
+    "text": "If you've ever taken a dump at a nightclub — {take_or_give_small}.",
+    "action": "Confess",
+    "icon": "warning",
+    "intensity": 2
+  },
+  {
+    "text": "If you've ever gone to dance classes — {take_or_give_small}.",
+    "action": "Dancer check",
+    "icon": "musical-notes",
+    "intensity": 1
+  },
+  {
+    "text": "If you've ever been on the news — {take_or_give_large}.",
+    "action": "Famous check",
+    "icon": "radio",
+    "intensity": 2
+  },
+  {
+    "text": "If you've ever slept with someone and then forgot their name — {take_or_give_small}.",
+    "action": "Confess",
+    "icon": "flame",
+    "intensity": 2
+  },
+  {
+    "text": "If you've ever slept with someone whose native language wasn't English — {take_or_give_small}.",
+    "action": "Confess",
+    "icon": "globe",
+    "intensity": 2
+  },
+  {
+    "text": "If you and another player in this group have ever slept with the same person — both take {medium}.",
+    "action": "Confess",
+    "icon": "people",
+    "intensity": 3
+  },
+  {
+    "text": "If you didn't bring food or drink to this party — take {medium}.",
+    "action": "Freeloaders tax",
+    "icon": "beer",
+    "intensity": 2
+  },
+  {
+    "text": "Hold the glasses of the two players either side of you and feed them {sip} each.",
+    "action": "Generous!",
+    "icon": "wine",
+    "intensity": 2
+  },
+  {
+    "text": "Who wants to volunteer to take {large}? If no one steps up in 5 seconds, everyone takes {small}.",
+    "action": "Any heroes?",
+    "icon": "trophy",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: take {sip} then give out {large} however you want.",
+    "action": "Power move",
+    "icon": "beer",
+    "intensity": 2
+  },
+  {
+    "text": "The person whose phone battery is lowest right now takes {medium}.",
+    "action": "Chaos check",
+    "icon": "notifications",
+    "intensity": 2
+  },
+  {
+    "text": "Anyone with more than 10 tabs open on their phone right now drinks {sip}.",
+    "action": "Chaos check",
+    "icon": "notifications",
+    "intensity": 1
+  },
+  {
+    "text": "Drink {sip} if your lock screen is a photo containing yourself.",
+    "action": "Drink up",
+    "icon": "camera",
+    "intensity": 1
+  },
+  {
+    "text": "The person with the most unread messages right now takes {medium}.",
+    "action": "Chaos check",
+    "icon": "notifications",
+    "intensity": 2
+  },
+  {
+    "text": "If you've ever fallen asleep in a Uber — {take_or_give_small}.",
+    "action": "Taxi tax",
+    "icon": "car",
+    "intensity": 1
+  },
+  {
+    "text": "If your most used emoji is not 😂 or ❤️ — {take_or_give_small} and explain yourself.",
+    "action": "Emoji check",
+    "icon": "happy",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: any player who doesn't follow you on Instagram takes {sip}.",
+    "action": "Check your followers",
+    "icon": "logo-instagram",
+    "intensity": 1
+  },
+  {
+    "text": "First person to pull a condom out of their bag or pocket gives out {large}.",
+    "action": "Check your pockets",
+    "icon": "medkit",
+    "intensity": 2
+  },
+  {
+    "text": "If you have slept with 2 different people on the same day — {take_or_give_small}.",
+    "action": "Confess",
+    "icon": "flame",
+    "intensity": 2
+  },
+  {
+    "text": "Take {sip} if you've never smoked weed.",
+    "action": "Drink up",
+    "icon": "flame",
+    "intensity": 1
+  },
+  {
+    "text": "Drink {small} if you've ever had sex on public transport.",
+    "action": "Commuter confess",
+    "icon": "car",
+    "intensity": 3
+  },
+  {
+    "text": "Drink {small} if you've ever hooked up with someone you met through a dating app.",
+    "action": "Modern romance",
+    "icon": "phone-portrait",
+    "intensity": 3
+  },
+  {
+    "text": "Drink {small} if you've ever measured yourself or a partner. You know what we mean.",
+    "action": "Drink up",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "Drink {small} if you've ever had multiple situationships at the same time.",
+    "action": "Drink up",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "GAME — {topic}. Go around naming one each. Repeat or blank = drink {sip}. {player1}, you start.",
+    "action": "Think fast",
+    "icon": "game-controller",
+    "intensity": 2
   }
 ]

@@ -24,12 +24,6 @@
     "intensity": 3
   },
   {
-    "text": "{player1}: rank everyone by how wild their night would be without inhibitions.",
-    "action": "Rank 'em",
-    "icon": "podium",
-    "intensity": 3
-  },
-  {
     "text": "Everyone confesses their most chaotic life decision. Group picks the wildest — they pour a round for everyone.",
     "action": "Chaos stories",
     "icon": "flame",
@@ -102,61 +96,7 @@
     "intensity": 3
   },
   {
-    "text": "Everyone pick a new nickname for {player1} — make it dirty, insulting, whatever. Until the end of the night, everyone must use it.",
-    "action": "Choose wisely",
-    "icon": "chatbubble-ellipses",
-    "intensity": 2
-  },
-  {
-    "text": "PICONARY! {player1}: draw something ridiculous. Ask a stranger to guess what it is. If they get it, give out {small}. If not, you take them.",
-    "action": "Draw!",
-    "icon": "color-palette",
-    "intensity": 2
-  },
-  {
-    "text": "{player1}: go barefoot and go ask a stranger for some ice, or take {large}.",
-    "action": "Dare",
-    "icon": "people",
-    "intensity": 3
-  },
-  {
-    "text": "Last person to shout \"{player1}, lick my balls!\" takes {max}.",
-    "action": "Shout it!",
-    "icon": "mic",
-    "intensity": 3
-  },
-  {
-    "text": "If you've ever taken a dump at a nightclub — {take_or_give_small}.",
-    "action": "Confess",
-    "icon": "warning",
-    "intensity": 2
-  },
-  {
-    "text": "{player1}: let another player write whatever they want on your forehead with a pen, or take {large}.",
-    "action": "Dare",
-    "icon": "color-palette",
-    "intensity": 3
-  },
-  {
-    "text": "If you've ever slept with someone and then forgot their name — {take_or_give_small}.",
-    "action": "Confess",
-    "icon": "flame",
-    "intensity": 2
-  },
-  {
-    "text": "If you and another player here have ever slept with the same person — both take {medium}.",
-    "action": "Confess",
-    "icon": "people",
-    "intensity": 3
-  },
-  {
-    "text": "{player1}: get on all fours and let every player give you one spank, or take {max}.",
-    "action": "Dare",
-    "icon": "warning",
-    "intensity": 3
-  },
-  {
-    "text": "BOGIES! {player1} must approach a stranger and say 'bogies' progressively louder until they reach a shout. Refuse and take {large}.",
+    "text": "BOGIES! {player1} must walk up to a stranger and say 'bogies' progressively louder until they reach a shout. Refuse and take {large}.",
     "action": "BOGIES!",
     "icon": "mic",
     "intensity": 2
@@ -234,20 +174,8 @@
     "intensity": 2
   },
   {
-    "text": "{player1}: rank the group from most to least likely to survive a zombie apocalypse. Last place drinks {large}.",
-    "action": "Rank 'em",
-    "icon": "podium",
-    "intensity": 3
-  },
-  {
     "text": "Most unhinged group confession round. Wildest story pours a round for everyone.",
     "action": "Chaos stories",
-    "icon": "flame",
-    "intensity": 3
-  },
-  {
-    "text": "{player1}: what's the pettiest thing you've ever done for revenge? Tell us or drink {max}.",
-    "action": "Confess",
     "icon": "flame",
     "intensity": 3
   },
@@ -264,12 +192,6 @@
     "intensity": 3
   },
   {
-    "text": "{player1}: rank the group from most to least chaotic when drunk. Last place drinks {large}.",
-    "action": "Rank 'em",
-    "icon": "podium",
-    "intensity": 3
-  },
-  {
     "text": "{player1}: what's the most ridiculous lie you've told to get out of something? Tell or drink {max}.",
     "action": "Confess",
     "icon": "flame",
@@ -279,6 +201,36 @@
     "text": "Group vote: who here is most likely to start a dance circle? They give out {medium}.",
     "action": "Vote",
     "icon": "trophy",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: rank the group from most to least likely to {rank_scenario}. Last place takes {large}.",
+    "action": "Rank 'em",
+    "icon": "podium",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: go tell a stranger they have main character energy, then report back. Fail = {large}.",
+    "action": "Dare",
+    "icon": "people",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: tell a stranger your group is doing a drinking game and ask them to give you a rule. Come back with it or drink {large}.",
+    "action": "Dare",
+    "icon": "people",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: ask a stranger what their favourite emoji is and come back with the answer or take {large}. Rest of the group has to guess what it is — {small} if wrong, give out {large} if correct.",
+    "action": "Dare",
+    "icon": "people",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: go up to a stranger and tell them you like their vibe, then come back and report. Fail = {large}.",
+    "action": "Dare",
+    "icon": "people",
     "intensity": 3
   }
 ]

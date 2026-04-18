@@ -1,0 +1,194 @@
+[
+  {
+    "text": "Most controversial opinion round. Group votes — tamest take drinks {small}.",
+    "action": "Hot take!",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "Hot takes round. Go clockwise — weakest take drinks {medium}.",
+    "action": "Hot take!",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "Everyone confesses their most chaotic life decision. Group picks the wildest — they pour a round for everyone.",
+    "action": "Chaos stories",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "Most unhinged group confession round. Wildest story pours a round for everyone.",
+    "action": "Chaos stories",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "Group vote: who is most likely to be a secret millionaire? That person gives out {medium}.",
+    "action": "Vote",
+    "icon": "trophy",
+    "intensity": 3
+  },
+  {
+    "text": "Group vote: who here is most likely to go viral for the wrong reasons? They drink {large}.",
+    "action": "Vote",
+    "icon": "trophy",
+    "intensity": 3
+  },
+  {
+    "text": "Group vote: who here is most likely to start a dance circle? They give out {medium}.",
+    "action": "Vote",
+    "icon": "trophy",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: take {sip} and let {player2} roast you for 30 seconds.",
+    "action": "Take it",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "PUNISHMENT — {player1}: take {max} while everyone insults you for 30 seconds.",
+    "action": "Take it",
+    "icon": "warning",
+    "intensity": 3
+  },
+  {
+    "text": "The three players voted most stupid take {large}. If you can't reach a majority, {player1} decides.",
+    "action": "Vote!",
+    "icon": "podium",
+    "intensity": 3
+  },
+  {
+    "text": "Vote on the biggest scaredy cat of the group. They take {medium}.",
+    "action": "Vote!",
+    "icon": "warning",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: rank the group from most to least likely to {rank_scenario}. Last place takes {large}.",
+    "action": "Rank 'em",
+    "icon": "podium",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: name everyone here from most to least likely to be famous. The person ranked last drinks {medium}.",
+    "action": "Rank 'em",
+    "icon": "podium",
+    "intensity": 3
+  },
+  {
+    "text": "Group vote: who is most likely to {vote_scenario}? That person {vote_consequence}.",
+    "action": "Vote!",
+    "icon": "warning",
+    "intensity": 2
+  },
+  {
+    "text": "Point at the person you'd least trust with your phone. That person drinks {small}.",
+    "action": "Vote!",
+    "icon": "beer",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: assign everyone in the group a superpower. The person with the lamest one drinks {small}.",
+    "action": "Power assign",
+    "icon": "flash",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: give everyone a new ridiculous nickname they must use until this card is drawn again.",
+    "action": "Nickname time",
+    "icon": "chatbubble-ellipses",
+    "intensity": 2
+  },
+  {
+    "text": "Everyone pick a new nickname for {player1} — make it dirty, insulting, whatever. Until the end of the night, everyone must use it.",
+    "action": "Choose wisely",
+    "icon": "chatbubble-ellipses",
+    "intensity": 2
+  },
+  {
+    "text": "The most thicc player in the group, as voted by everyone, gives out {medium}.",
+    "action": "Vote!",
+    "icon": "body",
+    "intensity": 2
+  },
+  {
+    "text": "{player1} and {player2}: do your best impressions of each other for 15 seconds. Group votes the worst — loser drinks {medium}.",
+    "action": "Impression battle",
+    "icon": "happy",
+    "intensity": 2
+  },
+  {
+    "text": "The player with the messiest hair right now gives out {small}.",
+    "action": "Hair check",
+    "icon": "happy",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: show the love! Give {small} to the player you like most.",
+    "action": "Choose wisely",
+    "icon": "heart",
+    "intensity": 2
+  },
+  {
+    "text": "{player1} or {player2} — who's more likely to overthrow the government? That player gives out {medium}.",
+    "action": "Call it",
+    "icon": "globe",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: flirt with {player2} for 30 seconds straight. Group votes if it was convincing — if not, take {medium}.",
+    "action": "Turn on the charm",
+    "icon": "heart",
+    "intensity": 2
+  },
+  {
+    "text": "{player1} and {player2}: each tell us the most unusual place you've had sex. Group votes for the most impressive — winner gives out {max}.",
+    "action": "Story time",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "{player1} and {player2}: describe your ideal one-night stand in detail. Group votes who was hornier — loser drinks {max}.",
+    "action": "Story time",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "Take a sip for every person in this room you'd consider sleeping with.",
+    "action": "Count carefully",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: who do you think gives the best head out of everyone here? They can give out {max}.",
+    "action": "Answer honestly",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: give {large} to the player {player2} has the best chance of hooking up with tonight.",
+    "action": "Call it",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: who do you think likes anal stimulation the most out of everyone here? They can give out {medium}.",
+    "action": "Call it",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "GAME — Would you rather kiss the person to your left or your right? Everyone votes at once. Minority vote takes {small}.",
+    "action": "Vote!",
+    "icon": "heart",
+    "intensity": 3
+  },
+  {
+    "text": "GAME — What's your ideal length of time for sex? Everyone answers at the same time. {player1}: give out {large} to anyone who said shorter than you. If yours was the lowest, take {max}.",
+    "action": "Answer up",
+    "icon": "timer",
+    "intensity": 3
+  }
+]

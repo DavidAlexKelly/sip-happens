@@ -12,12 +12,6 @@
     "intensity": 3
   },
   {
-    "text": "Round the circle: everyone shares their most embarrassing childhood memory. The group votes on the most embarrassing one — winner dishes out {medium}.",
-    "action": "Cringe time",
-    "icon": "chatbubble",
-    "intensity": 2
-  },
-  {
     "text": "{player1}: name someone you've blocked and why. Drink {sip} for courage first.",
     "action": "The truth",
     "icon": "eye",
@@ -60,6 +54,18 @@
     "intensity": 3
   },
   {
+    "text": "{player1}: show the group your most recent photo. Explain it or drink {medium}.",
+    "action": "Show or drink",
+    "icon": "camera",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: read your last DM out loud, or drink {max}.",
+    "action": "Risk it",
+    "icon": "chatbubble",
+    "intensity": 3
+  },
+  {
     "text": "{player1}: ask {player2} any question you want. They must answer honestly or take {max}.",
     "action": "Answer or drink",
     "icon": "chatbubble",
@@ -82,12 +88,6 @@
     "action": "Test your knowledge",
     "icon": "person",
     "intensity": 1
-  },
-  {
-    "text": "GAME — {player1}: tell us the first name and age of each player. Anyone whose name or age you get wrong can give out {small}.",
-    "action": "Think fast",
-    "icon": "people",
-    "intensity": 2
   },
   {
     "text": "{player1}: if you can name 2 reasons {player2} will be allowed into heaven, give out {small}. If not, you take them.",
@@ -120,12 +120,6 @@
     "intensity": 2
   },
   {
-    "text": "Round the circle: most awkward childhood memory. Group votes the most cringe-worthy — winner gives out {medium}.",
-    "action": "Cringe time",
-    "icon": "chatbubble",
-    "intensity": 2
-  },
-  {
     "text": "{player1}: what's one thing you've done that would make your mum disown you?",
     "action": "Spill it",
     "icon": "eye",
@@ -138,7 +132,7 @@
     "intensity": 2
   },
   {
-    "text": "{player1}: what's the pettiest thing you've ever done for revenge? Tell us or drink {medium}.",
+    "text": "{player1}: what's the pettiest thing you've ever done for revenge? Tell us or drink {max}.",
     "action": "Confess",
     "icon": "eye",
     "intensity": 3
@@ -168,9 +162,93 @@
     "intensity": 3
   },
   {
-    "text": "Everyone: share your most embarrassing childhood memory. Group votes the winner — they give out {medium}.",
+    "text": "{player1}: what would your group chat say about you behind your back?",
+    "action": "Be honest",
+    "icon": "chatbubble",
+    "intensity": 2
+  },
+  {
+    "text": "Round the circle: everyone shares their most embarrassing memory. Group votes the most cringe-worthy — winner gives out {medium}.",
     "action": "Cringe time",
     "icon": "chatbubble",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: if you've ever slept in all your clothes because you were too drunk, take {medium}. If not, give them out.",
+    "action": "Be honest",
+    "icon": "beer",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: who do you think would be more skillful helping a horse give birth — {player2} or someone else here? They can give out {small}.",
+    "action": "Call it",
+    "icon": "rose",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: who do you think is more likely to sit on a hen's eggs until they hatch — {player2} or someone else? Mother Hen takes {small}.",
+    "action": "Call it",
+    "icon": "rose",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: who would you choose to give you a bed bath — {player2} or someone else here? Your chosen nurse can give out {large}.",
+    "action": "Choose wisely",
+    "icon": "medkit",
+    "intensity": 2
+  },
+  {
+    "text": "{player1} and {player2}: if either of you has been baptised, you both take {max}. If not, choose a player to take them.",
+    "action": "Confess",
+    "icon": "globe",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: what's the shadiest thing you've ever done? No lying. Drink {sip} first for courage.",
+    "action": "Confess",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: what's the most ridiculous lie you've told to get out of something? Tell or drink {max}.",
+    "action": "Confess",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: describe your most embarrassing wardrobe malfunction in detail or drink {max}.",
+    "action": "Risk it",
+    "icon": "shirt",
+    "intensity": 3
+  },
+  {
+    "text": "Drink {sip} if your current partner is the best in bed you've ever had. (If they're not — we advise you to pretend!)",
+    "action": "Drink up",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "Drink {sip} if your last ex was the best in bed you've ever had.",
+    "action": "That's awkward",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "If you've ever had sex on public transport — {take_or_give_small}.",
+    "action": "Commuter confess",
+    "icon": "car",
+    "intensity": 3
+  },
+  {
+    "text": "If you've slept with 2 different people on the same day — {take_or_give_small}.",
+    "action": "Confess",
+    "icon": "flame",
+    "intensity": 3
+  },
+  {
+    "text": "If you've ever spit on someone — {take_or_give_small}.",
+    "action": "Confess",
+    "icon": "warning",
     "intensity": 2
   }
 ]

@@ -105,5 +105,39 @@
       "types of pizza",
       "cartoon characters"
     ]
+  },
+  "rank_scenario": {
+    "wild": [
+      "survive a zombie apocalypse",
+      "go feral on a night out",
+      "survive a week in the woods",
+      "win a fight against a goose",
+      "accidentally start a cult and succeed",
+      "accidentally go viral for the wrong reasons",
+      "survive the longest on a desert island",
+      "become a dictator",
+      "get away with a white collar crime",
+      "last the longest without their phone"
+    ]
+  },
+  "vote_scenario": {
+    "social": [
+      "survive a zombie apocalypse",
+      "cry watching a rom-com",
+      "accidentally reply all to a company-wide email",
+      "start a dance circle uninvited",
+      "fall asleep first tonight",
+      "end up on a reality TV show"
+    ]
+  },
+  "vote_consequence": {
+    "social": [
+      "drinks {small}",
+      "gives out {medium}",
+      "drinks {small}",
+      "gives out {small}",
+      "takes {medium}",
+      "gives out {medium}"
+    ]
   }
 }

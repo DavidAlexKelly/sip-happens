@@ -1,13 +1,20 @@
 // src/data/gameData.ts
 // ─────────────────────────────────────────────────────────────────────────────
-// This file owns types, constants, and helper functions only.
-// All card content lives in src/data/cards/*.json — edit those, not this file.
+// Backend files are organised by card MECHANIC (drink, dare, truth, chaos, spicy).
+// Frontend display modes are organised by EXPERIENCE and map to one or more
+// backend files, filtered by intensity and optional tags.
+//
+// Frontend → Backend mapping:
+//   Getting Started  → drink (1-2) + dare (1-2, no "bar" tag)
+//   Letting Loose    → truth (2-3) + chaos (2-3) + dare (2-3, no "bar" tag)
+//   Raising the Bar  → drink + dare + truth + chaos (all intensity, "bar" tag only)
+//   Spicy            → spicy (all, no filter)
 // ─────────────────────────────────────────────────────────────────────────────
 
-import socialCards from './cards/social.json';
-import truthCards  from './cards/truth.json';
 import drinkCards  from './cards/drink.json';
-import wildCards   from './cards/wild.json';
+import dareCards   from './cards/dare.json';
+import truthCards  from './cards/truth.json';
+import chaosCards  from './cards/chaos.json';
 import spicyCards  from './cards/spicy.json';
 import rulesData   from './cards/rules.json';
 import wordBanks   from './cards/word_banks.json';
@@ -23,6 +30,7 @@ export interface Challenge {
   icon: string;
   intensity: 1 | 2 | 3;
   mode: string;
+  tags?: string[];
   isRule?: boolean;
   ruleId?: string;
 }
@@ -42,6 +50,7 @@ interface RawCard {
   action: string;
   icon: string;
   intensity: 1 | 2 | 3;
+  tags?: string[];
 }
 
 interface RawRulePair {
@@ -83,55 +92,43 @@ export function formatPenalty(count: number): string {
   return count === 1 ? '1 sip' : `${count} sips`;
 }
 
-/**
- * Randomly resolves to either "take X sips" or "give out X sips".
- * Called once per token per card draw so the whole card is consistent.
- */
 function resolveTakeOrGive(base: keyof typeof PENALTY, ctx: PenaltyContext): string {
   const amount = formatPenalty(getPenalty(base, ctx));
   return Math.random() < 0.5 ? `take ${amount}` : `give out ${amount}`;
 }
 
 // ─────────────────────────────────────────────
-// MODES
+// FRONTEND DISPLAY MODES
+// These are what players see and select in the UI.
 // ─────────────────────────────────────────────
 
 export const MODES: GameMode[] = [
   {
-    id: 'social',
-    label: 'SOCIAL',
-    icon: 'people',
+    id: 'getting_started',
+    label: 'GETTING STARTED',
+    icon: 'happy',
     color: '#ff7afb',
-    desc: 'Perfect icebreaker. Lighthearted dares and casual questions to get the rhythm flowing.',
+    desc: 'Lighthearted fun to get the night going. Easy drinking, quick games, no pressure.',
     intensity: 'Easy Vibes',
     time: '15-30 MIN',
   },
   {
-    id: 'truth',
-    label: 'TRUTH',
-    icon: 'eye',
-    color: '#ff7cba',
-    desc: 'No hiding. Raw truths and personal confessions laid bare on the table.',
-    intensity: 'Medium',
-    time: '20-40 MIN',
-  },
-  {
-    id: 'drink',
-    label: 'DRINK',
-    icon: 'wine',
-    color: '#00fbfb',
-    desc: 'Classic drinking prompts. Everyone who does X, takes a sip.',
-    intensity: 'Medium',
-    time: '20-40 MIN',
-  },
-  {
-    id: 'wild',
-    label: 'WILD 🔥',
+    id: 'letting_loose',
+    label: 'LETTING LOOSE',
     icon: 'flame',
     color: '#ff6e84',
-    desc: 'No holds barred. Our most daring challenge set yet. 18+ only.',
+    desc: 'Things get personal. Hot takes, confessions, rankings and roasts.',
     intensity: 'Intense',
     time: '30-60 MIN',
+  },
+  {
+    id: 'raising_the_bar',
+    label: 'RAISING THE BAR',
+    icon: 'beer',
+    color: '#00fbfb',
+    desc: "Cards built for a bar or public space. Strangers get involved. Don't play at home.",
+    intensity: 'Medium',
+    time: '20-40 MIN',
   },
   {
     id: 'spicy',
@@ -145,26 +142,57 @@ export const MODES: GameMode[] = [
 ];
 
 // ─────────────────────────────────────────────
-// BUILD CHALLENGE POOLS
+// BACKEND CARD POOLS (organised by mechanic)
 // ─────────────────────────────────────────────
 
-function buildPool(cards: RawCard[], mode: string, prefix: string): Challenge[] {
-  return cards.map((c, i) => ({ ...c, mode, id: `${prefix}-${i}` }));
+function buildPool(cards: RawCard[], source: string, prefix: string): Challenge[] {
+  return cards.map((c, i) => ({ ...c, mode: source, id: `${prefix}-${i}` }));
 }
 
-const pools: Record<string, Challenge[]> = {
-  social: buildPool(socialCards as RawCard[], 'social', 'social'),
-  truth:  buildPool(truthCards  as RawCard[], 'truth',  'truth'),
-  drink:  buildPool(drinkCards  as RawCard[], 'drink',  'drink'),
-  wild:   buildPool(wildCards   as RawCard[], 'wild',   'wild'),
-  spicy:  buildPool(spicyCards  as RawCard[], 'spicy',  'spicy'),
+const backendPools = {
+  drink: buildPool(drinkCards as RawCard[], 'drink', 'drink'),
+  dare:  buildPool(dareCards  as RawCard[], 'dare',  'dare'),
+  truth: buildPool(truthCards as RawCard[], 'truth', 'truth'),
+  chaos: buildPool(chaosCards as RawCard[], 'chaos', 'chaos'),
+  spicy: buildPool(spicyCards as RawCard[], 'spicy', 'spicy'),
 };
 
-export const ALL_CHALLENGES: Challenge[] = Object.values(pools).flat();
+// ─────────────────────────────────────────────
+// FRONTEND → BACKEND MAPPING
+// ─────────────────────────────────────────────
+
+function hasTag(card: Challenge, tag: string): boolean {
+  return Array.isArray(card.tags) && card.tags.includes(tag);
+}
+
+function noTag(card: Challenge, tag: string): boolean {
+  return !Array.isArray(card.tags) || !card.tags.includes(tag);
+}
+
+const frontendPools: Record<string, Challenge[]> = {
+  getting_started: [
+    ...backendPools.drink.filter(c => c.intensity <= 2),
+    ...backendPools.dare.filter(c => c.intensity <= 2 && noTag(c, 'bar')),
+  ],
+  letting_loose: [
+    ...backendPools.truth.filter(c => c.intensity >= 2),
+    ...backendPools.chaos.filter(c => c.intensity >= 2),
+    ...backendPools.dare.filter(c => c.intensity >= 2 && noTag(c, 'bar')),
+  ],
+  raising_the_bar: [
+    ...backendPools.drink.filter(c => hasTag(c, 'bar')),
+    ...backendPools.dare.filter(c => hasTag(c, 'bar')),
+    ...backendPools.truth.filter(c => hasTag(c, 'bar')),
+    ...backendPools.chaos.filter(c => hasTag(c, 'bar')),
+  ],
+  spicy: backendPools.spicy,
+};
+
+export const ALL_CHALLENGES: Challenge[] = Object.values(frontendPools).flat();
 
 export function getChallengePool(modes: string[]): Challenge[] {
   if (modes.length === 0) return ALL_CHALLENGES;
-  return modes.flatMap(m => pools[m] ?? []);
+  return modes.flatMap(m => frontendPools[m] ?? []);
 }
 
 // ─────────────────────────────────────────────

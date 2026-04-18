@@ -1,0 +1,319 @@
+[
+  {
+    "text": "Stand up! Last one to their feet drinks {sip}.",
+    "action": "Move it!",
+    "icon": "body",
+    "intensity": 1
+  },
+  {
+    "text": "LAVA MONSTER! Everyone get off the ground — last person with feet on the floor takes {large}.",
+    "action": "Get off the floor!",
+    "icon": "warning",
+    "intensity": 2
+  },
+  {
+    "text": "Rock-paper-scissors! Go around the group, play with the neighbour to your left. Each winner gives {small} to the loser. {player1}, you start.",
+    "action": "Play!",
+    "icon": "hand-left",
+    "intensity": 2
+  },
+  {
+    "text": "BABY BIRD! {player1} takes {sip} then must pass it to {player2} — mouth to mouth, bird-feeding style. {player2} drinks {sip} if they refuse.",
+    "action": "Mouth to mouth!",
+    "icon": "rose",
+    "intensity": 2
+  },
+  {
+    "text": "NEVER HAVE I EVER — hold up 3 fingers. Go around the circle: say something you've never done. If you HAVE done it, put a finger down. First person with all 3 fingers down takes {medium}.",
+    "action": "Fingers up!",
+    "icon": "hand-left",
+    "intensity": 2
+  },
+  {
+    "text": "FOREHEAD! Everyone touch their forehead to the table — NOW. Last one down drinks {large}.",
+    "action": "On the table!",
+    "icon": "timer",
+    "intensity": 2
+  },
+  {
+    "text": "GECKO! Sprint and get all four limbs on a vertical surface. Last one there drinks {large}.",
+    "action": "Climb the walls!",
+    "icon": "body",
+    "intensity": 2
+  },
+  {
+    "text": "VROOM SKIRT! Starting with {player1}: choose VROOM to keep the direction going, or SKIRT to reverse it. Next person must react fast — hesitate and drink {sip}.",
+    "action": "Vroom or Skirt!",
+    "icon": "car",
+    "intensity": 1
+  },
+  {
+    "text": "TONGUE TIED! Starting with {player1}, go around saying 'Red lorry, yellow lorry.' First person to hesitate or stumble drinks {sip}.",
+    "action": "Say it!",
+    "icon": "mic",
+    "intensity": 1
+  },
+  {
+    "text": "FIZZ BUZZ! Starting with {player1}, count up to 30. Multiples of 3: clap. Multiples of 5: click your tongue. Both? Do both. Mess up a 3 = {small}. Mess up a 5 = {medium}. Mess up both = {large}.",
+    "action": "Count carefully",
+    "icon": "calculator",
+    "intensity": 2
+  },
+  {
+    "text": "CHARADES! {player1} must act out a film, song, or book — no words. First person to guess correctly dishes out {max}.",
+    "action": "Act it out!",
+    "icon": "film",
+    "intensity": 2
+  },
+  {
+    "text": "HIGH NOON! {player1} and {player2} — you are Wild West gunslingers. On the count of three, draw! Whoever is slowest takes {medium}.",
+    "action": "Draw!",
+    "icon": "flash",
+    "intensity": 2
+  },
+  {
+    "text": "PRIZE HEIFERS! {player1} and {player2} — down on all fours. On three, lock eyes and MOO your hearts out. Everyone else votes on the superior cow. Loser drinks {sip}.",
+    "action": "Moo!",
+    "icon": "rose",
+    "intensity": 2
+  },
+  {
+    "text": "10 MINUS PRESS-UPS! {player1}, do as many press-ups as you can (max 10). You drink {sip} for every one you didn't do.",
+    "action": "Drop and give!",
+    "icon": "body",
+    "intensity": 2
+  },
+  {
+    "text": "CATWALK! {player1}, strut from one end of the room to the other. Group rates it out of 10 — drink the difference from 10.",
+    "action": "Strut!",
+    "icon": "body",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: do a handstand or take {sip}.",
+    "action": "Dare",
+    "icon": "body",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: act like a slug for 5 long seconds or take {small}.",
+    "action": "Perform",
+    "icon": "body",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: spin around 5 times and take {small}. Then give out {sip} to whoever you end up facing.",
+    "action": "Spin!",
+    "icon": "timer",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: put one of your shoes on the table or take {sip}.",
+    "action": "Dare",
+    "icon": "body",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: go barefoot for the rest of the round or take {small}.",
+    "action": "Dare",
+    "icon": "body",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: lick the forearm of the player to your left or take {sip}.",
+    "action": "Dare",
+    "icon": "flame",
+    "intensity": 2
+  },
+  {
+    "text": "Last person to shout \"{player1}, lick my balls!\" takes {max}.",
+    "action": "Shout it!",
+    "icon": "mic",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: kiss {player2} on the nose or take {small}.",
+    "action": "Dare",
+    "icon": "heart",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: take {sip} and give {small} to {player2}. They must pinch your nose while you drink.",
+    "action": "Drink up",
+    "icon": "beer",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: take {large} while {player2} blows in your face.",
+    "action": "Dare",
+    "icon": "flame",
+    "intensity": 2
+  },
+  {
+    "text": "{player1} and {player2}: say 'aaaaaah' at the same time. Whoever stops first takes {small}.",
+    "action": "Hold it!",
+    "icon": "mic",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: draw a monobrow on your face right now or take {medium}.",
+    "action": "Dare",
+    "icon": "happy",
+    "intensity": 2
+  },
+  {
+    "text": "{player1} and {player2}: plank off! Hold as long as you can. The loser takes {large}.",
+    "action": "Drop and hold!",
+    "icon": "body",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: get on {player2}'s back and ride them like a horse across the room. {sip} each on refusal.",
+    "action": "Giddy up!",
+    "icon": "body",
+    "intensity": 2
+  },
+  {
+    "text": "{player1} and {player2}: play the tortilla slap game. Slap each other with a tortilla until one gives up. Loser takes {large}.",
+    "action": "Slap off!",
+    "icon": "hand-left",
+    "intensity": 2
+  },
+  {
+    "text": "SPIN THE BOTTLE! Everyone sits in a circle. {player1} spins. Whoever it lands on must take {medium}. They spin next.",
+    "action": "Spin!",
+    "icon": "wine",
+    "intensity": 2
+  },
+  {
+    "text": "Try to move a coin from your forehead to your mouth using only your face. Fail and take {small}.",
+    "action": "Focus!",
+    "icon": "cash",
+    "intensity": 1
+  },
+  {
+    "text": "The first person to touch {player1}'s feet gives out {medium}.",
+    "action": "Go for it!",
+    "icon": "flash",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: let another player write whatever they want on your forehead with a pen, or take {large}.",
+    "action": "Dare",
+    "icon": "color-palette",
+    "intensity": 3
+  },
+  {
+    "text": "{player1}: get on all fours and let every player give you one spank, or take {max}.",
+    "action": "Dare",
+    "icon": "warning",
+    "intensity": 3
+  },
+  {
+    "text": "{player1} must shout something of the group's choosing — group decides right now. Refuse and take {large}.",
+    "action": "Say it loud!",
+    "icon": "mic",
+    "intensity": 2
+  },
+  {
+    "text": "Take {sip} for every testicle you have. Own it.",
+    "action": "Count carefully",
+    "icon": "flame",
+    "intensity": 2
+  },
+  {
+    "text": "{player1}: say something you've NEVER done. Anyone who has done it takes {sip}.",
+    "action": "Never have I ever",
+    "icon": "hand-left",
+    "intensity": 2
+  },
+  {
+    "text": "GAME — {topic}. Go around the circle. First person who repeats or hesitates drinks {small}. {player1} starts.",
+    "action": "Think fast",
+    "icon": "game-controller",
+    "intensity": 2
+  },
+  {
+    "text": "GAME — {player1}: tell us the first name and age of each player. Anyone whose name or age you get wrong can give out {small}.",
+    "action": "Think fast",
+    "icon": "people",
+    "intensity": 2
+  },
+  {
+    "text": "Is it happy hour? If so, {player1} takes {sip}. If not, {player2} takes it instead.",
+    "action": "Check the time",
+    "icon": "timer",
+    "intensity": 1,
+    "tags": ["bar"]
+  },
+  {
+    "text": "BOGIES! {player1} must walk up to a stranger and say 'bogies' progressively louder until they reach a shout — or take {large}.",
+    "action": "BOGIES!",
+    "icon": "mic",
+    "intensity": 2,
+    "tags": ["bar"]
+  },
+  {
+    "text": "{player1}: go find a stranger, tell them they look great, and ask for their LinkedIn. Come back with a name or take {medium}.",
+    "action": "Network!",
+    "icon": "people",
+    "intensity": 2,
+    "tags": ["bar"]
+  },
+  {
+    "text": "{player1}: put on a coat and go ask a stranger for some ice, or take {large}.",
+    "action": "Dare",
+    "icon": "people",
+    "intensity": 2,
+    "tags": ["bar"]
+  },
+  {
+    "text": "Go up to the bar and ask for something random — a sock, a used napkin, a paperclip. Come back with something or take {large}.",
+    "action": "Dare",
+    "icon": "beer",
+    "intensity": 2,
+    "tags": ["bar"]
+  },
+  {
+    "text": "PICONARY! {player1}: draw something ridiculous. Ask a stranger to guess what it is. If they get it, give out {small}. If not, you take them.",
+    "action": "Draw!",
+    "icon": "color-palette",
+    "intensity": 2,
+    "tags": ["bar"]
+  },
+  {
+    "text": "{player1}: give out as many {sip} as there are attractive people in this bar, not including your friends.",
+    "action": "Look around",
+    "icon": "eye",
+    "intensity": 2,
+    "tags": ["bar"]
+  },
+  {
+    "text": "{player1}: go tell a stranger they have main character energy, then report back. Fail = {large}.",
+    "action": "Dare",
+    "icon": "people",
+    "intensity": 3,
+    "tags": ["bar"]
+  },
+  {
+    "text": "{player1}: tell a stranger your group is doing a drinking game and ask them to give you a rule. Come back with it or drink {large}.",
+    "action": "Dare",
+    "icon": "people",
+    "intensity": 3,
+    "tags": ["bar"]
+  },
+  {
+    "text": "{player1}: ask a stranger what their favourite emoji is and come back with the answer or take {large}. Rest of the group has to guess what it is — {small} if wrong, give out {large} if correct.",
+    "action": "Dare",
+    "icon": "people",
+    "intensity": 3,
+    "tags": ["bar"]
+  },
+  {
+    "text": "{player1}: go up to a stranger and tell them you like their vibe, then come back and report. Fail = {large}.",
+    "action": "Dare",
+    "icon": "people",
+    "intensity": 3,
+    "tags": ["bar"]
+  }
+]

@@ -49,8 +49,8 @@
   },
   {
     "text": "{player1}: name everyone here from most to least likely to be famous. The person ranked last drinks {medium}.",
-    "action": "Drink up",
-    "icon": "beer",
+    "action": "Rank 'em",
+    "icon": "podium",
     "intensity": 3
   },
   {
@@ -276,28 +276,10 @@
     "intensity": 1
   },
   {
-    "text": "{player1}: if {player2} killed someone, would you help hide the body? Give out {large} if yes. If not, you take them.",
-    "action": "Be honest",
-    "icon": "eye",
-    "intensity": 2
-  },
-  {
     "text": "{player1}: if you've ever slept in all your clothes because you were too drunk, take {medium}. If not, give them out.",
     "action": "Be honest",
     "icon": "beer",
     "intensity": 2
-  },
-  {
-    "text": "Take {small} if you've ever had a tactical vomit on a night out.",
-    "action": "Drink up",
-    "icon": "warning",
-    "intensity": 2
-  },
-  {
-    "text": "Take {sip} if you've never smoked weed.",
-    "action": "Drink up",
-    "icon": "flame",
-    "intensity": 1
   },
   {
     "text": "GAME — {player1}: tell us the first name and age of each player. Anyone whose name or age you get wrong can give out {small}.",
@@ -576,64 +558,46 @@
     "intensity": 2
   },
   {
-    "text": "First person to pull a condom out of their bag or pocket gives out {large}.",
-    "action": "Check your pockets",
-    "icon": "medkit",
+    "text": "{player1}: assign everyone in the group a superpower. The person with the lamest one drinks {small}.",
+    "action": "Power assign",
+    "icon": "flash",
     "intensity": 2
   },
   {
-    "text": "{player1}: let another player write whatever they want on your forehead with a pen, or take {large}.",
-    "action": "Dare",
-    "icon": "color-palette",
-    "intensity": 3
-  },
-  {
-    "text": "If you've ever slept with someone and then forgot their name — {take_or_give_small}.",
-    "action": "Confess",
-    "icon": "flame",
+    "text": "GAME — {topic}. Go around the circle. First person who repeats or hesitates drinks {small}. {player1} starts.",
+    "action": "Think fast",
+    "icon": "game-controller",
     "intensity": 2
   },
   {
-    "text": "If you've ever gone to dance classes — {take_or_give_small}.",
-    "action": "Dancer check",
+    "text": "Group vote: who is most likely to {vote_scenario}? That person {vote_consequence}.",
+    "action": "Vote!",
+    "icon": "warning",
+    "intensity": 2
+  },
+  {
+    "text": "The player with the messiest hair right now gives out {small}.",
+    "action": "Hair check",
+    "icon": "happy",
+    "intensity": 1
+  },
+  {
+    "text": "{player1}: give everyone a new ridiculous nickname they must use until this card is drawn again.",
+    "action": "Nickname time",
+    "icon": "chatbubble-ellipses",
+    "intensity": 2
+  },
+  {
+    "text": "Everyone who has ever been to a music festival drinks {sip}.",
+    "action": "Drink up",
     "icon": "musical-notes",
     "intensity": 1
   },
   {
-    "text": "If you've ever been on the news — {take_or_give_large}.",
-    "action": "Famous check",
-    "icon": "radio",
+    "text": "{player1} and {player2}: do your best impressions of each other for 15 seconds. Group votes the worst — loser drinks {medium}.",
+    "action": "Impression battle",
+    "icon": "happy",
     "intensity": 2
-  },
-  {
-    "text": "Try to move a coin from your forehead to your mouth using only your face. Fail and take {small}.",
-    "action": "Focus!",
-    "icon": "cash",
-    "intensity": 1
-  },
-  {
-    "text": "{player1} and {player2}: play the tortilla slap game. Slap each other with a tortilla until one gives up. Loser takes {large}.",
-    "action": "Slap off!",
-    "icon": "hand-left",
-    "intensity": 2
-  },
-  {
-    "text": "{player1}: get on all fours and let every player give you one spank, or take {max}.",
-    "action": "Dare",
-    "icon": "warning",
-    "intensity": 3
-  },
-  {
-    "text": "If you've ever had sex on public transport — {take_or_give_small}.",
-    "action": "Commuter confess",
-    "icon": "car",
-    "intensity": 3
-  },
-  {
-    "text": "Anyone who has lived in 3 or more towns or cities — {take_or_give_small}.",
-    "action": "Nomad check",
-    "icon": "airplane",
-    "intensity": 1
   },
   {
     "text": "If you've ever squished a bug on purpose — {take_or_give_small}.",
@@ -708,75 +672,21 @@
     "intensity": 1
   },
   {
-    "text": "Everyone who has a pet drinks {sip}!",
-    "action": "Drink up",
-    "icon": "beer",
+    "text": "{player1}: who do you think would be more likely to go out to a nightclub alone — {player2} or someone else here? They take {small}.",
+    "action": "Call it",
+    "icon": "people",
+    "intensity": 2
+  },
+  {
+    "text": "If you've ever fallen asleep in a Uber — {take_or_give_small}.",
+    "action": "Taxi tax",
+    "icon": "car",
     "intensity": 1
   },
   {
-    "text": "{player1}: assign everyone in the group a superpower. The person with the lamest one drinks {small}.",
-    "action": "Power assign",
-    "icon": "flash",
-    "intensity": 2
-  },
-  {
-    "text": "Everyone who has ever cried at a film drinks {sip}.",
-    "action": "Drink up",
-    "icon": "beer",
-    "intensity": 1
-  },
-  {
-    "text": "GAME — {topic}. Go around the circle. First person who repeats or hesitates drinks {small}. {player1} starts.",
-    "action": "Think fast",
-    "icon": "game-controller",
-    "intensity": 2
-  },
-  {
-    "text": "Point at the person most likely to survive a zombie apocalypse. That person drinks {small}.",
-    "action": "Drink up",
-    "icon": "warning",
-    "intensity": 2
-  },
-  {
-    "text": "{player1} and {player2}: do your best impressions of each other for 15 seconds. Group votes the worst — loser drinks {medium}.",
-    "action": "Impression battle",
-    "icon": "happy",
-    "intensity": 2
-  },
-  {
-    "text": "The player with the messiest hair right now gives out {small}.",
-    "action": "Hair check",
+    "text": "If your most used emoji is not 😂 or ❤️ — {take_or_give_small} and explain yourself.",
+    "action": "Emoji check",
     "icon": "happy",
     "intensity": 1
-  },
-  {
-    "text": "Most likely to survive a zombie apocalypse — point on 3! That person gives out {small}.",
-    "action": "Vote!",
-    "icon": "warning",
-    "intensity": 2
-  },
-  {
-    "text": "{player1}: give everyone a new ridiculous nickname they must use until this card is drawn again.",
-    "action": "Nickname time",
-    "icon": "chatbubble-ellipses",
-    "intensity": 2
-  },
-  {
-    "text": "Everyone who has ever been to a music festival drinks {sip}.",
-    "action": "Drink up",
-    "icon": "musical-notes",
-    "intensity": 1
-  },
-  {
-    "text": "Point at the person most likely to cry during a film. They drink {small}.",
-    "action": "Vote!",
-    "icon": "beer",
-    "intensity": 2
-  },
-  {
-    "text": "{player1} and {player2}: do your best impressions of the person to your right. Group votes worst — loser drinks {medium}.",
-    "action": "Impression battle",
-    "icon": "happy",
-    "intensity": 2
   }
 ]
