@@ -85,7 +85,7 @@ export default function PlayersScreen({ navigation }: Props) {
           <Ionicons name="arrow-back" size={24} color={Colors.onSurface} style={{ opacity: 0.7 }} />
         </TouchableOpacity>
         <LinearGradient colors={[Colors.primary, Colors.primaryContainer]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.titleGradient}>
-          <Text style={styles.headerTitle}>BETTERLO</Text>
+          <Text style={styles.headerTitle}>NEKKIT</Text>
         </LinearGradient>
         <Ionicons name="person-circle-outline" size={24} color={Colors.onSurface} style={{ opacity: 0.7 }} />
       </View>

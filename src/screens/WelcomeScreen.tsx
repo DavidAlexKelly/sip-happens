@@ -45,7 +45,7 @@ export default function WelcomeScreen({ navigation }: Props) {
           start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
           style={styles.titleGradient}
         >
-          <Text style={styles.headerTitle}>BETTERLO</Text>
+          <Text style={styles.headerTitle}>NEKKIT</Text>
         </LinearGradient>
         <Ionicons name="person-circle-outline" size={24} color={Colors.onSurface} style={{ opacity: 0.7 }} />
       </View>
@@ -60,7 +60,7 @@ export default function WelcomeScreen({ navigation }: Props) {
             start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
             style={styles.gradientTextWrapper}
           >
-            <Text style={styles.heroLine2}>BETTERLO</Text>
+            <Text style={styles.heroLine2}>NEKKIT</Text>
           </LinearGradient>
           <View style={styles.divider} />
         </Animated.View>
@@ -131,10 +131,10 @@ export function BottomNav({
   navigation: NativeStackNavigationProp<RootStackParamList, any>;
 }) {
   const tabs = [
-    { id: 'play', label: 'PLAY', icon: 'game-controller', screen: 'Welcome' },
-    { id: 'modes', label: 'MODES', icon: 'layers', screen: 'Modes' },
-    { id: 'players', label: 'PLAYERS', icon: 'people', screen: 'Players' },
-    { id: 'shop', label: 'SHOP', icon: 'flame', screen: null },
+    { id: 'play',    label: 'PLAY',    icon: 'game-controller', screen: 'Welcome' },
+    { id: 'modes',   label: 'DECKS',   icon: 'layers',          screen: 'Modes'   },
+    { id: 'players', label: 'PLAYERS', icon: 'people',          screen: 'Players' },
+    { id: 'cards',   label: 'CARDS',   icon: 'card',            screen: 'Cards'   },
   ] as const;
 
   return (

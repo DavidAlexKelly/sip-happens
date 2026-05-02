@@ -4,4 +4,5 @@ export type RootStackParamList = {
   Players: undefined;
   Game: undefined;
   GameOver: undefined;
+  Cards: undefined;
 };

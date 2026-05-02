@@ -24,6 +24,7 @@ import ModesScreen from './src/screens/ModesScreen';
 import PlayersScreen from './src/screens/PlayersScreen';
 import GameScreen from './src/screens/GameScreen';
 import GameOverScreen from './src/screens/GameOverScreen';
+import CardsScreen from './src/screens/CardsScreen';
 import { Colors } from './src/styles/theme';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -65,6 +66,7 @@ export default function App() {
             <Stack.Screen name="Players" component={PlayersScreen} />
             <Stack.Screen name="Game" component={GameScreen} />
             <Stack.Screen name="GameOver" component={GameOverScreen} />
+            <Stack.Screen name="Cards" component={CardsScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       </GameProvider>

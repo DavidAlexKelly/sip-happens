@@ -59,7 +59,7 @@ export default function GameOverScreen({ navigation }: Props) {
           <Text style={styles.ggText}>GG.</Text>
           <Text style={styles.subtitle}>That's a wrap!</Text>
           <Text style={styles.body}>
-            You survived the Betterlo.{'\n'}Pour one out for the legends who made it.
+            You survived Nekkit.{'\n'}Pour one out for the legends who made it.
           </Text>
         </Animated.View>
 
