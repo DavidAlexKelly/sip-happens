@@ -331,7 +331,7 @@ export default function GameScreen({ navigation }: Props) {
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.modalQuit}
-                onPress={() => { setShowQuitModal(false); navigation.replace('Welcome'); }}
+                onPress={() => { setShowQuitModal(false); navigation.replace('Play'); }}
                 activeOpacity={0.7}
               >
                 <Text style={styles.modalQuitText}>Quit</Text>

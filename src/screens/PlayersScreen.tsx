@@ -13,7 +13,7 @@ import { RootStackParamList } from '../navigation/types';
 import { Colors } from '../styles/theme';
 import { MODES } from '../data/gameData';
 import { useGame } from '../components/GameContext';
-import { BottomNav } from './WelcomeScreen';
+
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Players'>;
@@ -204,7 +204,7 @@ export default function PlayersScreen({ navigation }: Props) {
               })}
             </View>
             <TouchableOpacity
-              onPress={() => navigation.navigate('Modes')}
+              onPress={() => navigation.navigate('DeckSelect')}
               activeOpacity={0.7}
               style={styles.manageDeckBtn}
             >
@@ -276,7 +276,7 @@ export default function PlayersScreen({ navigation }: Props) {
         )}
       </ScrollView>
 
-      <BottomNav current="players" navigation={navigation} />
+      
     </SafeAreaView>
   );
 }
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
     fontFamily: 'PlusJakartaSans_800ExtraBold_Italic',
     fontSize: 17, letterSpacing: -0.5, color: Colors.onPrimary, paddingHorizontal: 4,
   },
-  scrollContent: { paddingHorizontal: 24, paddingBottom: 120 },
+  scrollContent: { paddingHorizontal: 24, paddingBottom: 40 },
   pageHeader: { marginTop: 32, marginBottom: 32 },
   pageTitle: {
     fontFamily: 'PlusJakartaSans_800ExtraBold',

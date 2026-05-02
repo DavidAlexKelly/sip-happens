@@ -35,7 +35,7 @@ export default function GameOverScreen({ navigation }: Props) {
 
   const handleMainMenu = () => {
     resetGame();
-    navigation.replace('Welcome');
+    navigation.replace('Play');
   };
 
   const stats = [

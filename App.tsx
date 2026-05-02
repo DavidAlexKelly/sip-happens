@@ -19,12 +19,18 @@ import {
 
 import { GameProvider } from './src/components/GameContext';
 import { RootStackParamList } from './src/navigation/types';
-import WelcomeScreen from './src/screens/WelcomeScreen';
-import ModesScreen from './src/screens/ModesScreen';
-import PlayersScreen from './src/screens/PlayersScreen';
-import GameScreen from './src/screens/GameScreen';
-import GameOverScreen from './src/screens/GameOverScreen';
-import CardsScreen from './src/screens/CardsScreen';
+
+// Bottom nav screens
+import PlayScreen    from './src/screens/PlayScreen';
+import DecksScreen   from './src/screens/DecksScreen';
+import CardsScreen   from './src/screens/CardsScreen';
+
+// Setup flow (no bottom nav)
+import DeckSelectScreen from './src/screens/DeckSelectScreen';
+import PlayersScreen    from './src/screens/PlayersScreen';
+import GameScreen       from './src/screens/GameScreen';
+import GameOverScreen   from './src/screens/GameOverScreen';
+
 import { Colors } from './src/styles/theme';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -54,19 +60,23 @@ export default function App() {
         <NavigationContainer>
           <StatusBar style="light" backgroundColor={Colors.background} />
           <Stack.Navigator
-            initialRouteName="Welcome"
+            initialRouteName="Play"
             screenOptions={{
               headerShown: false,
               contentStyle: { backgroundColor: Colors.background },
               animation: 'fade_from_bottom',
             }}
           >
-            <Stack.Screen name="Welcome" component={WelcomeScreen} />
-            <Stack.Screen name="Modes" component={ModesScreen} />
-            <Stack.Screen name="Players" component={PlayersScreen} />
-            <Stack.Screen name="Game" component={GameScreen} />
-            <Stack.Screen name="GameOver" component={GameOverScreen} />
+            {/* Bottom nav roots */}
+            <Stack.Screen name="Play"  component={PlayScreen}  />
+            <Stack.Screen name="Decks" component={DecksScreen} />
             <Stack.Screen name="Cards" component={CardsScreen} />
+
+            {/* Setup flow */}
+            <Stack.Screen name="DeckSelect" component={DeckSelectScreen} />
+            <Stack.Screen name="Players"    component={PlayersScreen}    />
+            <Stack.Screen name="Game"       component={GameScreen}       />
+            <Stack.Screen name="GameOver"   component={GameOverScreen}   />
           </Stack.Navigator>
         </NavigationContainer>
       </GameProvider>

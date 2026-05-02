@@ -35,7 +35,7 @@ interface GameContextType {
 
 const defaultState: GameState = {
   players: [],
-  selectedModes: ['social'],
+  selectedModes: ['getting_started'],
   currentRound: 0,
   totalRounds: 20,
   skips: 0,

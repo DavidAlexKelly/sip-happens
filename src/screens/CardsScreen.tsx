@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView,
-  TextInput, Modal, Animated, Alert,
+  TextInput, Modal, Animated, Alert, Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,7 +11,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { RootStackParamList } from '../navigation/types';
 import { Colors } from '../styles/theme';
-import { BottomNav } from './WelcomeScreen';
+import BottomNav from '../components/BottomNav';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Cards'>;
@@ -25,6 +25,7 @@ export interface CustomCard {
 }
 
 const STORAGE_KEY = '@nekkit_custom_cards';
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const TOKEN_PRESETS = [
   { label: '{player1}', desc: 'Active player' },
@@ -126,7 +127,6 @@ export default function CardsScreen({ navigation }: Props) {
     ]);
   };
 
-  // Preview: replace tokens with example values
   const previewText = (text: string) => text
     .replace(/{player1}/g, 'Alex')
     .replace(/{player2}/g, 'Jordan')
@@ -151,7 +151,6 @@ export default function CardsScreen({ navigation }: Props) {
 
       <Animated.View style={[{ flex: 1 }, { opacity: fadeAnim }]}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          {/* Page header */}
           <View style={styles.pageHeader}>
             <Text style={styles.eyebrow}>CUSTOM DECK</Text>
             <Text style={styles.pageTitle}>MY{'\n'}<Text style={styles.pageTitleAccent}>CARDS</Text></Text>
@@ -160,7 +159,6 @@ export default function CardsScreen({ navigation }: Props) {
             </Text>
           </View>
 
-          {/* New card button */}
           <TouchableOpacity onPress={openNew} activeOpacity={0.85} style={styles.newCardBtnWrapper}>
             <LinearGradient
               colors={[Colors.primary, Colors.primaryContainer]}
@@ -172,7 +170,6 @@ export default function CardsScreen({ navigation }: Props) {
             </LinearGradient>
           </TouchableOpacity>
 
-          {/* Empty state */}
           {cards.length === 0 && (
             <View style={styles.emptyState}>
               <Ionicons name="card-outline" size={48} color={Colors.outlineVariant} />
@@ -183,37 +180,26 @@ export default function CardsScreen({ navigation }: Props) {
             </View>
           )}
 
-          {/* Card list */}
           {cards.length > 0 && (
             <View style={styles.cardList}>
               <View style={styles.listHeader}>
                 <Text style={styles.listLabel}>Your Cards</Text>
                 <Text style={styles.cardCount}>{String(cards.length).padStart(2, '0')}</Text>
               </View>
-
               {cards.map(card => (
                 <View key={card.id} style={styles.cardItem}>
                   <View style={styles.cardItemInner}>
                     <Text style={styles.cardItemAction}>{card.action.toUpperCase()}</Text>
                     <Text style={styles.cardItemText}>{previewText(card.text)}</Text>
-                    {/* Show raw token version in muted text */}
                     {card.text.includes('{') && (
                       <Text style={styles.cardItemRaw} numberOfLines={1}>{card.text}</Text>
                     )}
                   </View>
                   <View style={styles.cardItemActions}>
-                    <TouchableOpacity
-                      onPress={() => openEdit(card)}
-                      style={styles.cardActionBtn}
-                      activeOpacity={0.7}
-                    >
+                    <TouchableOpacity onPress={() => openEdit(card)} style={styles.cardActionBtn} activeOpacity={0.7}>
                       <Ionicons name="pencil" size={16} color={Colors.primary} />
                     </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => handleDelete(card.id)}
-                      style={styles.cardActionBtn}
-                      activeOpacity={0.7}
-                    >
+                    <TouchableOpacity onPress={() => handleDelete(card.id)} style={styles.cardActionBtn} activeOpacity={0.7}>
                       <Ionicons name="trash-outline" size={16} color={Colors.outline} />
                     </TouchableOpacity>
                   </View>
@@ -226,98 +212,99 @@ export default function CardsScreen({ navigation }: Props) {
 
       <BottomNav current="cards" navigation={navigation} />
 
-      {/* Create / Edit Modal */}
+      {/* Create / Edit Modal — 90% screen height */}
       <Modal visible={showModal} transparent animationType="slide">
         <View style={styles.modalOverlay}>
-          <View style={styles.modalSheet}>
+          <View style={[styles.modalSheet, { height: SCREEN_HEIGHT * 0.9 }]}>
             <View style={styles.modalHandle} />
-
             <Text style={styles.modalTitle}>
               {editingCard ? 'EDIT CARD' : 'NEW CARD'}
             </Text>
 
-            {/* Card text input */}
-            <Text style={styles.inputLabel}>CHALLENGE TEXT</Text>
-            <TextInput
-              style={styles.textArea}
-              placeholder="e.g. {player1} must do 10 push-ups or take {medium}."
-              placeholderTextColor={Colors.outline}
-              value={cardText}
-              onChangeText={setCardText}
-              multiline
-              numberOfLines={4}
-              maxLength={280}
-              autoFocus
-            />
-            <Text style={styles.charCount}>{cardText.length}/280</Text>
-
-            {/* Token presets */}
-            <Text style={styles.inputLabel}>INSERT TOKEN</Text>
             <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.tokensRow}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={styles.modalScrollContent}
             >
-              {TOKEN_PRESETS.map(t => (
-                <TouchableOpacity
-                  key={t.label}
-                  onPress={() => insertToken(t.label)}
-                  style={styles.tokenChip}
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.tokenLabel}>{t.label}</Text>
-                  <Text style={styles.tokenDesc}>{t.desc}</Text>
+              {/* Token presets — ABOVE the text input */}
+              <Text style={styles.inputLabel}>INSERT TOKEN</Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.tokensRow}
+                keyboardShouldPersistTaps="handled"
+              >
+                {TOKEN_PRESETS.map(t => (
+                  <TouchableOpacity
+                    key={t.label}
+                    onPress={() => insertToken(t.label)}
+                    style={styles.tokenChip}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.tokenLabel}>{t.label}</Text>
+                    <Text style={styles.tokenDesc}>{t.desc}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+
+              {/* Challenge text */}
+              <Text style={styles.inputLabel}>CHALLENGE TEXT</Text>
+              <TextInput
+                style={styles.textArea}
+                placeholder="e.g. {player1} must do 10 push-ups or take {medium}."
+                placeholderTextColor={Colors.outline}
+                value={cardText}
+                onChangeText={setCardText}
+                multiline
+                numberOfLines={4}
+                maxLength={280}
+                autoFocus
+              />
+              <Text style={styles.charCount}>{cardText.length}/280</Text>
+
+              {/* Action label */}
+              <Text style={styles.inputLabel}>ACTION LABEL (optional)</Text>
+              <TextInput
+                style={styles.actionInput}
+                placeholder="e.g. Dare, Think fast, Do it"
+                placeholderTextColor={Colors.outline}
+                value={cardAction}
+                onChangeText={setCardAction}
+                maxLength={40}
+                returnKeyType="done"
+              />
+
+              {/* Preview */}
+              {cardText.trim().length > 0 && (
+                <View style={styles.preview}>
+                  <Text style={styles.previewLabel}>PREVIEW</Text>
+                  <Text style={styles.previewText}>{previewText(cardText)}</Text>
+                </View>
+              )}
+
+              {/* Buttons */}
+              <View style={styles.modalBtns}>
+                <TouchableOpacity style={styles.modalCancel} onPress={() => setShowModal(false)} activeOpacity={0.7}>
+                  <Text style={styles.modalCancelText}>Cancel</Text>
                 </TouchableOpacity>
-              ))}
-            </ScrollView>
-
-            {/* Action label */}
-            <Text style={styles.inputLabel}>ACTION LABEL (optional)</Text>
-            <TextInput
-              style={styles.actionInput}
-              placeholder="e.g. Dare, Think fast, Do it"
-              placeholderTextColor={Colors.outline}
-              value={cardAction}
-              onChangeText={setCardAction}
-              maxLength={40}
-              returnKeyType="done"
-            />
-
-            {/* Preview */}
-            {cardText.trim().length > 0 && (
-              <View style={styles.preview}>
-                <Text style={styles.previewLabel}>PREVIEW</Text>
-                <Text style={styles.previewText}>{previewText(cardText)}</Text>
-              </View>
-            )}
-
-            {/* Buttons */}
-            <View style={styles.modalBtns}>
-              <TouchableOpacity
-                style={styles.modalCancel}
-                onPress={() => setShowModal(false)}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.modalCancelText}>Cancel</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={handleSave}
-                activeOpacity={0.85}
-                style={[styles.modalSaveWrapper, !cardText.trim() && { opacity: 0.4 }]}
-                disabled={!cardText.trim()}
-              >
-                <LinearGradient
-                  colors={[Colors.primary, Colors.primaryContainer]}
-                  start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-                  style={styles.modalSave}
+                <TouchableOpacity
+                  onPress={handleSave}
+                  activeOpacity={0.85}
+                  style={[styles.modalSaveWrapper, !cardText.trim() && { opacity: 0.4 }]}
+                  disabled={!cardText.trim()}
                 >
-                  <Text style={styles.modalSaveText}>
-                    {editingCard ? 'SAVE CHANGES' : 'ADD CARD'}
-                  </Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
+                  <LinearGradient
+                    colors={[Colors.primary, Colors.primaryContainer]}
+                    start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+                    style={styles.modalSave}
+                  >
+                    <Text style={styles.modalSaveText}>
+                      {editingCard ? 'SAVE CHANGES' : 'ADD CARD'}
+                    </Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
           </View>
         </View>
       </Modal>
@@ -425,32 +412,24 @@ const styles = StyleSheet.create({
   modalSheet: {
     backgroundColor: Colors.surfaceContainerLow,
     borderTopLeftRadius: 28, borderTopRightRadius: 28,
-    padding: 28, paddingBottom: 48, gap: 16,
+    paddingTop: 20, paddingHorizontal: 28, paddingBottom: 0,
   },
   modalHandle: {
     width: 40, height: 4, borderRadius: 2,
     backgroundColor: Colors.outlineVariant,
-    alignSelf: 'center', marginBottom: 4,
+    alignSelf: 'center', marginBottom: 16,
   },
   modalTitle: {
     fontFamily: 'PlusJakartaSans_800ExtraBold',
     fontSize: 22, color: Colors.onSurface, letterSpacing: -0.5,
+    marginBottom: 20,
+  },
+  modalScrollContent: {
+    gap: 12, paddingBottom: 48,
   },
   inputLabel: {
     fontFamily: 'PlusJakartaSans_700Bold',
     fontSize: 9, letterSpacing: 3, textTransform: 'uppercase', color: Colors.outline,
-  },
-  textArea: {
-    backgroundColor: Colors.surfaceContainerHighest,
-    borderRadius: 16, padding: 16,
-    fontFamily: 'BeVietnamPro_400Regular',
-    fontSize: 15, color: Colors.onSurface,
-    minHeight: 100, textAlignVertical: 'top',
-    borderWidth: 1, borderColor: Colors.outlineVariant,
-  },
-  charCount: {
-    fontFamily: 'BeVietnamPro_400Regular',
-    fontSize: 11, color: Colors.outline, textAlign: 'right', marginTop: -8,
   },
   tokensRow: { flexDirection: 'row', gap: 8, paddingVertical: 4 },
   tokenChip: {
@@ -466,6 +445,18 @@ const styles = StyleSheet.create({
   tokenDesc: {
     fontFamily: 'BeVietnamPro_400Regular',
     fontSize: 10, color: Colors.outline,
+  },
+  textArea: {
+    backgroundColor: Colors.surfaceContainerHighest,
+    borderRadius: 16, padding: 16,
+    fontFamily: 'BeVietnamPro_400Regular',
+    fontSize: 15, color: Colors.onSurface,
+    minHeight: 100, textAlignVertical: 'top',
+    borderWidth: 1, borderColor: Colors.outlineVariant,
+  },
+  charCount: {
+    fontFamily: 'BeVietnamPro_400Regular',
+    fontSize: 11, color: Colors.outline, textAlign: 'right', marginTop: -4,
   },
   actionInput: {
     backgroundColor: Colors.surfaceContainerHighest,
