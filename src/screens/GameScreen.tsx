@@ -1,8 +1,18 @@
 // src/screens/GameScreen.tsx
+// Rewritten around useCardEngine. What changed vs the old version:
+//   • All draw logic moved to the engine (no more stale-closure round math)
+//   • BACK button — step back through cards you swiped past by accident
+//   • Custom decks are now actually playable (merged into the pool, crash-proof)
+//   • Round count reads state.totalRounds (single source of truth in context)
+//   • Juice: press-scale on the main button, richer haptics per action type,
+//     rule cards get a success-notification buzz
+//   • A pending rule-end card holds the game open one extra card so no rule
+//     is left running forever
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, Animated,
-  Dimensions, Modal, BackHandler, Image,
+  Modal, BackHandler, Image, Pressable,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,53 +21,28 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { RootStackParamList } from '../navigation/types';
 import { Colors, ModeColors, ModeLabels } from '../styles/theme';
+import { Challenge, PenaltyContext, MODES } from '../data/gameData';
+import { useGame } from '../components/GameContext';
+import { useCardEngine } from '../hooks/useCardEngine';
 import {
-  getChallengePool, substituteTokens, Challenge, PenaltyContext,
-  ALL_RULE_STARTS, ALL_RULE_ENDS,
-} from '../data/gameData';
-import { useGame, Player } from '../components/GameContext';
-
-// Persists across game sessions within the same app session.
-// Seeded into usedIds on mount so play-again never repeats last game's cards.
-// Cleared after the first round of a new game so they can return after that.
-let previousGameUsedIds: Set<string> = new Set();
-
-function prioritizeUninvolved(players: Player[], involved: Set<number>): Player[] {
-  const shuffle = <T,>(arr: T[]) => [...arr].sort(() => Math.random() - 0.5);
-  const uninvolved = players.filter(p => !involved.has(p.id));
-  const alreadyInvolved = players.filter(p => involved.has(p.id));
-  return [...shuffle(uninvolved), ...shuffle(alreadyInvolved)];
-}
+  loadCustomDecks, loadCustomCards, buildCustomPool, splitSelection,
+} from '../data/CustomDecks'
+import { Ads } from '../monetization/ads';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Game'>;
 };
 
-const RULE_DRAW_CHANCE = 0.15;
+const BUILT_IN_MODE_IDS = MODES.map(m => m.id);
 
 export default function GameScreen({ navigation }: Props) {
   const { state, nextRound, skipRound } = useGame();
 
-  // 20 rounds for 2 players, +6 per additional player
-  const TOTAL_ROUNDS = 20 + (state.players.length - 2) * 6;
-
-  const [challenge, setChallenge] = useState<Challenge | null>(null);
-  const [displayText, setDisplayText] = useState('');
-
-  // Seed usedIds from the previous game so those cards are excluded on play-again
-  const [usedIds, setUsedIds] = useState<Set<string>>(new Set(previousGameUsedIds));
-
-  const [usedRuleIds, setUsedRuleIds] = useState<Set<string>>(new Set());
+  const [extraPool, setExtraPool] = useState<Challenge[]>([]);
+  const [poolReady, setPoolReady] = useState(false);
   const [showQuitModal, setShowQuitModal] = useState(false);
 
-  const activeRuleId = useRef<string | null>(null);
-  const pendingEndCard = useRef<{ card: Challenge; fireOnRound: number } | null>(null);
-
-  const cardOpacity = useRef(new Animated.Value(1)).current;
-  const cardTranslate = useRef(new Animated.Value(0)).current;
-  const cardScale = useRef(new Animated.Value(1)).current;
-  const involvedRef = useRef<Set<number>>(new Set());
-  const currentPlayersRef = useRef<Player[]>([]);
+  const { modeIds } = splitSelection(state.selectedModes, BUILT_IN_MODE_IDS);
 
   const buildPenaltyCtx = useCallback((c: Challenge): PenaltyContext => ({
     currentRound: state.currentRound,
@@ -67,72 +52,61 @@ export default function GameScreen({ navigation }: Props) {
     bonus: state.sipBonus,
   }), [state.currentRound, state.totalRounds, state.selectedModes, state.sipBonus]);
 
-  const loadChallenge = useCallback(() => {
-    const round = state.currentRound;
+  const engine = useCardEngine({
+    players: state.players,
+    modeIds,
+    extraPool,
+    totalRounds: state.totalRounds,
+    buildPenaltyCtx,
+  });
 
-    // 1. Fire a pending rule-end card if it's due
-    if (pendingEndCard.current && round >= pendingEndCard.current.fireOnRound) {
-      const endCard = pendingEndCard.current.card;
-      pendingEndCard.current = null;
-      activeRuleId.current = null;
-      const orderedEnd = prioritizeUninvolved(state.players, involvedRef.current);
-      currentPlayersRef.current = orderedEnd;
-      involvedRef.current.add(orderedEnd[0]?.id);
-      if (endCard.text.includes('{player2}') && orderedEnd[1]) involvedRef.current.add(orderedEnd[1].id);
-      const text = substituteTokens(endCard.text, orderedEnd, buildPenaltyCtx(endCard));
-      setChallenge(endCard);
-      setDisplayText(text);
-      return;
-    }
+  // ── Animations ──────────────────────────────────────────────
+  const cardOpacity = useRef(new Animated.Value(1)).current;
+  const cardTranslate = useRef(new Animated.Value(0)).current;
+  const cardScale = useRef(new Animated.Value(1)).current;
+  const btnScale = useRef(new Animated.Value(1)).current;
 
-    // 2. Maybe draw a rule-start card (only if no rule is active and
-    //    enough rounds remain for the rule end card to fire before the game ends)
-    const endDelay = 4 + Math.floor(Math.random() * 3); // 4, 5, or 6
-    const roundsRemaining = TOTAL_ROUNDS - round;
-    if (!activeRuleId.current && roundsRemaining > endDelay && Math.random() < RULE_DRAW_CHANCE) {
-      const available = ALL_RULE_STARTS.filter(r => !usedRuleIds.has(r.ruleId!));
-      if (available.length > 0) {
-        const picked = available[Math.floor(Math.random() * available.length)];
-        activeRuleId.current = picked.ruleId!;
-        setUsedRuleIds(prev => new Set([...prev, picked.ruleId!]));
-        const endCard = ALL_RULE_ENDS[picked.ruleId!];
-        if (endCard) {
-          pendingEndCard.current = { card: endCard, fireOnRound: round + endDelay };
-        }
-        const orderedStart = prioritizeUninvolved(state.players, involvedRef.current);
-        currentPlayersRef.current = orderedStart;
-        involvedRef.current.add(orderedStart[0]?.id);
-        if (picked.text.includes('{player2}') && orderedStart[1]) involvedRef.current.add(orderedStart[1].id);
-        const text = substituteTokens(picked.text, orderedStart, buildPenaltyCtx(picked));
-        setChallenge(picked);
-        setDisplayText(text);
-        return;
-      }
-    }
+  const animateCard = (direction: 1 | -1, onMidpoint: () => void) => {
+    Animated.parallel([
+      Animated.timing(cardOpacity, { toValue: 0, duration: 160, useNativeDriver: true }),
+      Animated.timing(cardTranslate, { toValue: -22 * direction, duration: 160, useNativeDriver: true }),
+      Animated.timing(cardScale, { toValue: 0.95, duration: 160, useNativeDriver: true }),
+    ]).start(() => {
+      onMidpoint();
+      cardTranslate.setValue(22 * direction);
+      Animated.parallel([
+        Animated.timing(cardOpacity, { toValue: 1, duration: 240, useNativeDriver: true }),
+        Animated.spring(cardTranslate, { toValue: 0, tension: 90, friction: 10, useNativeDriver: true }),
+        Animated.spring(cardScale, { toValue: 1, tension: 90, friction: 10, useNativeDriver: true }),
+      ]).start();
+    });
+  };
 
-    // 3. Draw a normal challenge card from the selected decks
-    const pool = getChallengePool(state.selectedModes);
-    let available = pool.filter(c => !usedIds.has(c.id));
-    if (available.length === 0) {
-      setUsedIds(new Set());
-      available = pool;
-    }
-    const picked = available[Math.floor(Math.random() * available.length)];
-    setUsedIds(prev => new Set([...prev, picked.id]));
-
-    const orderedNormal = prioritizeUninvolved(state.players, involvedRef.current);
-    currentPlayersRef.current = orderedNormal;
-    involvedRef.current.add(orderedNormal[0]?.id);
-    if (picked.text.includes('{player2}') && orderedNormal[1]) involvedRef.current.add(orderedNormal[1].id);
-    const text = substituteTokens(picked.text, orderedNormal, buildPenaltyCtx(picked));
-    setChallenge(picked);
-    setDisplayText(text);
-  }, [state.selectedModes, state.players, state.currentRound, usedIds, usedRuleIds, buildPenaltyCtx]);
-
+  // ── Boot: resolve custom decks, then draw the first card ───
   useEffect(() => {
-    loadChallenge();
+    let cancelled = false;
+    (async () => {
+      const [decks, cards] = await Promise.all([loadCustomDecks(), loadCustomCards()]);
+      if (cancelled) return;
+      const { customDeckIds } = splitSelection(state.selectedModes, BUILT_IN_MODE_IDS);
+      setExtraPool(buildCustomPool(customDeckIds, decks, cards));
+      setPoolReady(true);
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    if (poolReady && !engine.current) {
+      const { card } = engine.drawNext(state.currentRound || 1);
+      if (card.challenge.isRule) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [poolReady]);
+
+  // ── Android hardware back → quit confirm ───────────────────
   useEffect(() => {
     const handler = BackHandler.addEventListener('hardwareBackPress', () => {
       setShowQuitModal(true);
@@ -141,68 +115,87 @@ export default function GameScreen({ navigation }: Props) {
     return () => handler.remove();
   }, []);
 
-  const animateCard = (onMidpoint: () => void) => {
-    Animated.parallel([
-      Animated.timing(cardOpacity, { toValue: 0, duration: 180, useNativeDriver: true }),
-      Animated.timing(cardTranslate, { toValue: -20, duration: 180, useNativeDriver: true }),
-      Animated.timing(cardScale, { toValue: 0.95, duration: 180, useNativeDriver: true }),
-    ]).start(() => {
-      onMidpoint();
-      cardTranslate.setValue(20);
-      Animated.parallel([
-        Animated.timing(cardOpacity, { toValue: 1, duration: 260, useNativeDriver: true }),
-        Animated.spring(cardTranslate, { toValue: 0, tension: 80, friction: 10, useNativeDriver: true }),
-        Animated.spring(cardScale, { toValue: 1, tension: 80, friction: 10, useNativeDriver: true }),
-      ]).start();
-    });
-  };
+  // ── End condition ───────────────────────────────────────────
+  // The game can finish once every player has been featured and the round
+  // target is met — but never while a rule is still open: the scheduled
+  // RULE OVER card must be shown first.
+  const canEnd =
+    state.currentRound >= state.totalRounds &&
+    engine.allPlayersInvolved() &&
+    !engine.hasPendingRuleEnd();
 
-  const allInvolved = state.players.every(p => involvedRef.current.has(p.id));
-  const canEnd = state.currentRound >= TOTAL_ROUNDS && allInvolved;
+  // One interstitial per game at the halfway mark (plus one at the end).
+  const midpointAdShown = useRef(false);
+
+  const advance = (skipped: boolean) => {
+    // ── Ad placement 2: game end — interstitial, then Game Over.
+    //    Fail-open: if no ad is loaded, Ads.show() runs the callback instantly.
+    if (canEnd) {
+      engine.finishGame();
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      Ads.show(() => navigation.replace('GameOver'));
+      return;
+    }
+    if (state.currentRound === 1) engine.releasePreviousGameCards();
+
+    const goNext = () => {
+      animateCard(1, () => {
+        const { card, isNew } = engine.drawNext(state.currentRound + 1);
+        if (isNew) (skipped ? skipRound : nextRound)();
+        if (card.challenge.isRule) {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        }
+      });
+    };
+
+    // ── Ad placement 1: midpoint — fires once, on the advance that crosses
+    //    the halfway round. User closes the ad (Google's built-in X), then
+    //    the next card animates in.
+    const midRound = Math.ceil(state.totalRounds / 2);
+    if (!midpointAdShown.current && state.currentRound + 1 > midRound) {
+      midpointAdShown.current = true;
+      Ads.show(goNext);
+      return;
+    }
+
+    goNext();
+  };
 
   const handleNext = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    if (canEnd) {
-      // Save this game's used cards so play-again excludes them on round 1
-      previousGameUsedIds = new Set(usedIds);
-      navigation.replace('GameOver');
-      return;
-    }
-    // After round 1 of a new game, let previous cards back into the pool
-    if (state.currentRound === 1) {
-      previousGameUsedIds = new Set();
-    }
-    animateCard(() => { nextRound(); loadChallenge(); });
+    advance(false);
   };
 
   const handleSkip = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    if (canEnd) {
-      previousGameUsedIds = new Set(usedIds);
-      navigation.replace('GameOver');
-      return;
-    }
-    if (state.currentRound === 1) {
-      previousGameUsedIds = new Set();
-    }
-    animateCard(() => { skipRound(); loadChallenge(); });
+    advance(true);
   };
 
-  const progress = Math.min(1, Math.max(0.04, state.currentRound / TOTAL_ROUNDS));
+  const handleBack = () => {
+    if (!engine.canGoBack) return;
+    Haptics.selectionAsync();
+    animateCard(-1, () => { engine.goBack(); });
+  };
 
-  const isRuleCard = challenge?.isRule !== undefined;
+  const pressIn = () =>
+    Animated.spring(btnScale, { toValue: 0.96, tension: 200, friction: 12, useNativeDriver: true }).start();
+  const pressOut = () =>
+    Animated.spring(btnScale, { toValue: 1, tension: 200, friction: 12, useNativeDriver: true }).start();
+
+  // ── Derived display state ───────────────────────────────────
+  const current = engine.current;
+  const challenge = current?.challenge ?? null;
+  const displayText = current?.displayText ?? '';
+
+  const progress = Math.min(1, Math.max(0.04, (current?.round ?? 1) / state.totalRounds));
+
   const isRuleStart = challenge?.isRule === true;
-  const isRuleEnd = challenge?.isRule === false;
-  const modeColor = isRuleStart
-    ? '#f5c842'
-    : isRuleEnd
-    ? '#72e88a'
+  const isRuleEnd = challenge?.isRule === false && challenge?.ruleId !== undefined;
+  const modeColor = isRuleStart ? '#f5c842'
+    : isRuleEnd ? '#72e88a'
     : (challenge ? (ModeColors[challenge.mode] || Colors.primary) : Colors.primary);
-
-  const modeLabel = isRuleStart
-    ? '📜 NEW RULE'
-    : isRuleEnd
-    ? '✅ RULE OVER'
+  const modeLabel = isRuleStart ? '📜 NEW RULE'
+    : isRuleEnd ? '✅ RULE OVER'
     : (challenge ? (ModeLabels[challenge.mode] || challenge.mode.toUpperCase()) : '');
 
   return (
@@ -215,124 +208,145 @@ export default function GameScreen({ navigation }: Props) {
       />
 
       <View style={styles.inner}>
-        {/* Header */}
+        {/* Header: quit, avatars, round counter */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => setShowQuitModal(true)} style={styles.quitBtn}>
+          <TouchableOpacity
+            onPress={() => setShowQuitModal(true)}
+            style={styles.quitBtn}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
             <Ionicons name="close" size={22} color={Colors.onSurfaceVariant} />
           </TouchableOpacity>
+
           <View style={styles.avatarRow}>
             {state.players.slice(0, 5).map((p) => (
-              <View key={p.id} style={[styles.avatar, { marginLeft: -10, borderColor: p.color }]}>
+              <View key={p.id} style={[styles.avatar, { borderColor: p.color }]}>
                 {p.photo ? (
-                  <Image source={{ uri: p.photo }} style={styles.avatarPhoto} />
+                  <Image source={{ uri: p.photo }} style={styles.avatarImg} />
                 ) : (
-                  <Text style={[styles.avatarText, { color: p.color }]}>
+                  <Text style={[styles.avatarInitial, { color: p.color }]}>
                     {p.name.charAt(0).toUpperCase()}
                   </Text>
                 )}
               </View>
             ))}
             {state.players.length > 5 && (
-              <View style={[styles.avatar, { marginLeft: -10, backgroundColor: Colors.surfaceContainerHighest, borderColor: Colors.outlineVariant }]}>
-                <Text style={[styles.avatarText, { color: Colors.onSurfaceVariant, fontSize: 10 }]}>
-                  +{state.players.length - 5}
-                </Text>
+              <View style={[styles.avatar, { borderColor: Colors.outline }]}>
+                <Text style={styles.avatarInitial}>+{state.players.length - 5}</Text>
               </View>
             )}
           </View>
+
+          <View style={styles.roundBadge}>
+            <Text style={styles.roundText}>
+              {Math.min(current?.round ?? 1, state.totalRounds)}/{state.totalRounds}
+            </Text>
+          </View>
         </View>
 
-        {/* Progress bar */}
-        <View style={styles.progressBarBg}>
-          <Animated.View style={[styles.progressBarFill, { width: `${progress * 100}%`, backgroundColor: modeColor }]} />
+        {/* Progress */}
+        <View style={styles.progressTrack}>
+          <View style={[styles.progressFill, { width: `${progress * 100}%`, backgroundColor: modeColor }]} />
         </View>
 
-        {/* Challenge card */}
+        {/* Card */}
         <Animated.View
           style={[
-            styles.cardWrapper,
-            { opacity: cardOpacity, transform: [{ translateY: cardTranslate }, { scale: cardScale }] },
+            styles.card,
+            { borderColor: `${modeColor}30` },
+            { opacity: cardOpacity, transform: [{ translateX: cardTranslate }, { scale: cardScale }] },
           ]}
         >
-          <LinearGradient
-            colors={[`${modeColor}28`, `${modeColor}08`]}
-            style={[StyleSheet.absoluteFillObject, { borderRadius: 24 }]}
-            start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-          />
-
-          <View style={styles.cardTop}>
-            <View style={[styles.categoryBadge, { backgroundColor: `${modeColor}18`, borderColor: `${modeColor}30` }]}>
-              <Text style={[styles.categoryLabel, { color: modeColor }]}>{modeLabel}</Text>
-            </View>
+          <View style={[styles.modeChip, { backgroundColor: `${modeColor}1c`, borderColor: `${modeColor}40` }]}>
+            <Ionicons name={(challenge?.icon as any) || 'sparkles'} size={14} color={modeColor} />
+            <Text style={[styles.modeChipText, { color: modeColor }]}>{modeLabel}</Text>
           </View>
 
-          <View style={styles.cardBody}>
-            <Text style={styles.challengeText}>{displayText}</Text>
-            <View style={[styles.cardDivider, { backgroundColor: modeColor }]} />
-          </View>
+          <Text style={styles.challengeText}>{displayText}</Text>
 
-          <View style={styles.cardBottom}>
+          {challenge?.action ? (
             <View style={styles.actionRow}>
-              <Ionicons name={(challenge?.icon as any) || 'beer'} size={20} color={modeColor} />
-              <Text style={[styles.actionText, { color: modeColor }]}>{challenge?.action || 'Drink up'}</Text>
+              <View style={[styles.actionDot, { backgroundColor: modeColor }]} />
+              <Text style={[styles.actionText, { color: modeColor }]}>{challenge.action}</Text>
             </View>
-            {!isRuleCard && (
-              <View style={styles.intensityBlock}>
-                <Text style={styles.intensityLabel}>Intensity</Text>
-                <View style={styles.intensityDots}>
-                  {[1, 2, 3].map(i => (
-                    <View
-                      key={i}
-                      style={[
-                        styles.intensityDot,
-                        { backgroundColor: i <= (challenge?.intensity || 1) ? modeColor : Colors.outlineVariant },
-                      ]}
-                    />
-                  ))}
-                </View>
-              </View>
-            )}
-          </View>
+          ) : null}
 
           <View style={styles.watermark} pointerEvents="none">
-            <Ionicons name="game-controller" size={200} color={Colors.onSurface} style={{ opacity: 0.03 }} />
+            <Ionicons
+              name={(challenge?.icon as any) || 'game-controller'}
+              size={200}
+              color={Colors.onSurface}
+              style={{ opacity: 0.03 }}
+            />
           </View>
         </Animated.View>
 
-        {/* Action buttons */}
+        {/* Actions */}
         <View style={styles.actions}>
-          <TouchableOpacity onPress={handleNext} activeOpacity={0.85}>
-            <LinearGradient
-              colors={[Colors.primary, Colors.primaryContainer]}
-              start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-              style={styles.nextBtn}
-            >
-              <Text style={styles.nextBtnText}>NEXT CHALLENGE</Text>
-              <Ionicons name="arrow-forward" size={20} color={Colors.onPrimary} />
-            </LinearGradient>
-          </TouchableOpacity>
+          <Pressable onPress={handleNext} onPressIn={pressIn} onPressOut={pressOut}>
+            <Animated.View style={{ transform: [{ scale: btnScale }] }}>
+              <LinearGradient
+                colors={[Colors.primary, Colors.primaryContainer]}
+                start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+                style={styles.nextBtn}
+              >
+                <Text style={styles.nextBtnText}>
+                  {canEnd ? 'FINISH GAME' : 'NEXT CHALLENGE'}
+                </Text>
+                <Ionicons
+                  name={canEnd ? 'flag' : 'arrow-forward'}
+                  size={20}
+                  color={Colors.onPrimary}
+                />
+              </LinearGradient>
+            </Animated.View>
+          </Pressable>
 
-          <TouchableOpacity onPress={handleSkip} style={styles.skipBtn} activeOpacity={0.7}>
-            <Ionicons name="play-skip-forward" size={18} color={Colors.outline} />
-            <Text style={styles.skipText}>Skip this round</Text>
-          </TouchableOpacity>
+          <View style={styles.secondaryRow}>
+            <TouchableOpacity
+              onPress={handleBack}
+              style={[styles.secondaryBtn, !engine.canGoBack && styles.secondaryBtnDisabled]}
+              activeOpacity={0.7}
+              disabled={!engine.canGoBack}
+            >
+              <Ionicons
+                name="arrow-undo"
+                size={18}
+                color={engine.canGoBack ? Colors.outline : Colors.outlineVariant}
+              />
+              <Text style={[styles.secondaryText, !engine.canGoBack && styles.secondaryTextDisabled]}>
+                Back
+              </Text>
+            </TouchableOpacity>
+
+            <View style={styles.secondaryDivider} />
+
+            <TouchableOpacity onPress={handleSkip} style={styles.secondaryBtn} activeOpacity={0.7}>
+              <Ionicons name="play-skip-forward" size={18} color={Colors.outline} />
+              <Text style={styles.secondaryText}>Skip</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
 
-      {/* Quit Modal */}
-      <Modal visible={showQuitModal} transparent animationType="slide">
+      {/* Quit confirm */}
+      <Modal visible={showQuitModal} transparent animationType="slide" onRequestClose={() => setShowQuitModal(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalSheet}>
             <Text style={styles.modalTitle}>Quit the game?</Text>
             <Text style={styles.modalSubtitle}>Progress will be lost.</Text>
             <View style={styles.modalBtns}>
-              <TouchableOpacity style={styles.modalCancel} onPress={() => setShowQuitModal(false)} activeOpacity={0.7}>
-                <Text style={styles.modalCancelText}>Keep Playing</Text>
+              <TouchableOpacity
+                style={styles.modalKeepBtn}
+                onPress={() => setShowQuitModal(false)}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.modalKeepText}>Keep playing</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.modalQuit}
+                style={styles.modalQuitBtn}
                 onPress={() => { setShowQuitModal(false); navigation.replace('Play'); }}
-                activeOpacity={0.7}
+                activeOpacity={0.85}
               >
                 <Text style={styles.modalQuitText}>Quit</Text>
               </TouchableOpacity>
@@ -344,90 +358,116 @@ export default function GameScreen({ navigation }: Props) {
   );
 }
 
-const { width } = Dimensions.get('window');
-
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  topGlow: { position: 'absolute', top: 0, left: 0, right: 0, height: 300, zIndex: 0 },
-  inner: { flex: 1, paddingHorizontal: 20, paddingTop: 8, gap: 16 },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  topGlow: { position: 'absolute', top: 0, left: 0, right: 0, height: 260 },
+  inner: { flex: 1, paddingHorizontal: 20, paddingBottom: 12 },
+
+  header: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingVertical: 12,
+  },
   quitBtn: {
-    width: 40, height: 40, borderRadius: 12,
-    backgroundColor: Colors.surfaceContainerHigh,
-    alignItems: 'center', justifyContent: 'center',
+    width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: `${Colors.onSurface}0a`,
   },
   avatarRow: { flexDirection: 'row', paddingLeft: 10 },
   avatar: {
-    width: 36, height: 36, borderRadius: 18,
-    backgroundColor: Colors.surfaceContainerHighest,
-    borderWidth: 2, alignItems: 'center', justifyContent: 'center',
+    width: 34, height: 34, borderRadius: 17, borderWidth: 2, marginLeft: -10,
+    backgroundColor: Colors.background, alignItems: 'center', justifyContent: 'center',
+    overflow: 'hidden',
   },
-  avatarPhoto: { width: 36, height: 36, borderRadius: 18 },
-  avatarText: { fontFamily: 'PlusJakartaSans_800ExtraBold', fontSize: 14 },
-  progressBarBg: { height: 3, borderRadius: 2, backgroundColor: Colors.surfaceContainerHighest, overflow: 'hidden' },
-  progressBarFill: { height: '100%', borderRadius: 2 },
-  cardWrapper: {
-    flex: 1, backgroundColor: Colors.surfaceContainerLow,
-    borderRadius: 24, padding: 24, borderWidth: 1,
-    borderColor: Colors.outlineVariant, overflow: 'hidden',
+  avatarImg: { width: '100%', height: '100%' },
+  avatarInitial: {
+    fontFamily: 'PlusJakartaSans_800ExtraBold', fontSize: 13, color: Colors.onSurfaceVariant,
   },
-  cardTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  categoryBadge: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, borderWidth: 1 },
-  categoryLabel: {
-    fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 10, letterSpacing: 2, textTransform: 'uppercase',
+  roundBadge: {
+    paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12,
+    backgroundColor: `${Colors.onSurface}0a`,
   },
-  cardBody: { flex: 1, justifyContent: 'center', paddingVertical: 24 },
+  roundText: {
+    fontFamily: 'BeVietnamPro_700Bold', fontSize: 12, color: Colors.onSurfaceVariant,
+    letterSpacing: 0.5,
+  },
+
+  progressTrack: {
+    height: 4, borderRadius: 2, backgroundColor: `${Colors.onSurface}10`, marginBottom: 18,
+    overflow: 'hidden',
+  },
+  progressFill: { height: '100%', borderRadius: 2 },
+
+  card: {
+    flex: 1, borderRadius: 28, borderWidth: 1, padding: 26,
+    backgroundColor: `${Colors.onSurface}06`, justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  modeChip: {
+    flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start', gap: 6,
+    paddingHorizontal: 12, paddingVertical: 7, borderRadius: 16, borderWidth: 1,
+    marginBottom: 22,
+  },
+  modeChipText: {
+    fontFamily: 'PlusJakartaSans_800ExtraBold', fontSize: 12, letterSpacing: 1.2,
+  },
   challengeText: {
-    fontFamily: 'PlusJakartaSans_800ExtraBold',
-    fontSize: 24, color: Colors.onSurface, lineHeight: 32, letterSpacing: -0.5,
+    fontFamily: 'PlusJakartaSans_800ExtraBold', fontSize: 26, lineHeight: 35,
+    color: Colors.onSurface,
   },
-  cardDivider: { width: 48, height: 2, borderRadius: 2, marginTop: 20, opacity: 0.6 },
-  cardBottom: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
-  actionRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  actionRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 22 },
+  actionDot: { width: 6, height: 6, borderRadius: 3 },
   actionText: {
-    fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 11, letterSpacing: 2, textTransform: 'uppercase',
+    fontFamily: 'BeVietnamPro_700Bold', fontSize: 13, letterSpacing: 1, textTransform: 'uppercase',
   },
-  intensityBlock: { alignItems: 'flex-end', gap: 4 },
-  intensityLabel: {
-    fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 9, letterSpacing: 1.5, textTransform: 'uppercase', color: Colors.outline,
-  },
-  intensityDots: { flexDirection: 'row', gap: 4 },
-  intensityDot: { width: 8, height: 8, borderRadius: 4 },
-  watermark: { position: 'absolute', bottom: -40, right: -40, opacity: 0.03 },
-  actions: { gap: 10, paddingBottom: 8 },
+  watermark: { position: 'absolute', bottom: -40, right: -40 },
+
+  actions: { paddingTop: 18, gap: 4 },
   nextBtn: {
-    paddingVertical: 20, borderRadius: 999,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
-    shadowColor: Colors.primary, shadowOpacity: 0.4, shadowRadius: 20, shadowOffset: { width: 0, height: 8 },
+    height: 58, borderRadius: 29,
   },
   nextBtnText: {
-    fontFamily: 'PlusJakartaSans_800ExtraBold',
-    fontSize: 16, letterSpacing: 2, color: Colors.onPrimary, textTransform: 'uppercase',
+    fontFamily: 'PlusJakartaSans_800ExtraBold', fontSize: 16, letterSpacing: 1.2,
+    color: Colors.onPrimary,
   },
-  skipBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 14,
+  secondaryRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 10,
   },
-  skipText: {
-    fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 12, letterSpacing: 1, textTransform: 'uppercase', color: Colors.outline,
+  secondaryBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    paddingHorizontal: 18, paddingVertical: 10,
   },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
+  secondaryBtnDisabled: { opacity: 0.5 },
+  secondaryText: { fontFamily: 'BeVietnamPro_500Medium', fontSize: 14, color: Colors.outline },
+  secondaryTextDisabled: { color: Colors.outlineVariant },
+  secondaryDivider: { width: 1, height: 16, backgroundColor: `${Colors.onSurface}15` },
+
+  modalOverlay: {
+    flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.6)',
+  },
   modalSheet: {
-    backgroundColor: Colors.surfaceContainer,
-    borderTopLeftRadius: 28, borderTopRightRadius: 28,
-    padding: 32, gap: 8,
+    backgroundColor: Colors.background, borderTopLeftRadius: 28, borderTopRightRadius: 28,
+    padding: 24, paddingBottom: 36, borderWidth: 1, borderColor: `${Colors.onSurface}12`,
   },
-  modalTitle: { fontFamily: 'PlusJakartaSans_800ExtraBold', fontSize: 22, color: Colors.onSurface },
-  modalSubtitle: { fontFamily: 'BeVietnamPro_400Regular', fontSize: 14, color: Colors.onSurfaceVariant, marginBottom: 16 },
+  modalTitle: {
+    fontFamily: 'PlusJakartaSans_800ExtraBold', fontSize: 20, color: Colors.onSurface,
+  },
+  modalSubtitle: {
+    fontFamily: 'BeVietnamPro_400Regular', fontSize: 14, color: Colors.onSurfaceVariant,
+    marginTop: 6, marginBottom: 20,
+  },
   modalBtns: { flexDirection: 'row', gap: 12 },
-  modalCancel: {
-    flex: 1, paddingVertical: 16, borderRadius: 16,
-    backgroundColor: Colors.surfaceContainerHighest, alignItems: 'center',
+  modalKeepBtn: {
+    flex: 1, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: Colors.primary,
   },
-  modalCancelText: { fontFamily: 'PlusJakartaSans_700Bold', fontSize: 14, color: Colors.onSurface },
-  modalQuit: { flex: 1, paddingVertical: 16, borderRadius: 16, backgroundColor: Colors.error, alignItems: 'center' },
-  modalQuitText: { fontFamily: 'PlusJakartaSans_700Bold', fontSize: 14, color: '#fff' },
+  modalKeepText: {
+    fontFamily: 'PlusJakartaSans_800ExtraBold', fontSize: 15, color: Colors.onPrimary,
+  },
+  modalQuitBtn: {
+    flex: 1, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1, borderColor: `${Colors.onSurface}20`,
+  },
+  modalQuitText: {
+    fontFamily: 'PlusJakartaSans_800ExtraBold', fontSize: 15, color: Colors.onSurfaceVariant,
+  },
 });

@@ -1,58 +1,104 @@
 {
   "expo": {
-    "name": "Nekkit",
-    "slug": "betterlo",
+    "name": "Sip Happens",
+    "slug": "sip-happens",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
-    "backgroundColor": "#0e0e11",
+    "backgroundColor": "#0d0b14",
     "splash": {
-      "backgroundColor": "#0e0e11",
-      "resizeMode": "contain"
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0d0b14"
     },
+    "assetBundlePatterns": ["**/*"],
     "ios": {
+      "bundleIdentifier": "app.siphappens.mobile",
+      "buildNumber": "1",
       "supportsTablet": false,
-      "bundleIdentifier": "com.yourname.electricnocturne",
       "infoPlist": {
-        "UIRequiresFullScreen": true,
-        "NSCameraUsageDescription": "Used to set your player photo.",
-        "NSPhotoLibraryUsageDescription": "Used to access photos for your player icon."
+        "NSCameraUsageDescription": "Sip Happens uses your camera so you can add a photo to each player's avatar.",
+        "NSPhotoLibraryUsageDescription": "Sip Happens accesses your photos so you can pick a picture for a player's avatar.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
+      "package": "app.siphappens.mobile",
+      "versionCode": 1,
       "adaptiveIcon": {
-        "backgroundColor": "#0e0e11"
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0d0b14"
       },
-      "package": "com.yourname.electricnocturne",
-      "permissions": [
-        "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO",
-        "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO"
-      ]
+      "permissions": ["CAMERA"]
     },
     "plugins": [
-      "expo-font",
       [
         "expo-image-picker",
         {
-          "cameraPermission": "Used to set your player photo.",
-          "photosPermission": "Used to access photos for your player icon."
+          "cameraPermission": "Sip Happens uses your camera so you can add a photo to each player's avatar."
         }
       ]
     ],
     "extra": {
       "eas": {
-        "projectId": "9c1b8c73-7891-4001-bb46-aa2fdccd67aa"
+        "projectId": "REPLACE_WITH_EAS_PROJECT_ID"
       }
-    },
-    "owner": "dkellyyyys-organization",
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
-    "updates": {
-      "url": "https://u.expo.dev/9c1b8c73-7891-4001-bb46-aa2fdccd67aa"
     }
+  },
+  "react-native-google-mobile-ads": {
+    "androidAppId": "ca-app-pub-9454232511983330~9884073923",
+    "iosAppId": "ca-app-pub-9454232511983330~2234061451",
+    "delayAppMeasurementInit": true,
+    "userTrackingUsageDescription": "This lets us show ads that keep Sip Happens free.",
+    "skAdNetworkItems": [
+      "cstr6suwn9.skadnetwork",
+      "4fzdc2evr5.skadnetwork",
+      "2fnua5tdw4.skadnetwork",
+      "ydx93a7ass.skadnetwork",
+      "p78axxw29g.skadnetwork",
+      "v72qych5uu.skadnetwork",
+      "ludvb6z3bs.skadnetwork",
+      "cp8zw746q7.skadnetwork",
+      "3sh42y64q3.skadnetwork",
+      "c6k4g5qg8m.skadnetwork",
+      "s39g8k73mm.skadnetwork",
+      "3qy4746246.skadnetwork",
+      "f38h382jlk.skadnetwork",
+      "hs6bdukanm.skadnetwork",
+      "v4nxqhlyqp.skadnetwork",
+      "wzmmz9fp6w.skadnetwork",
+      "yclnxrl5pm.skadnetwork",
+      "t38b2kh725.skadnetwork",
+      "7ug5zh24hu.skadnetwork",
+      "gta9lk7p23.skadnetwork",
+      "vutu7akeur.skadnetwork",
+      "y5ghdn5j9k.skadnetwork",
+      "n6fk4nfna4.skadnetwork",
+      "v9wttpbfk9.skadnetwork",
+      "n38lu8286q.skadnetwork",
+      "47vhws6wlr.skadnetwork",
+      "kbd757ywx3.skadnetwork",
+      "9t245vhmpl.skadnetwork",
+      "eh6m2bh4zr.skadnetwork",
+      "a2p9lx4jpn.skadnetwork",
+      "22mmun2rn5.skadnetwork",
+      "4468km3ulz.skadnetwork",
+      "2u9pt9hc89.skadnetwork",
+      "8s468mfl3y.skadnetwork",
+      "klf5c3l5u5.skadnetwork",
+      "ppxm28t8ap.skadnetwork",
+      "ecpz2srf59.skadnetwork",
+      "uw77j35x4d.skadnetwork",
+      "pwa73g5rt2.skadnetwork",
+      "mlmmfzh3r3.skadnetwork",
+      "578prtvx9j.skadnetwork",
+      "4dzt52r2t5.skadnetwork",
+      "e5fvkxwrpn.skadnetwork",
+      "8c4e2ghe7u.skadnetwork",
+      "zq492l623r.skadnetwork",
+      "3rd42ekr43.skadnetwork",
+      "3qcr597p9d.skadnetwork"
+    ]
   }
 }

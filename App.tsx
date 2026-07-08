@@ -1,4 +1,15 @@
-import React from 'react';
+// App.tsx
+// Updated for monetization:
+//   • Ads.init() on mount — runs the UK/EU consent form + iOS ATT prompt on
+//     first launch, then preloads the first interstitial
+//   • gestureEnabled: false on Game/GameOver so an iOS edge-swipe can't
+//     accidentally kill a running game
+//
+// NOTE: the Stack.Screen list and options below are the standard
+// headerShown:false setup. If your original navigator had custom per-screen
+// animations/options, keep yours and port ONLY the three additions above.
+
+import React, { useEffect } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -18,12 +29,13 @@ import {
 } from '@expo-google-fonts/be-vietnam-pro';
 
 import { GameProvider } from './src/components/GameContext';
+import { Ads } from './src/monetization/ads';
 import { RootStackParamList } from './src/navigation/types';
 
 // Bottom nav screens
-import PlayScreen    from './src/screens/PlayScreen';
-import DecksScreen   from './src/screens/DecksScreen';
-import CardsScreen   from './src/screens/CardsScreen';
+import PlayScreen  from './src/screens/PlayScreen';
+import DecksScreen from './src/screens/DecksScreen';
+import CardsScreen from './src/screens/CardsScreen';
 
 // Setup flow (no bottom nav)
 import DeckSelectScreen from './src/screens/DeckSelectScreen';
@@ -46,6 +58,12 @@ export default function App() {
     BeVietnamPro_700Bold,
   });
 
+  // Consent flow + SDK init + preload of the first interstitial.
+  // Fire-and-forget: if it fails (offline first run), ads silently no-op.
+  useEffect(() => {
+    Ads.init();
+  }, []);
+
   if (!fontsLoaded) {
     return (
       <View style={{ flex: 1, backgroundColor: Colors.background, alignItems: 'center', justifyContent: 'center' }}>
@@ -58,25 +76,29 @@ export default function App() {
     <SafeAreaProvider>
       <GameProvider>
         <NavigationContainer>
-          <StatusBar style="light" backgroundColor={Colors.background} />
+          <StatusBar style="light" />
           <Stack.Navigator
             initialRouteName="Play"
             screenOptions={{
               headerShown: false,
               contentStyle: { backgroundColor: Colors.background },
-              animation: 'fade_from_bottom',
             }}
           >
-            {/* Bottom nav roots */}
-            <Stack.Screen name="Play"  component={PlayScreen}  />
-            <Stack.Screen name="Decks" component={DecksScreen} />
-            <Stack.Screen name="Cards" component={CardsScreen} />
-
-            {/* Setup flow */}
+            <Stack.Screen name="Play"       component={PlayScreen} />
+            <Stack.Screen name="Decks"      component={DecksScreen} />
+            <Stack.Screen name="Cards"      component={CardsScreen} />
             <Stack.Screen name="DeckSelect" component={DeckSelectScreen} />
-            <Stack.Screen name="Players"    component={PlayersScreen}    />
-            <Stack.Screen name="Game"       component={GameScreen}       />
-            <Stack.Screen name="GameOver"   component={GameOverScreen}   />
+            <Stack.Screen name="Players"    component={PlayersScreen} />
+            <Stack.Screen
+              name="Game"
+              component={GameScreen}
+              options={{ gestureEnabled: false }}
+            />
+            <Stack.Screen
+              name="GameOver"
+              component={GameOverScreen}
+              options={{ gestureEnabled: false }}
+            />
           </Stack.Navigator>
         </NavigationContainer>
       </GameProvider>
