@@ -26,7 +26,7 @@ import { useGame } from '../components/GameContext';
 import { useCardEngine } from '../hooks/useCardEngine';
 import {
   loadCustomDecks, loadCustomCards, buildCustomPool, splitSelection,
-} from '../data/CustomDecks'
+} from '../data/customDecks'
 import { Ads } from '../monetization/ads';
 
 type Props = {
