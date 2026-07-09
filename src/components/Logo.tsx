@@ -1,19 +1,12 @@
 // src/components/Logo.tsx
-// The signature element of the redesign: a two-weight wordmark — "sip" sits
-// solid inside a coral chip (like a bottle cap / drinks-menu tag), "happens"
-// runs alongside it in the italic display face already bundled in the app
-// (PlusJakartaSans_800ExtraBold_Italic — previously imported and unused).
-// A single droplet dots the "i", tying the mark back to the drinking-game
-// subject without leaning on a literal glass/bottle icon.
-//
-// Replaces the old gradient-pill "NEKKIT" lockup in PlayScreen, PlayersScreen,
-// DecksScreen and CardsScreen — one component, used everywhere, so the brand
-// mark can never drift out of sync again.
+// Jackbox-style wordmark: "SIP" lives on a tilted buzzer-yellow sticker with
+// an ink border and hard shadow; "HAPPENS!" runs alongside in the italic
+// display face. Same component API as before (size: 'small' | 'large').
 
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Type } from '../styles/theme';
+import { Colors, Jack, Type } from '../styles/theme';
 
 type Size = 'small' | 'large';
 
@@ -21,37 +14,49 @@ export default function Logo({ size = 'small' }: { size?: Size }) {
   const isLarge = size === 'large';
   return (
     <View style={styles.row}>
-      <View style={[styles.chip, isLarge && styles.chipLarge]}>
-        <Text style={[styles.chipText, isLarge && styles.chipTextLarge]}>sip</Text>
-        <Ionicons
-          name="water"
-          size={isLarge ? 14 : 10}
-          color={Colors.onPrimary}
-          style={styles.drop}
-        />
+      <View style={[styles.chipOuter, { transform: [{ rotate: Jack.tiltL }] }]}>
+        <View style={[styles.chipShadow, isLarge && styles.chipShadowLarge]} />
+        <View style={[styles.chip, isLarge && styles.chipLarge]}>
+          <Text style={[styles.chipText, isLarge && styles.chipTextLarge]}>SIP</Text>
+          <Ionicons
+            name="water"
+            size={isLarge ? 15 : 11}
+            color={Colors.ink}
+          />
+        </View>
       </View>
-      <Text style={[styles.wordmark, isLarge && styles.wordmarkLarge]}>happens</Text>
+      <Text style={[styles.wordmark, isLarge && styles.wordmarkLarge]}>HAPPENS!</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  chipOuter: { position: 'relative' },
+  chipShadow: {
+    position: 'absolute', top: 3, left: 0, right: 0, bottom: 0,
+    borderRadius: 10, backgroundColor: Colors.ink,
+  },
+  chipShadowLarge: { top: 4, borderRadius: 13 },
   chip: {
     flexDirection: 'row', alignItems: 'center', gap: 3,
     backgroundColor: Colors.primary,
-    paddingHorizontal: 12, paddingVertical: 5,
-    borderRadius: 10,
+    paddingHorizontal: 11, paddingVertical: 5,
+    borderRadius: 10, borderWidth: 2.5, borderColor: Colors.ink,
+    marginBottom: 3,
   },
-  chipLarge: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 14 },
+  chipLarge: {
+    paddingHorizontal: 16, paddingVertical: 8, borderRadius: 13,
+    borderWidth: 3, marginBottom: 4,
+  },
   chipText: {
-    fontFamily: Type.display, fontSize: 15, color: Colors.onPrimary,
-    letterSpacing: 0.2,
+    fontFamily: Type.display, fontSize: 15, color: Colors.ink,
+    letterSpacing: 0.5,
   },
-  chipTextLarge: { fontSize: 22 },
-  drop: { marginTop: 1 },
+  chipTextLarge: { fontSize: 23 },
   wordmark: {
     fontFamily: Type.displayItalic, fontSize: 17, color: Colors.onSurface,
+    letterSpacing: 0.5,
   },
-  wordmarkLarge: { fontSize: 25 },
+  wordmarkLarge: { fontSize: 26 },
 });

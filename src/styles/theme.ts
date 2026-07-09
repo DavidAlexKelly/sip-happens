@@ -1,57 +1,77 @@
 // src/styles/theme.ts
 // ─────────────────────────────────────────────────────────────────────────────
-// DESIGN TOKENS — "Sip Happens"
-// Direction: late-night cocktail-bar neon sign, not cyberpunk void. Warm ink
-// background instead of cold black; citrus coral as the hero color instead of
-// magenta; lime + amber for the "fresh / warm" split a drinks menu would use.
+// DESIGN TOKENS — "Sip Happens" · Jackbox-style overhaul
 //
-// Fixed: ModeColors/ModeLabels were previously keyed by 'social'/'wild', which
-// never matched the actual card mode values ('drink'/'dare'/'truth'/'chaos'/
-// 'spicy' — see src/data/gameData.ts backendPools). Every card was silently
-// falling back to the default primary color. Now keyed correctly, plus a
-// 'custom' entry for user-made decks.
+// Direction: a Jackbox party-game stage. Deep indigo backdrop, loud saturated
+// accents, and one signature system used everywhere: solid "sticker" surfaces
+// with a thick ink border and a HARD offset shadow (no blur). Buttons press
+// down onto their own shadow. Hero elements get a one-degree tilt.
+//
+// All original export names and Colors keys are preserved so any file not
+// touched by the redesign keeps compiling.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const Colors = {
-  background: '#0C0A12',
-  surfaceContainerLow: '#141019',
-  surfaceContainer: '#1B1524',
-  surfaceContainerHigh: '#241B31',
-  surfaceContainerHighest: '#2E2340',
-  surfaceBright: '#392B4A',
+  // The stage
+  background: '#221A5E',            // deep indigo stage
+  surfaceContainerLow: '#2A2170',   // one step up
+  surfaceContainer: '#322880',      // panels
+  surfaceContainerHigh: '#3B3092',  // raised panels
+  surfaceContainerHighest: '#4438A4',
+  surfaceBright: '#4F42B8',
 
-  primary: '#FF6B4A',        // citrus coral — the hero color
-  primaryContainer: '#E5502E',
-  primaryDim: '#FF8A6E',
-  onPrimary: '#2B0A02',
+  // Hero action — buzzer yellow
+  primary: '#FFCC26',
+  primaryContainer: '#FFB300',      // pressed / gradient tail
+  primaryDim: '#FFE07A',
+  onPrimary: '#1B1244',             // ink on yellow
 
-  secondary: '#C6FF5E',      // lime — fresh / "getting started"
-  onSecondary: '#1C2E00',
+  // Party pink — secondary energy
+  secondary: '#FF4D8D',
+  onSecondary: '#FFFFFF',
 
-  tertiary: '#FFC24B',       // amber — warm / rules & warnings
-  onTertiary: '#2E1B00',
+  // Cyan — cool accent
+  tertiary: '#3EE6E0',
+  onTertiary: '#0D3534',
 
-  onSurface: '#FBF3E7',      // warm paper white, not clinical white
-  onSurfaceVariant: '#B3A9C2',
-  onBackground: '#FBF3E7',
+  // Text
+  onSurface: '#FFF8EC',             // chalk white
+  onSurfaceVariant: '#BDB6E8',      // muted lavender
+  onBackground: '#FFF8EC',
 
-  outline: '#8A7F9E',
-  outlineVariant: '#3A2F4D',
+  outline: '#8C85C4',
+  outlineVariant: '#453A9E',
 
   error: '#FF5470',
-  errorContainer: '#4A0E1E',
+  errorContainer: '#4A0E2A',
+
+  // ── New Jackbox tokens ──
+  ink: '#160F3E',                   // borders, hard shadows, text on brights
+  paper: '#FFF8EC',                 // the prompt-card face
+  paperDim: '#F0E8D8',
 } as const;
 
-// Distinct, collision-friendly avatar/player palette.
+// The sticker system: one set of numbers, used by every surface.
+export const Jack = {
+  border: 3,        // ink border width
+  shadow: 5,        // hard shadow offset (buttons drop onto this)
+  shadowBig: 7,     // hero panels
+  radius: 16,
+  radiusBig: 22,
+  tiltL: '-1.2deg', // signature tilts — use sparingly
+  tiltR: '1.2deg',
+} as const;
+
+// Distinct, collision-friendly avatar/player palette — reads on indigo.
 export const PlayerColors = [
-  '#FF6B4A', // coral
-  '#C6FF5E', // lime
-  '#FFC24B', // amber
-  '#7A5CFF', // grape
-  '#3AD6C4', // teal
-  '#FF4F9A', // hot pink
-  '#5EC8FF', // sky
-  '#FBF3E7', // foam
+  '#FFCC26', // buzzer yellow
+  '#FF4D8D', // party pink
+  '#3EE6E0', // cyan
+  '#8C6BFF', // grape
+  '#B6F44A', // lime
+  '#FF7A3C', // orange
+  '#5EB8FF', // sky
+  '#FFF8EC', // chalk
 ];
 
 export const PlayerRanks = [
@@ -61,12 +81,12 @@ export const PlayerRanks = [
 
 // Keyed by Challenge.mode — matches backendPools in src/data/gameData.ts.
 export const ModeColors: Record<string, string> = {
-  drink:  '#3AD6C4', // teal — refreshing
-  dare:   '#FF6B4A', // coral
-  truth:  '#7A5CFF', // grape
-  chaos:  '#FFC24B', // amber
-  spicy:  '#FF3B5C', // hot red
-  custom: '#5EC8FF', // sky — user-made
+  drink:  '#3EE6E0', // cyan — refreshing
+  dare:   '#FF7A3C', // orange
+  truth:  '#8C6BFF', // grape
+  chaos:  '#FFCC26', // yellow
+  spicy:  '#FF4D8D', // pink-red
+  custom: '#5EB8FF', // sky — user-made
 };
 
 export const ModeLabels: Record<string, string> = {
@@ -78,11 +98,10 @@ export const ModeLabels: Record<string, string> = {
   custom: 'Your Deck',
 };
 
-// Typography roles. Both families are already bundled via
-// @expo-google-fonts — no new font packages needed.
+// Typography roles — same bundled families, no new packages.
 export const Type = {
   display: 'PlusJakartaSans_800ExtraBold',
-  displayItalic: 'PlusJakartaSans_800ExtraBold_Italic', // signature accent — see Logo.tsx
+  displayItalic: 'PlusJakartaSans_800ExtraBold_Italic',
   bodyBold: 'BeVietnamPro_700Bold',
   bodyMedium: 'BeVietnamPro_500Medium',
   body: 'BeVietnamPro_400Regular',

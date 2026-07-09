@@ -1,18 +1,21 @@
 // src/screens/DeckSelectScreen.tsx
+// Deck picker as a wall of sticker cards. Selected decks fill with their mode
+// color tint, get a colored hard shadow and a check badge. Logic unchanged.
+
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { RootStackParamList } from '../navigation/types';
-import { Colors, Type } from '../styles/theme';
+import { Colors, Jack, Type } from '../styles/theme';
 import { MODES } from '../data/gameData';
 import { useGame } from '../components/GameContext';
 import { loadCustomDecks, CustomDeck } from '../data/customDecks';
+import { JackButton, JackIconButton, JackBadge } from '../components/jack';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'DeckSelect'>;
@@ -44,11 +47,9 @@ export default function DeckSelectScreen({ navigation }: Props) {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Ionicons name="arrow-back" size={22} color={Colors.onSurface} />
-        </TouchableOpacity>
+        <JackIconButton icon="arrow-back" onPress={() => navigation.goBack()} size={42} />
         <Text style={styles.headerTitle}>CHOOSE DECKS</Text>
-        <View style={{ width: 38 }} />
+        <View style={{ width: 42 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -65,38 +66,52 @@ export default function DeckSelectScreen({ navigation }: Props) {
         </View>
 
         <View style={styles.deckGrid}>
-          {MODES.map(mode => {
+          {MODES.map((mode, i) => {
             const isSelected = state.selectedModes.includes(mode.id);
             const isLast = state.selectedModes.length === 1 && isSelected;
             return (
-              <TouchableOpacity
-                key={mode.id}
-                onPress={() => { if (!isLast) handleToggle(mode.id); }}
-                activeOpacity={0.85}
-                style={[
-                  styles.deckCard,
-                  isSelected && { borderColor: mode.color, backgroundColor: `${mode.color}14` },
-                ]}
-              >
-                <View style={styles.deckCardTop}>
-                  <View style={[styles.deckIconWrap, { backgroundColor: `${mode.color}22` }]}>
-                    <Ionicons name={mode.icon as any} size={22} color={mode.color} />
+              <View key={mode.id} style={styles.deckOuter}>
+                {/* hard shadow — mode-colored when selected */}
+                <View
+                  style={[
+                    styles.deckShadow,
+                    { backgroundColor: isSelected ? mode.color : Colors.ink },
+                  ]}
+                />
+                <TouchableOpacity
+                  onPress={() => { if (!isLast) handleToggle(mode.id); }}
+                  activeOpacity={0.9}
+                  style={[
+                    styles.deckFace,
+                    isSelected
+                      ? { borderColor: mode.color, backgroundColor: Colors.surfaceContainerHigh }
+                      : { borderColor: Colors.ink, backgroundColor: Colors.surfaceContainerLow },
+                  ]}
+                >
+                  <View style={styles.deckCardTop}>
+                    <View style={[styles.deckIconWrap, { backgroundColor: mode.color }]}>
+                      <Ionicons name={mode.icon as any} size={22} color={Colors.ink} />
+                    </View>
+                    <View style={[
+                      styles.checkbox,
+                      isSelected
+                        ? { backgroundColor: mode.color, borderColor: Colors.ink }
+                        : { borderColor: Colors.outlineVariant },
+                    ]}>
+                      {isSelected && <Ionicons name="checkmark" size={15} color={Colors.ink} />}
+                    </View>
                   </View>
-                  <View style={[
-                    styles.checkbox,
-                    isSelected ? { backgroundColor: mode.color, borderColor: mode.color } : { borderColor: Colors.outlineVariant },
-                  ]}>
-                    {isSelected && <Ionicons name="checkmark" size={13} color="#fff" />}
+
+                  <Text style={styles.deckLabel}>{mode.label}</Text>
+                  <Text style={styles.deckDesc}>{mode.desc}</Text>
+
+                  <View style={styles.deckMeta}>
+                    <Text style={[styles.deckMetaText, { color: mode.color }]}>{mode.intensity}</Text>
+                    <Text style={styles.deckMetaDot}>•</Text>
+                    <Text style={styles.deckMetaText}>{mode.time}</Text>
                   </View>
-                </View>
-                <Text style={styles.deckLabel}>{mode.label}</Text>
-                <Text style={styles.deckDesc}>{mode.desc}</Text>
-                <View style={styles.deckMeta}>
-                  <Text style={styles.deckMetaText}>{mode.intensity}</Text>
-                  <Text style={styles.deckMetaDot}>·</Text>
-                  <Text style={styles.deckMetaText}>{mode.time}</Text>
-                </View>
-              </TouchableOpacity>
+                </TouchableOpacity>
+              </View>
             );
           })}
         </View>
@@ -110,52 +125,55 @@ export default function DeckSelectScreen({ navigation }: Props) {
               {customDecks.map(deck => {
                 const isSelected = state.selectedModes.includes(deck.id);
                 return (
-                  <TouchableOpacity
-                    key={deck.id}
-                    onPress={() => handleToggle(deck.id)}
-                    activeOpacity={0.85}
-                    style={[
-                      styles.customCard,
-                      isSelected && { borderColor: deck.color, backgroundColor: `${deck.color}14` },
-                    ]}
-                  >
-                    <View style={[styles.deckIconWrap, { backgroundColor: `${deck.color}22` }]}>
-                      <Ionicons name={(deck.icon as any) || 'sparkles'} size={20} color={deck.color} />
-                    </View>
-                    <View style={styles.customCardInfo}>
-                      <Text style={[styles.deckLabel, { fontSize: 15 }]}>{deck.name}</Text>
-                      <Text style={styles.deckDesc}>{deck.cardIds.length} card{deck.cardIds.length !== 1 ? 's' : ''}</Text>
-                    </View>
-                    <View style={[
-                      styles.checkbox,
-                      isSelected ? { backgroundColor: deck.color, borderColor: deck.color } : { borderColor: Colors.outlineVariant },
-                    ]}>
-                      {isSelected && <Ionicons name="checkmark" size={13} color="#fff" />}
-                    </View>
-                  </TouchableOpacity>
+                  <View key={deck.id} style={styles.deckOuter}>
+                    <View
+                      style={[
+                        styles.deckShadow,
+                        { backgroundColor: isSelected ? deck.color : Colors.ink },
+                      ]}
+                    />
+                    <TouchableOpacity
+                      onPress={() => handleToggle(deck.id)}
+                      activeOpacity={0.9}
+                      style={[
+                        styles.customFace,
+                        isSelected
+                          ? { borderColor: deck.color, backgroundColor: Colors.surfaceContainerHigh }
+                          : { borderColor: Colors.ink, backgroundColor: Colors.surfaceContainerLow },
+                      ]}
+                    >
+                      <View style={[styles.customIconWrap, { backgroundColor: deck.color }]}>
+                        <Ionicons name={deck.icon as any} size={18} color={Colors.ink} />
+                      </View>
+                      <View style={styles.customCardInfo}>
+                        <Text style={styles.customName}>{deck.name}</Text>
+                        <Text style={styles.customMeta}>
+                          {deck.cardIds.length} card{deck.cardIds.length !== 1 ? 's' : ''}
+                        </Text>
+                      </View>
+                      <View style={[
+                        styles.checkbox,
+                        isSelected
+                          ? { backgroundColor: deck.color, borderColor: Colors.ink }
+                          : { borderColor: Colors.outlineVariant },
+                      ]}>
+                        {isSelected && <Ionicons name="checkmark" size={15} color={Colors.ink} />}
+                      </View>
+                    </TouchableOpacity>
+                  </View>
                 );
               })}
             </View>
           </>
         )}
 
-        <TouchableOpacity
-          style={styles.continueBtn}
-          onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            navigation.navigate('Players');
-          }}
-          activeOpacity={0.85}
-        >
-          <LinearGradient
-            colors={[Colors.primary, Colors.primaryContainer]}
-            start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-            style={styles.continueBtnInner}
-          >
-            <Text style={styles.continueBtnText}>NEXT — ADD PLAYERS</Text>
-            <Ionicons name="arrow-forward" size={20} color={Colors.onPrimary} />
-          </LinearGradient>
-        </TouchableOpacity>
+        <View style={styles.continueBtn}>
+          <JackButton
+            label="Next — Add Players"
+            icon="arrow-forward"
+            onPress={() => navigation.navigate('Players')}
+          />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -167,53 +185,62 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 20, paddingVertical: 14,
   },
-  backBtn: {
-    width: 38, height: 38, borderRadius: 12, backgroundColor: Colors.surfaceContainerHigh,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  headerTitle: { fontFamily: Type.bodyBold, fontSize: 13, letterSpacing: 1.5, color: Colors.onSurfaceVariant },
+  headerTitle: { fontFamily: Type.display, fontSize: 13, letterSpacing: 2, color: Colors.onSurfaceVariant },
   scrollContent: { paddingHorizontal: 20, paddingBottom: 40 },
-  pageHeader: { marginTop: 8, marginBottom: 24 },
-  pageTitle: { fontFamily: Type.display, fontSize: 34, lineHeight: 36, color: Colors.onSurface },
+  pageHeader: { marginTop: 4, marginBottom: 20 },
+  pageTitle: { fontFamily: Type.display, fontSize: 36, lineHeight: 39, color: Colors.onSurface },
   pageTitleAccent: { color: Colors.primary },
   pageSubtitle: { fontFamily: Type.body, fontSize: 15, color: Colors.onSurfaceVariant, marginTop: 8 },
 
   sectionHeader: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    marginTop: 20, marginBottom: 12,
+    marginTop: 20, marginBottom: 14,
   },
-  sectionLabel: { fontFamily: Type.bodyBold, fontSize: 11, letterSpacing: 2, color: Colors.outline },
-  selectAllText: { fontFamily: Type.bodyBold, fontSize: 11, letterSpacing: 1, color: Colors.primary },
+  sectionLabel: { fontFamily: Type.display, fontSize: 11, letterSpacing: 2, color: Colors.outline },
+  selectAllText: { fontFamily: Type.display, fontSize: 11, letterSpacing: 1, color: Colors.primary },
 
-  deckGrid: { gap: 10 },
-  deckCard: {
-    borderRadius: 18, borderWidth: 1, borderColor: Colors.outlineVariant,
-    backgroundColor: Colors.surfaceContainerLow, padding: 16,
+  deckGrid: { gap: 14 },
+  deckOuter: { position: 'relative' },
+  deckShadow: {
+    position: 'absolute', top: Jack.shadow, left: 0, right: 0, bottom: 0,
+    borderRadius: Jack.radiusBig,
   },
-  deckCardTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  deckIconWrap: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  checkbox: {
-    width: 22, height: 22, borderRadius: 6, borderWidth: 1.5,
+  deckFace: {
+    borderRadius: Jack.radiusBig, borderWidth: Jack.border, padding: 16,
+    marginBottom: Jack.shadow,
+  },
+  deckCardTop: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12,
+  },
+  deckIconWrap: {
+    width: 42, height: 42, borderRadius: 12,
+    borderWidth: 2.5, borderColor: Colors.ink,
     alignItems: 'center', justifyContent: 'center',
   },
-  deckLabel: { fontFamily: Type.display, fontSize: 16, color: Colors.onSurface, marginBottom: 4 },
+  checkbox: {
+    width: 26, height: 26, borderRadius: 8, borderWidth: 2.5,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  deckLabel: { fontFamily: Type.display, fontSize: 17, color: Colors.onSurface, marginBottom: 5 },
   deckDesc: { fontFamily: Type.body, fontSize: 12.5, color: Colors.onSurfaceVariant, lineHeight: 18 },
-  deckMeta: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10 },
-  deckMetaText: { fontFamily: Type.bodyBold, fontSize: 10, letterSpacing: 1, color: Colors.outline, textTransform: 'uppercase' },
+  deckMeta: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 12 },
+  deckMetaText: { fontFamily: Type.display, fontSize: 10, letterSpacing: 1, color: Colors.outline, textTransform: 'uppercase' },
   deckMetaDot: { color: Colors.outline },
 
-  customList: { gap: 8 },
-  customCard: {
+  customList: { gap: 12 },
+  customFace: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
-    borderRadius: 16, borderWidth: 1, borderColor: Colors.outlineVariant,
-    backgroundColor: Colors.surfaceContainerLow, padding: 12,
+    borderRadius: Jack.radius, borderWidth: Jack.border, padding: 12,
+    marginBottom: Jack.shadow,
+  },
+  customIconWrap: {
+    width: 38, height: 38, borderRadius: 10,
+    borderWidth: 2.5, borderColor: Colors.ink,
+    alignItems: 'center', justifyContent: 'center',
   },
   customCardInfo: { flex: 1 },
+  customName: { fontFamily: Type.display, fontSize: 15, color: Colors.onSurface },
+  customMeta: { fontFamily: Type.bodyMedium, fontSize: 12, color: Colors.onSurfaceVariant, marginTop: 2 },
 
-  continueBtn: { marginTop: 28 },
-  continueBtnInner: {
-    height: 58, borderRadius: 29, flexDirection: 'row', alignItems: 'center',
-    justifyContent: 'center', gap: 10,
-  },
-  continueBtnText: { fontFamily: Type.display, fontSize: 15, letterSpacing: 1.2, color: Colors.onPrimary },
+  continueBtn: { marginTop: 30 },
 });

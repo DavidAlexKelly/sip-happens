@@ -1,10 +1,15 @@
 // src/components/BottomNav.tsx
+// Jackbox ticket bar: a raised stage-panel strip with a thick ink top border.
+// The active tab is a tilted buzzer-yellow sticker; inactive tabs are quiet.
+// Same props API as before.
+
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
-import { Colors, Type } from '../styles/theme';
+import { Colors, Jack, Type } from '../styles/theme';
 
 type Props = {
   current: 'play' | 'decks' | 'cards';
@@ -13,20 +18,25 @@ type Props = {
 
 const TABS = [
   { id: 'play',  label: 'PLAY',  icon: 'game-controller', screen: 'Play'  },
-  { id: 'decks', label: 'DECKS', icon: 'layers',           screen: 'Decks' },
-  { id: 'cards', label: 'CARDS', icon: 'card',             screen: 'Cards' },
+  { id: 'decks', label: 'DECKS', icon: 'layers',          screen: 'Decks' },
+  { id: 'cards', label: 'CARDS', icon: 'card',            screen: 'Cards' },
 ] as const;
+
+const TILTS = ['-1.5deg', '1.2deg', '-1.2deg'];
 
 export default function BottomNav({ current, navigation }: Props) {
   return (
     <View style={styles.navContainer}>
-      {TABS.map(tab => {
+      {TABS.map((tab, i) => {
         const isActive = tab.id === current;
         if (isActive) {
           return (
-            <View key={tab.id} style={styles.navItemActive}>
-              <Ionicons name={tab.icon as any} size={22} color={Colors.onPrimary} />
-              <Text style={[styles.navLabel, styles.navLabelActive]}>{tab.label}</Text>
+            <View key={tab.id} style={[styles.activeOuter, { transform: [{ rotate: TILTS[i] }] }]}>
+              <View style={styles.activeShadow} />
+              <View style={styles.activeFace}>
+                <Ionicons name={tab.icon as any} size={20} color={Colors.ink} />
+                <Text style={styles.activeLabel}>{tab.label}</Text>
+              </View>
             </View>
           );
         }
@@ -34,10 +44,13 @@ export default function BottomNav({ current, navigation }: Props) {
           <TouchableOpacity
             key={tab.id}
             style={styles.navItem}
-            onPress={() => navigation.navigate(tab.screen as any)}
+            onPress={() => {
+              Haptics.selectionAsync();
+              navigation.navigate(tab.screen as any);
+            }}
             activeOpacity={0.7}
           >
-            <Ionicons name={tab.icon as any} size={22} color={Colors.onSurface} style={{ opacity: 0.4 }} />
+            <Ionicons name={tab.icon as any} size={22} color={Colors.onSurfaceVariant} />
             <Text style={styles.navLabel}>{tab.label}</Text>
           </TouchableOpacity>
         );
@@ -50,26 +63,31 @@ const styles = StyleSheet.create({
   navContainer: {
     position: 'absolute', bottom: 0, left: 0, right: 0,
     flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center',
-    paddingTop: 12, paddingBottom: 32, paddingHorizontal: 16,
-    backgroundColor: 'rgba(12,10,18,0.95)',
-    borderTopWidth: 1, borderTopColor: Colors.outlineVariant,
-    borderTopLeftRadius: 28, borderTopRightRadius: 28,
-  },
-  navItemActive: {
-    flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-    paddingHorizontal: 24, paddingVertical: 10, borderRadius: 999, gap: 2,
-    backgroundColor: Colors.primary,
-    shadowColor: Colors.primary, shadowOpacity: 0.35, shadowRadius: 12, shadowOffset: { width: 0, height: 4 },
+    paddingTop: 12, paddingBottom: 30, paddingHorizontal: 16,
+    backgroundColor: Colors.surfaceContainerLow,
+    borderTopWidth: Jack.border, borderTopColor: Colors.ink,
   },
   navItem: {
-    flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-    padding: 10, gap: 2,
+    alignItems: 'center', justifyContent: 'center',
+    padding: 10, gap: 3,
   },
   navLabel: {
-    fontFamily: Type.bodyBold,
-    fontSize: 8, letterSpacing: 1.5, color: Colors.onSurface, textTransform: 'uppercase', opacity: 0.4,
+    fontFamily: Type.display,
+    fontSize: 9, letterSpacing: 1.5, color: Colors.onSurfaceVariant,
   },
-  navLabelActive: {
-    color: Colors.onPrimary, opacity: 1,
+  activeOuter: { position: 'relative' },
+  activeShadow: {
+    position: 'absolute', top: 4, left: 0, right: 0, bottom: 0,
+    borderRadius: 14, backgroundColor: Colors.ink,
+  },
+  activeFace: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    paddingHorizontal: 18, paddingVertical: 10,
+    borderRadius: 14, borderWidth: Jack.border, borderColor: Colors.ink,
+    backgroundColor: Colors.primary,
+    marginBottom: 4,
+  },
+  activeLabel: {
+    fontFamily: Type.display, fontSize: 12, letterSpacing: 1.2, color: Colors.ink,
   },
 });

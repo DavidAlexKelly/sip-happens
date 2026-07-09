@@ -1,18 +1,22 @@
 // src/screens/CardsScreen.tsx
+// The card library. Custom cards render as mini paper prompts (same language
+// as the in-game card), and the editor keeps token chips for {player1},
+// {sip}, etc. Logic unchanged.
+
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView,
   TextInput, Modal, Animated, Alert,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { RootStackParamList } from '../navigation/types';
-import { Colors, Type } from '../styles/theme';
+import { Colors, Jack, Type } from '../styles/theme';
 import Logo from '../components/Logo';
 import BottomNav from '../components/BottomNav';
+import { JackButton, JackIconButton } from '../components/jack';
 import { CustomCard, loadCustomCards, saveCustomCards } from '../data/customDecks';
 
 type Props = {
@@ -56,7 +60,8 @@ export default function CardsScreen({ navigation }: Props) {
     setShowModal(true);
   };
 
-  const insertToken = (token: string) => setCardText(prev => `${prev}${prev.endsWith(' ') || prev === '' ? '' : ' '}${token}`);
+  const insertToken = (token: string) =>
+    setCardText(prev => `${prev}${prev.endsWith(' ') || prev === '' ? '' : ' '}${token}`);
 
   const handleSave = async () => {
     if (!cardText.trim()) return;
@@ -95,78 +100,79 @@ export default function CardsScreen({ navigation }: Props) {
     ]);
   };
 
-  const previewText = (text: string) => text
-    .replace(/{player1}/g, 'Alex')
-    .replace(/{player2}/g, 'Jordan')
-    .replace(/{sip}/g, '1 sip')
-    .replace(/{small}/g, '2 sips')
-    .replace(/{medium}/g, '3 sips')
-    .replace(/{large}/g, '4 sips')
-    .replace(/{max}/g, '5 sips');
-
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <Logo />
-        <TouchableOpacity onPress={openNewModal} style={styles.headerIconCircle} activeOpacity={0.8}>
-          <Ionicons name="add" size={22} color={Colors.onPrimary} />
-        </TouchableOpacity>
+        <JackIconButton
+          icon="add"
+          onPress={openNewModal}
+          color={Colors.primary}
+          iconColor={Colors.ink}
+          size={42}
+        />
       </View>
 
-      <Animated.View style={[{ flex: 1 }, { opacity: fadeAnim }]}>
+      <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <View style={styles.pageHeader}>
-            <Text style={styles.eyebrow}>CUSTOM CARDS</Text>
+            <Text style={styles.eyebrow}>CARD LIBRARY</Text>
             <Text style={styles.pageTitle}>MY{'\n'}<Text style={styles.pageTitleAccent}>CARDS</Text></Text>
-            <Text style={styles.pageSubtitle}>
-              Write your own prompts. Tokens like {'{player1}'} swap in real names during the game.
-            </Text>
+            <Text style={styles.pageSubtitle}>Write your own challenges, then add them to a deck.</Text>
           </View>
 
           {cards.length === 0 ? (
             <View style={styles.emptySection}>
-              <Ionicons name="create-outline" size={40} color={Colors.outlineVariant} />
+              <Ionicons name="card-outline" size={40} color={Colors.outlineVariant} />
               <Text style={styles.emptySectionText}>No custom cards yet.</Text>
               <TouchableOpacity onPress={openNewModal} activeOpacity={0.85}>
-                <Text style={[styles.emptySectionText, { color: Colors.primary, marginTop: 4 }]}>
+                <Text style={[styles.emptySectionText, { color: Colors.primary, marginTop: 4, fontFamily: Type.display }]}>
                   Write your first card →
                 </Text>
               </TouchableOpacity>
             </View>
           ) : (
             <View style={styles.cardList}>
-              {cards.map(card => (
-                <TouchableOpacity
+              {cards.map((card, i) => (
+                <View
                   key={card.id}
-                  style={styles.cardItem}
-                  activeOpacity={0.85}
-                  onPress={() => openEditModal(card)}
+                  style={[styles.cardOuter, { transform: [{ rotate: i % 2 === 0 ? '-0.4deg' : '0.4deg' }] }]}
                 >
-                  <View style={styles.cardItemTop}>
-                    <Text style={styles.cardAction}>{card.action.toUpperCase()}</Text>
-                    <TouchableOpacity onPress={() => handleDelete(card.id)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                      <Ionicons name="trash-outline" size={16} color={Colors.outline} />
-                    </TouchableOpacity>
-                  </View>
-                  <Text style={styles.cardText}>{previewText(card.text)}</Text>
-                </TouchableOpacity>
+                  <View style={styles.cardShadow} />
+                  <TouchableOpacity
+                    style={styles.cardFace}
+                    activeOpacity={0.9}
+                    onPress={() => openEditModal(card)}
+                  >
+                    <View style={styles.cardItemTop}>
+                      <Text style={styles.cardAction}>{card.action.toUpperCase()}</Text>
+                      <TouchableOpacity
+                        onPress={() => handleDelete(card.id)}
+                        activeOpacity={0.7}
+                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                      >
+                        <Ionicons name="trash-outline" size={17} color="#8A82A0" />
+                      </TouchableOpacity>
+                    </View>
+                    <Text style={styles.cardText}>{card.text}</Text>
+                  </TouchableOpacity>
+                </View>
               ))}
             </View>
           )}
         </ScrollView>
       </Animated.View>
 
-      <BottomNav current="cards" navigation={navigation} />
-
+      {/* Write / edit card sheet */}
       <Modal visible={showModal} transparent animationType="slide" onRequestClose={() => setShowModal(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalSheet}>
-            <Text style={styles.modalTitle}>{editingCard ? 'Edit Card' : 'New Card'}</Text>
+            <Text style={styles.modalTitle}>{editingCard ? 'EDIT CARD' : 'NEW CARD'}</Text>
 
-            <Text style={styles.inputLabel}>CARD TEXT</Text>
+            <Text style={styles.inputLabel}>CHALLENGE TEXT</Text>
             <TextInput
               style={styles.modalTextArea}
-              placeholder="e.g. {player1}: take {sip} or reveal your last text."
+              placeholder="e.g. {player1} does their best impression of {player2}, or takes {small}."
               placeholderTextColor={Colors.outline}
               value={cardText}
               onChangeText={setCardText}
@@ -174,18 +180,23 @@ export default function CardsScreen({ navigation }: Props) {
               maxLength={220}
             />
 
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 16 }}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tokenRow}>
               {TOKEN_PRESETS.map(t => (
-                <TouchableOpacity key={t.label} onPress={() => insertToken(t.label)} style={styles.tokenChip}>
+                <TouchableOpacity
+                  key={t.label}
+                  style={styles.tokenChip}
+                  onPress={() => { Haptics.selectionAsync(); insertToken(t.label); }}
+                  activeOpacity={0.7}
+                >
                   <Text style={styles.tokenChipText}>{t.label}</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
 
-            <Text style={styles.inputLabel}>ACTION LABEL (optional)</Text>
+            <Text style={styles.inputLabel}>ACTION LABEL (OPTIONAL)</Text>
             <TextInput
               style={styles.modalInput}
-              placeholder="e.g. Confess"
+              placeholder="e.g. Drink up"
               placeholderTextColor={Colors.outline}
               value={cardAction}
               onChangeText={setCardAction}
@@ -193,27 +204,23 @@ export default function CardsScreen({ navigation }: Props) {
             />
 
             <View style={styles.modalBtns}>
-              <TouchableOpacity style={styles.modalCancel} onPress={() => setShowModal(false)} activeOpacity={0.7}>
-                <Text style={styles.modalCancelText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={handleSave}
-                activeOpacity={0.85}
-                style={[styles.modalSaveWrapper, !cardText.trim() && { opacity: 0.4 }]}
-                disabled={!cardText.trim()}
-              >
-                <LinearGradient
-                  colors={[Colors.primary, Colors.primaryContainer]}
-                  start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-                  style={styles.modalSave}
-                >
-                  <Text style={styles.modalSaveText}>{editingCard ? 'SAVE' : 'ADD CARD'}</Text>
-                </LinearGradient>
-              </TouchableOpacity>
+              <View style={{ flex: 1 }}>
+                <JackButton label="Cancel" variant="ghost" size="medium" onPress={() => setShowModal(false)} />
+              </View>
+              <View style={{ flex: 2 }}>
+                <JackButton
+                  label={editingCard ? 'Save' : 'Add Card'}
+                  size="medium"
+                  disabled={!cardText.trim()}
+                  onPress={handleSave}
+                />
+              </View>
             </View>
           </View>
         </View>
       </Modal>
+
+      <BottomNav current="cards" navigation={navigation} />
     </SafeAreaView>
   );
 }
@@ -222,61 +229,64 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 24, paddingVertical: 16,
+    paddingHorizontal: 24, paddingVertical: 14,
   },
-  headerIconCircle: {
-    width: 38, height: 38, borderRadius: 12, backgroundColor: Colors.primary,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  scrollContent: { paddingHorizontal: 24, paddingBottom: 120 },
-  pageHeader: { marginTop: 8, marginBottom: 24 },
-  eyebrow: { fontFamily: Type.bodyBold, fontSize: 11, letterSpacing: 2.5, color: Colors.secondary, marginBottom: 8 },
-  pageTitle: { fontFamily: Type.display, fontSize: 36, lineHeight: 38, color: Colors.onSurface },
+  scrollContent: { paddingHorizontal: 24, paddingBottom: 130 },
+  pageHeader: { marginTop: 4, marginBottom: 22 },
+  eyebrow: { fontFamily: Type.display, fontSize: 11, letterSpacing: 2.5, color: Colors.tertiary, marginBottom: 8 },
+  pageTitle: { fontFamily: Type.display, fontSize: 36, lineHeight: 39, color: Colors.onSurface },
   pageTitleAccent: { color: Colors.primary },
   pageSubtitle: { fontFamily: Type.body, fontSize: 14, color: Colors.onSurfaceVariant, marginTop: 10, lineHeight: 20 },
 
   emptySection: { alignItems: 'center', gap: 8, paddingVertical: 48 },
-  emptySectionText: { fontFamily: Type.bodyMedium, fontSize: 14, color: Colors.onSurfaceVariant },
+  emptySectionText: { fontFamily: Type.body, fontSize: 14, color: Colors.onSurfaceVariant },
 
-  cardList: { gap: 10 },
-  cardItem: {
-    backgroundColor: Colors.surfaceContainerLow, borderRadius: 16, padding: 16,
-    borderWidth: 1, borderColor: Colors.outlineVariant,
+  // Mini paper prompts — same visual language as the in-game card.
+  cardList: { gap: 14 },
+  cardOuter: { position: 'relative' },
+  cardShadow: {
+    position: 'absolute', top: 4, left: 0, right: 0, bottom: 0,
+    borderRadius: Jack.radius, backgroundColor: Colors.ink,
   },
-  cardItemTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  cardAction: { fontFamily: Type.bodyBold, fontSize: 10, letterSpacing: 1.5, color: Colors.primary },
-  cardText: { fontFamily: Type.bodyMedium, fontSize: 14, color: Colors.onSurface, lineHeight: 20 },
+  cardFace: {
+    backgroundColor: Colors.paper,
+    borderRadius: Jack.radius, borderWidth: Jack.border, borderColor: Colors.ink,
+    padding: 16, marginBottom: 4,
+  },
+  cardItemTop: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8,
+  },
+  cardAction: { fontFamily: Type.display, fontSize: 10, letterSpacing: 1.5, color: '#B0489C' },
+  cardText: { fontFamily: Type.bodyMedium, fontSize: 14, color: Colors.ink, lineHeight: 20 },
 
-  modalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.65)' },
+  modalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(10,6,32,0.72)' },
   modalSheet: {
-    backgroundColor: Colors.background, borderTopLeftRadius: 28, borderTopRightRadius: 28,
-    padding: 24, paddingBottom: 36, borderWidth: 1, borderColor: Colors.outlineVariant,
+    backgroundColor: Colors.surfaceContainerLow,
+    borderTopLeftRadius: 28, borderTopRightRadius: 28,
+    padding: 24, paddingBottom: 40,
+    borderTopWidth: Jack.border, borderTopColor: Colors.ink,
   },
-  modalTitle: { fontFamily: Type.display, fontSize: 20, color: Colors.onSurface, marginBottom: 20 },
-  inputLabel: { fontFamily: Type.bodyBold, fontSize: 11, letterSpacing: 1.5, color: Colors.outline, marginBottom: 8 },
+  modalTitle: { fontFamily: Type.display, fontSize: 20, color: Colors.onSurface, marginBottom: 20, letterSpacing: 1 },
+  inputLabel: { fontFamily: Type.display, fontSize: 11, letterSpacing: 1.5, color: Colors.outline, marginBottom: 8 },
   modalTextArea: {
-    minHeight: 90, borderRadius: 14, padding: 14, marginBottom: 12,
+    minHeight: 92, borderRadius: 14, padding: 14, marginBottom: 12,
     backgroundColor: Colors.surfaceContainer, color: Colors.onSurface,
-    fontFamily: Type.bodyMedium, fontSize: 15, borderWidth: 1, borderColor: Colors.outlineVariant,
+    fontFamily: Type.bodyMedium, fontSize: 15,
+    borderWidth: 2.5, borderColor: Colors.ink,
     textAlignVertical: 'top',
   },
   modalInput: {
-    height: 50, borderRadius: 14, paddingHorizontal: 16, marginBottom: 20,
+    height: 50, borderRadius: 14, paddingHorizontal: 16, marginBottom: 22,
     backgroundColor: Colors.surfaceContainer, color: Colors.onSurface,
-    fontFamily: Type.bodyMedium, fontSize: 15, borderWidth: 1, borderColor: Colors.outlineVariant,
+    fontFamily: Type.bodyMedium, fontSize: 15,
+    borderWidth: 2.5, borderColor: Colors.ink,
   },
+  tokenRow: { marginBottom: 20, flexGrow: 0 },
   tokenChip: {
-    paddingHorizontal: 12, paddingVertical: 7, borderRadius: 12, marginRight: 8,
-    backgroundColor: Colors.surfaceContainerHigh, borderWidth: 1, borderColor: Colors.outlineVariant,
+    paddingHorizontal: 12, paddingVertical: 7, borderRadius: 10, marginRight: 8,
+    backgroundColor: Colors.surfaceContainerHigh,
+    borderWidth: 2, borderColor: Colors.outlineVariant,
   },
-  tokenChipText: { fontFamily: Type.bodyBold, fontSize: 12, color: Colors.secondary },
+  tokenChipText: { fontFamily: Type.display, fontSize: 12, color: Colors.tertiary },
   modalBtns: { flexDirection: 'row', gap: 12 },
-  modalCancel: {
-    flex: 1, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, borderColor: Colors.outlineVariant,
-  },
-  modalCancelText: { fontFamily: Type.bodyBold, fontSize: 14, color: Colors.onSurfaceVariant },
-  modalSaveWrapper: { flex: 2 },
-  modalSave: { height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center' },
-  modalSaveText: { fontFamily: Type.display, fontSize: 14, letterSpacing: 1, color: Colors.onPrimary },
 });

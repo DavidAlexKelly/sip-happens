@@ -1,20 +1,25 @@
 // src/screens/GameOverScreen.tsx
+// Curtain call. "GG." lands on a tilted buzzer-yellow marquee panel, players
+// take a bow as colored chips, stats become tilted mini-stickers, and the
+// PLAY AGAIN button dominates. Logic unchanged.
+
 import React, { useEffect, useRef } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, Animated, Image,
+  View, Text, StyleSheet, Animated, Image,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { RootStackParamList } from '../navigation/types';
-import { Colors, Type } from '../styles/theme';
+import { Colors, Jack, Type } from '../styles/theme';
 import { useGame } from '../components/GameContext';
+import { JackButton, JackPanel, ConfettiDots } from '../components/jack';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'GameOver'>;
 };
+
+const STAT_TILTS = ['-1.5deg', '1deg', '-1deg'];
 
 export default function GameOverScreen({ navigation }: Props) {
   const { state, startGame, resetGame } = useGame();
@@ -47,18 +52,20 @@ export default function GameOverScreen({ navigation }: Props) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <LinearGradient
-        colors={['rgba(255,107,74,0.16)', 'transparent']}
-        style={styles.topGlow}
-        start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 1 }}
-        pointerEvents="none"
-      />
+      <ConfettiDots opacity={0.7} />
 
       <View style={styles.content}>
-        <Animated.View style={[styles.hero, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
-          <Text style={styles.eyebrow}>NIGHT COMPLETE</Text>
-          <Text style={styles.ggText}>GG.</Text>
-          <Text style={styles.subtitle}>That's a wrap.</Text>
+        <Animated.View style={{ opacity: fadeAnim, transform: [{ scale: scaleAnim }] }}>
+          <JackPanel
+            color={Colors.primary}
+            tilt={Jack.tiltL}
+            shadow={Jack.shadowBig}
+            faceStyle={styles.ggFace}
+          >
+            <Text style={styles.eyebrow}>NIGHT COMPLETE</Text>
+            <Text style={styles.ggText}>GG.</Text>
+            <Text style={styles.subtitle}>That's a wrap.</Text>
+          </JackPanel>
           <Text style={styles.body}>
             Sip Happens has spoken.{'\n'}Refill your glass, legends.
           </Text>
@@ -66,12 +73,12 @@ export default function GameOverScreen({ navigation }: Props) {
 
         <Animated.View style={[styles.playersRow, { opacity: fadeAnim }]}>
           {state.players.map((p) => (
-            <View key={p.id} style={[styles.playerChip, { borderColor: `${p.color}40` }]}>
-              <View style={[styles.chipOrb, { borderColor: `${p.color}60` }]}>
+            <View key={p.id} style={[styles.playerChip, { borderColor: p.color }]}>
+              <View style={[styles.chipOrb, { borderColor: p.color }]}>
                 {p.photo ? (
                   <Image source={{ uri: p.photo }} style={styles.chipPhoto} />
                 ) : (
-                  <Text style={[styles.playerChipText, { color: p.color }]}>
+                  <Text style={[styles.playerChipInitial, { color: p.color }]}>
                     {p.name.charAt(0).toUpperCase()}
                   </Text>
                 )}
@@ -82,29 +89,33 @@ export default function GameOverScreen({ navigation }: Props) {
         </Animated.View>
 
         <Animated.View style={[styles.statsRow, { opacity: fadeAnim }]}>
-          {stats.map(s => (
-            <View key={s.label} style={styles.statCard}>
+          {stats.map((s, i) => (
+            <JackPanel
+              key={s.label}
+              color={Colors.surfaceContainer}
+              tilt={STAT_TILTS[i]}
+              radius={Jack.radius}
+              style={{ flex: 1 }}
+              faceStyle={styles.statFace}
+            >
               <Text style={[styles.statValue, { color: s.color }]}>{s.value}</Text>
               <Text style={styles.statLabel}>{s.label}</Text>
-            </View>
+            </JackPanel>
           ))}
         </Animated.View>
 
-        <Animated.View style={[styles.actions, { opacity: fadeAnim }]}>
-          <TouchableOpacity onPress={handlePlayAgain} activeOpacity={0.85}>
-            <LinearGradient
-              colors={[Colors.primary, Colors.primaryContainer]}
-              start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-              style={styles.primaryBtn}
-            >
-              <Ionicons name="refresh" size={20} color={Colors.onPrimary} />
-              <Text style={styles.primaryBtnText}>PLAY AGAIN</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.secondaryBtn} onPress={handleMainMenu} activeOpacity={0.8}>
-            <Text style={styles.secondaryBtnText}>MAIN MENU</Text>
-          </TouchableOpacity>
+        <Animated.View style={[styles.actionsWrap, { opacity: fadeAnim }]}>
+          <JackButton
+            label="Play Again"
+            icon="refresh"
+            onPress={handlePlayAgain}
+          />
+          <JackButton
+            label="Main Menu"
+            variant="ghost"
+            size="medium"
+            onPress={handleMainMenu}
+          />
         </Animated.View>
       </View>
     </SafeAreaView>
@@ -113,59 +124,44 @@ export default function GameOverScreen({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  topGlow: { position: 'absolute', top: 0, left: 0, right: 0, height: 300 },
-  content: { flex: 1, paddingHorizontal: 24, paddingTop: 60, justifyContent: 'space-between', paddingBottom: 24 },
+  content: {
+    flex: 1, paddingHorizontal: 24, paddingTop: 50,
+    justifyContent: 'space-between', paddingBottom: 24,
+  },
 
-  hero: { alignItems: 'center', gap: 4 },
+  ggFace: { alignItems: 'center', paddingVertical: 26, paddingHorizontal: 20 },
   eyebrow: {
-    fontFamily: Type.bodyBold, fontSize: 12, letterSpacing: 2.5, color: Colors.secondary,
+    fontFamily: Type.display, fontSize: 12, letterSpacing: 2.5, color: Colors.ink, opacity: 0.7,
   },
-  ggText: {
-    fontFamily: Type.display, fontSize: 72, color: Colors.primary, marginTop: 6,
-  },
-  subtitle: { fontFamily: Type.display, fontSize: 20, color: Colors.onSurface, marginTop: 2 },
+  ggText: { fontFamily: Type.display, fontSize: 76, color: Colors.ink, marginTop: 2 },
+  subtitle: { fontFamily: Type.display, fontSize: 18, color: Colors.ink, opacity: 0.8 },
   body: {
     fontFamily: Type.body, fontSize: 14, color: Colors.onSurfaceVariant, textAlign: 'center',
-    marginTop: 10, lineHeight: 20,
+    marginTop: 18, lineHeight: 20,
   },
 
   playersRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 10 },
   playerChip: {
-    flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingVertical: 6,
-    borderRadius: 18, borderWidth: 1, backgroundColor: Colors.surfaceContainerLow,
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    paddingHorizontal: 10, paddingVertical: 6,
+    borderRadius: 18, borderWidth: 2.5, backgroundColor: Colors.surfaceContainerLow,
   },
   chipOrb: {
-    width: 26, height: 26, borderRadius: 13, borderWidth: 1,
-    backgroundColor: Colors.surfaceContainerHighest, alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
+    width: 26, height: 26, borderRadius: 13, borderWidth: 1.5,
+    backgroundColor: Colors.surfaceContainerHighest,
+    alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
   },
   chipPhoto: { width: 26, height: 26, borderRadius: 13 },
-  playerChipText: { fontFamily: Type.display, fontSize: 12 },
+  playerChipInitial: { fontFamily: Type.display, fontSize: 12 },
   playerChipName: { fontFamily: Type.bodyBold, fontSize: 12, color: Colors.onSurface },
 
-  statsRow: { flexDirection: 'row', gap: 12 },
-  statCard: {
-    flex: 1, backgroundColor: Colors.surfaceContainerLow,
-    borderRadius: 16, padding: 20, alignItems: 'center', gap: 6,
-  },
+  statsRow: { flexDirection: 'row', gap: 14 },
+  statFace: { padding: 18, alignItems: 'center', gap: 4 },
   statValue: { fontFamily: Type.display, fontSize: 32 },
   statLabel: {
-    fontFamily: Type.bodyBold, fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', color: Colors.outline,
+    fontFamily: Type.display, fontSize: 10, letterSpacing: 2,
+    textTransform: 'uppercase', color: Colors.outline,
   },
 
-  actions: { gap: 12 },
-  primaryBtn: {
-    paddingVertical: 20, borderRadius: 999,
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
-    shadowColor: Colors.primary, shadowOpacity: 0.4, shadowRadius: 20, shadowOffset: { width: 0, height: 8 },
-  },
-  primaryBtnText: {
-    fontFamily: Type.display, fontSize: 18, letterSpacing: 2, color: Colors.onPrimary, textTransform: 'uppercase',
-  },
-  secondaryBtn: {
-    paddingVertical: 18, borderRadius: 16,
-    alignItems: 'center', backgroundColor: Colors.surfaceContainerHighest,
-  },
-  secondaryBtnText: {
-    fontFamily: Type.bodyBold, fontSize: 13, letterSpacing: 2, textTransform: 'uppercase', color: Colors.onSurface,
-  },
+  actionsWrap: { gap: 14 },
 });

@@ -1,33 +1,32 @@
 // src/screens/GameScreen.tsx
-// Rewritten around useCardEngine. What changed vs the old version:
-//   • All draw logic moved to the engine (no more stale-closure round math)
-//   • BACK button — step back through cards you swiped past by accident
-//   • Custom decks are now actually playable (merged into the pool, crash-proof)
-//   • Round count reads state.totalRounds (single source of truth in context)
-//   • Juice: press-scale on the main button, richer haptics per action type,
-//     rule cards get a success-notification buzz
-//   • A pending rule-end card holds the game open one extra card so no rule
-//     is left running forever
+// The stage moment. The prompt card flips to PAPER — chalk-white face, ink
+// text, a thick border and hard shadow in the current mode's color — so every
+// draw pops like a Jackbox prompt against the indigo stage. The mode tag is a
+// tilted sticker pinned to the card's top-left.
+//
+// ALL game logic is unchanged from the engine rewrite:
+//   useCardEngine draws, BACK/SKIP history, custom deck pools, rule flushing,
+//   both interstitial ad placements (midpoint + end), Android back → quit.
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, Animated,
-  Modal, BackHandler, Image, Pressable,
+  Modal, BackHandler, Image,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { RootStackParamList } from '../navigation/types';
-import { Colors, ModeColors, ModeLabels } from '../styles/theme';
+import { Colors, Jack, Type, ModeColors, ModeLabels } from '../styles/theme';
 import { Challenge, PenaltyContext, MODES } from '../data/gameData';
 import { useGame } from '../components/GameContext';
 import { useCardEngine } from '../hooks/useCardEngine';
 import {
   loadCustomDecks, loadCustomCards, buildCustomPool, splitSelection,
-} from '../data/customDecks'
+} from '../data/customDecks';
 import { Ads } from '../monetization/ads';
+import { JackButton } from '../components/jack';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Game'>;
@@ -64,7 +63,6 @@ export default function GameScreen({ navigation }: Props) {
   const cardOpacity = useRef(new Animated.Value(1)).current;
   const cardTranslate = useRef(new Animated.Value(0)).current;
   const cardScale = useRef(new Animated.Value(1)).current;
-  const btnScale = useRef(new Animated.Value(1)).current;
 
   const animateCard = (direction: 1 | -1, onMidpoint: () => void) => {
     Animated.parallel([
@@ -116,9 +114,6 @@ export default function GameScreen({ navigation }: Props) {
   }, []);
 
   // ── End condition ───────────────────────────────────────────
-  // The game can finish once every player has been featured and the round
-  // target is met — but never while a rule is still open: the scheduled
-  // RULE OVER card must be shown first.
   const canEnd =
     state.currentRound >= state.totalRounds &&
     engine.allPlayersInvolved() &&
@@ -129,7 +124,6 @@ export default function GameScreen({ navigation }: Props) {
 
   const advance = (skipped: boolean) => {
     // ── Ad placement 2: game end — interstitial, then Game Over.
-    //    Fail-open: if no ad is loaded, Ads.show() runs the callback instantly.
     if (canEnd) {
       engine.finishGame();
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -148,9 +142,7 @@ export default function GameScreen({ navigation }: Props) {
       });
     };
 
-    // ── Ad placement 1: midpoint — fires once, on the advance that crosses
-    //    the halfway round. User closes the ad (Google's built-in X), then
-    //    the next card animates in.
+    // ── Ad placement 1: midpoint — fires once.
     const midRound = Math.ceil(state.totalRounds / 2);
     if (!midpointAdShown.current && state.currentRound + 1 > midRound) {
       midpointAdShown.current = true;
@@ -177,11 +169,6 @@ export default function GameScreen({ navigation }: Props) {
     animateCard(-1, () => { engine.goBack(); });
   };
 
-  const pressIn = () =>
-    Animated.spring(btnScale, { toValue: 0.96, tension: 200, friction: 12, useNativeDriver: true }).start();
-  const pressOut = () =>
-    Animated.spring(btnScale, { toValue: 1, tension: 200, friction: 12, useNativeDriver: true }).start();
-
   // ── Derived display state ───────────────────────────────────
   const current = engine.current;
   const challenge = current?.challenge ?? null;
@@ -191,8 +178,8 @@ export default function GameScreen({ navigation }: Props) {
 
   const isRuleStart = challenge?.isRule === true;
   const isRuleEnd = challenge?.isRule === false && challenge?.ruleId !== undefined;
-  const modeColor = isRuleStart ? '#f5c842'
-    : isRuleEnd ? '#72e88a'
+  const modeColor = isRuleStart ? '#FFCC26'
+    : isRuleEnd ? '#B6F44A'
     : (challenge ? (ModeColors[challenge.mode] || Colors.primary) : Colors.primary);
   const modeLabel = isRuleStart ? '📜 NEW RULE'
     : isRuleEnd ? '✅ RULE OVER'
@@ -200,13 +187,6 @@ export default function GameScreen({ navigation }: Props) {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      <LinearGradient
-        colors={[`${modeColor}18`, 'transparent']}
-        style={styles.topGlow}
-        start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 1 }}
-        pointerEvents="none"
-      />
-
       <View style={styles.inner}>
         {/* Header: quit, avatars, round counter */}
         <View style={styles.header}>
@@ -215,7 +195,7 @@ export default function GameScreen({ navigation }: Props) {
             style={styles.quitBtn}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Ionicons name="close" size={22} color={Colors.onSurfaceVariant} />
+            <Ionicons name="close" size={20} color={Colors.onSurfaceVariant} />
           </TouchableOpacity>
 
           <View style={styles.avatarRow}>
@@ -244,63 +224,57 @@ export default function GameScreen({ navigation }: Props) {
           </View>
         </View>
 
-        {/* Progress */}
+        {/* Progress — chunky, ink-bordered */}
         <View style={styles.progressTrack}>
           <View style={[styles.progressFill, { width: `${progress * 100}%`, backgroundColor: modeColor }]} />
         </View>
 
-        {/* Card */}
+        {/* The prompt card — paper face, mode-colored border + hard shadow */}
         <Animated.View
           style={[
-            styles.card,
-            { borderColor: `${modeColor}30` },
+            styles.cardOuter,
             { opacity: cardOpacity, transform: [{ translateX: cardTranslate }, { scale: cardScale }] },
           ]}
         >
-          <View style={[styles.modeChip, { backgroundColor: `${modeColor}1c`, borderColor: `${modeColor}40` }]}>
-            <Ionicons name={(challenge?.icon as any) || 'sparkles'} size={14} color={modeColor} />
-            <Text style={[styles.modeChipText, { color: modeColor }]}>{modeLabel}</Text>
-          </View>
-
-          <Text style={styles.challengeText}>{displayText}</Text>
-
-          {challenge?.action ? (
-            <View style={styles.actionRow}>
-              <View style={[styles.actionDot, { backgroundColor: modeColor }]} />
-              <Text style={[styles.actionText, { color: modeColor }]}>{challenge.action}</Text>
+          <View style={[styles.cardShadow, { backgroundColor: modeColor }]} />
+          <View style={[styles.cardFace, { borderColor: Colors.ink }]}>
+            {/* Mode sticker, pinned and tilted */}
+            <View style={[styles.modeStickerOuter, { transform: [{ rotate: Jack.tiltL }] }]}>
+              <View style={styles.modeStickerShadow} />
+              <View style={[styles.modeSticker, { backgroundColor: modeColor }]}>
+                <Ionicons name={(challenge?.icon as any) || 'sparkles'} size={14} color={Colors.ink} />
+                <Text style={styles.modeStickerText}>{modeLabel}</Text>
+              </View>
             </View>
-          ) : null}
 
-          <View style={styles.watermark} pointerEvents="none">
-            <Ionicons
-              name={(challenge?.icon as any) || 'game-controller'}
-              size={200}
-              color={Colors.onSurface}
-              style={{ opacity: 0.03 }}
-            />
+            <Text style={styles.challengeText}>{displayText}</Text>
+
+            {challenge?.action ? (
+              <View style={styles.actionRow}>
+                <View style={[styles.actionDot, { backgroundColor: modeColor, borderColor: Colors.ink }]} />
+                <Text style={styles.actionText}>{challenge.action}</Text>
+              </View>
+            ) : null}
+
+            <View style={styles.watermark} pointerEvents="none">
+              <Ionicons
+                name={(challenge?.icon as any) || 'game-controller'}
+                size={200}
+                color={Colors.ink}
+                style={{ opacity: 0.05 }}
+              />
+            </View>
           </View>
         </Animated.View>
 
         {/* Actions */}
         <View style={styles.actions}>
-          <Pressable onPress={handleNext} onPressIn={pressIn} onPressOut={pressOut}>
-            <Animated.View style={{ transform: [{ scale: btnScale }] }}>
-              <LinearGradient
-                colors={[Colors.primary, Colors.primaryContainer]}
-                start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-                style={styles.nextBtn}
-              >
-                <Text style={styles.nextBtnText}>
-                  {canEnd ? 'FINISH GAME' : 'NEXT CHALLENGE'}
-                </Text>
-                <Ionicons
-                  name={canEnd ? 'flag' : 'arrow-forward'}
-                  size={20}
-                  color={Colors.onPrimary}
-                />
-              </LinearGradient>
-            </Animated.View>
-          </Pressable>
+          <JackButton
+            label={canEnd ? 'Finish Game' : 'Next Challenge'}
+            icon={canEnd ? 'flag' : 'arrow-forward'}
+            onPress={handleNext}
+            haptic={false}
+          />
 
           <View style={styles.secondaryRow}>
             <TouchableOpacity
@@ -312,7 +286,7 @@ export default function GameScreen({ navigation }: Props) {
               <Ionicons
                 name="arrow-undo"
                 size={18}
-                color={engine.canGoBack ? Colors.outline : Colors.outlineVariant}
+                color={engine.canGoBack ? Colors.onSurfaceVariant : Colors.outlineVariant}
               />
               <Text style={[styles.secondaryText, !engine.canGoBack && styles.secondaryTextDisabled]}>
                 Back
@@ -322,7 +296,7 @@ export default function GameScreen({ navigation }: Props) {
             <View style={styles.secondaryDivider} />
 
             <TouchableOpacity onPress={handleSkip} style={styles.secondaryBtn} activeOpacity={0.7}>
-              <Ionicons name="play-skip-forward" size={18} color={Colors.outline} />
+              <Ionicons name="play-skip-forward" size={18} color={Colors.onSurfaceVariant} />
               <Text style={styles.secondaryText}>Skip</Text>
             </TouchableOpacity>
           </View>
@@ -336,20 +310,21 @@ export default function GameScreen({ navigation }: Props) {
             <Text style={styles.modalTitle}>Quit the game?</Text>
             <Text style={styles.modalSubtitle}>Progress will be lost.</Text>
             <View style={styles.modalBtns}>
-              <TouchableOpacity
-                style={styles.modalKeepBtn}
-                onPress={() => setShowQuitModal(false)}
-                activeOpacity={0.85}
-              >
-                <Text style={styles.modalKeepText}>Keep playing</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.modalQuitBtn}
-                onPress={() => { setShowQuitModal(false); navigation.replace('Play'); }}
-                activeOpacity={0.85}
-              >
-                <Text style={styles.modalQuitText}>Quit</Text>
-              </TouchableOpacity>
+              <View style={{ flex: 1 }}>
+                <JackButton
+                  label="Keep Playing"
+                  size="medium"
+                  onPress={() => setShowQuitModal(false)}
+                />
+              </View>
+              <View style={{ flex: 1 }}>
+                <JackButton
+                  label="Quit"
+                  size="medium"
+                  variant="ghost"
+                  onPress={() => { setShowQuitModal(false); navigation.replace('Play'); }}
+                />
+              </View>
             </View>
           </View>
         </View>
@@ -360,7 +335,6 @@ export default function GameScreen({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  topGlow: { position: 'absolute', top: 0, left: 0, right: 0, height: 260 },
   inner: { flex: 1, paddingHorizontal: 20, paddingBottom: 12 },
 
   header: {
@@ -368,106 +342,102 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   quitBtn: {
-    width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center',
-    backgroundColor: `${Colors.onSurface}0a`,
+    width: 38, height: 38, borderRadius: 12,
+    borderWidth: 2, borderColor: Colors.outlineVariant,
+    alignItems: 'center', justifyContent: 'center',
+    backgroundColor: Colors.surfaceContainerLow,
   },
   avatarRow: { flexDirection: 'row', paddingLeft: 10 },
   avatar: {
-    width: 34, height: 34, borderRadius: 17, borderWidth: 2, marginLeft: -10,
-    backgroundColor: Colors.background, alignItems: 'center', justifyContent: 'center',
+    width: 34, height: 34, borderRadius: 17, borderWidth: 2.5, marginLeft: -10,
+    backgroundColor: Colors.surfaceContainerLow, alignItems: 'center', justifyContent: 'center',
     overflow: 'hidden',
   },
   avatarImg: { width: '100%', height: '100%' },
-  avatarInitial: {
-    fontFamily: 'PlusJakartaSans_800ExtraBold', fontSize: 13, color: Colors.onSurfaceVariant,
-  },
+  avatarInitial: { fontFamily: Type.display, fontSize: 13, color: Colors.onSurfaceVariant },
   roundBadge: {
-    paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12,
-    backgroundColor: `${Colors.onSurface}0a`,
+    paddingHorizontal: 10, paddingVertical: 6, borderRadius: 10,
+    borderWidth: 2, borderColor: Colors.outlineVariant,
+    backgroundColor: Colors.surfaceContainerLow,
   },
   roundText: {
-    fontFamily: 'BeVietnamPro_700Bold', fontSize: 12, color: Colors.onSurfaceVariant,
-    letterSpacing: 0.5,
+    fontFamily: Type.display, fontSize: 12, color: Colors.onSurfaceVariant, letterSpacing: 0.5,
   },
 
   progressTrack: {
-    height: 4, borderRadius: 2, backgroundColor: `${Colors.onSurface}10`, marginBottom: 18,
-    overflow: 'hidden',
+    height: 12, borderRadius: 8,
+    borderWidth: 2, borderColor: Colors.ink,
+    backgroundColor: Colors.surfaceContainerLow,
+    marginBottom: 18, overflow: 'hidden',
   },
-  progressFill: { height: '100%', borderRadius: 2 },
+  progressFill: { height: '100%' },
 
-  card: {
-    flex: 1, borderRadius: 28, borderWidth: 1, padding: 26,
-    backgroundColor: `${Colors.onSurface}06`, justifyContent: 'center',
+  // ── The paper prompt card ──
+  cardOuter: { flex: 1, position: 'relative' },
+  cardShadow: {
+    position: 'absolute', top: Jack.shadowBig, left: 0, right: 0, bottom: 0,
+    borderRadius: Jack.radiusBig + 4,
+  },
+  cardFace: {
+    flex: 1, marginBottom: Jack.shadowBig,
+    borderRadius: Jack.radiusBig + 4, borderWidth: Jack.border,
+    backgroundColor: Colors.paper,
+    padding: 26, justifyContent: 'center',
     overflow: 'hidden',
   },
-  modeChip: {
-    flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start', gap: 6,
-    paddingHorizontal: 12, paddingVertical: 7, borderRadius: 16, borderWidth: 1,
-    marginBottom: 22,
+  modeStickerOuter: { position: 'absolute', top: 20, left: 20 },
+  modeStickerShadow: {
+    position: 'absolute', top: 3, left: 0, right: 0, bottom: 0,
+    borderRadius: 10, backgroundColor: Colors.ink,
   },
-  modeChipText: {
-    fontFamily: 'PlusJakartaSans_800ExtraBold', fontSize: 12, letterSpacing: 1.2,
+  modeSticker: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    paddingHorizontal: 11, paddingVertical: 6,
+    borderRadius: 10, borderWidth: 2.5, borderColor: Colors.ink,
+    marginBottom: 3,
+  },
+  modeStickerText: {
+    fontFamily: Type.display, fontSize: 12, letterSpacing: 1, color: Colors.ink,
+    textTransform: 'uppercase',
   },
   challengeText: {
-    fontFamily: 'PlusJakartaSans_800ExtraBold', fontSize: 26, lineHeight: 35,
-    color: Colors.onSurface,
+    fontFamily: Type.display, fontSize: 27, lineHeight: 36,
+    color: Colors.ink,
   },
   actionRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 22 },
-  actionDot: { width: 6, height: 6, borderRadius: 3 },
+  actionDot: { width: 10, height: 10, borderRadius: 5, borderWidth: 1.5 },
   actionText: {
-    fontFamily: 'BeVietnamPro_700Bold', fontSize: 13, letterSpacing: 1, textTransform: 'uppercase',
+    fontFamily: Type.bodyBold, fontSize: 13, letterSpacing: 1, textTransform: 'uppercase',
+    color: '#5A5370',
   },
   watermark: { position: 'absolute', bottom: -40, right: -40 },
 
-  actions: { paddingTop: 18, gap: 4 },
-  nextBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
-    height: 58, borderRadius: 29,
-  },
-  nextBtnText: {
-    fontFamily: 'PlusJakartaSans_800ExtraBold', fontSize: 16, letterSpacing: 1.2,
-    color: Colors.onPrimary,
-  },
+  actions: { paddingTop: 20, gap: 6 },
   secondaryRow: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 10,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 6,
   },
   secondaryBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
     paddingHorizontal: 18, paddingVertical: 10,
   },
   secondaryBtnDisabled: { opacity: 0.5 },
-  secondaryText: { fontFamily: 'BeVietnamPro_500Medium', fontSize: 14, color: Colors.outline },
+  secondaryText: { fontFamily: Type.bodyBold, fontSize: 14, color: Colors.onSurfaceVariant },
   secondaryTextDisabled: { color: Colors.outlineVariant },
-  secondaryDivider: { width: 1, height: 16, backgroundColor: `${Colors.onSurface}15` },
+  secondaryDivider: { width: 2, height: 16, backgroundColor: Colors.outlineVariant, borderRadius: 1 },
 
   modalOverlay: {
-    flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.6)',
+    flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(10,6,32,0.72)',
   },
   modalSheet: {
-    backgroundColor: Colors.background, borderTopLeftRadius: 28, borderTopRightRadius: 28,
-    padding: 24, paddingBottom: 36, borderWidth: 1, borderColor: `${Colors.onSurface}12`,
+    backgroundColor: Colors.surfaceContainerLow,
+    borderTopLeftRadius: 28, borderTopRightRadius: 28,
+    padding: 24, paddingBottom: 40,
+    borderTopWidth: Jack.border, borderTopColor: Colors.ink,
   },
-  modalTitle: {
-    fontFamily: 'PlusJakartaSans_800ExtraBold', fontSize: 20, color: Colors.onSurface,
-  },
+  modalTitle: { fontFamily: Type.display, fontSize: 22, color: Colors.onSurface },
   modalSubtitle: {
-    fontFamily: 'BeVietnamPro_400Regular', fontSize: 14, color: Colors.onSurfaceVariant,
-    marginTop: 6, marginBottom: 20,
+    fontFamily: Type.body, fontSize: 14, color: Colors.onSurfaceVariant,
+    marginTop: 6, marginBottom: 22,
   },
   modalBtns: { flexDirection: 'row', gap: 12 },
-  modalKeepBtn: {
-    flex: 1, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center',
-    backgroundColor: Colors.primary,
-  },
-  modalKeepText: {
-    fontFamily: 'PlusJakartaSans_800ExtraBold', fontSize: 15, color: Colors.onPrimary,
-  },
-  modalQuitBtn: {
-    flex: 1, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, borderColor: `${Colors.onSurface}20`,
-  },
-  modalQuitText: {
-    fontFamily: 'PlusJakartaSans_800ExtraBold', fontSize: 15, color: Colors.onSurfaceVariant,
-  },
 });
