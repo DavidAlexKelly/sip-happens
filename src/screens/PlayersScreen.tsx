@@ -1,12 +1,12 @@
 // src/screens/PlayersScreen.tsx
-// The lobby. Players join as tilted "tickets" — each one a sticker row in the
-// player's own color, alternating tilt like badges slapped on a board.
-// All logic unchanged: add/remove/photo/deck chips/sip bonus/start.
+// The lobby. Keyboard fix: tapping anywhere outside the input now dismisses
+// the keyboard (TouchableWithoutFeedback wrapper + dismiss-on-drag on the
+// scroll view), so you can't get stuck typing. All logic unchanged.
 
 import React, { useState, useRef } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView,
-  TextInput, Animated, Image,
+  TextInput, Animated, Image, Keyboard, TouchableWithoutFeedback,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -84,163 +84,168 @@ export default function PlayersScreen({ navigation }: Props) {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <JackIconButton icon="arrow-back" onPress={() => navigation.goBack()} size={42} />
-        <Logo />
-        <View style={{ width: 42 }} />
-      </View>
-
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View style={styles.pageHeader}>
-          <Text style={styles.pageTitle}>WHO'S{'\n'}<Text style={styles.pageTitleAccent}>IN?</Text></Text>
-          <Text style={styles.pageSubtitle}>Add everyone at the table.</Text>
-        </View>
-
-        <Animated.View style={[styles.inputRow, { transform: [{ translateX: shakeAnim }] }]}>
-          <View style={styles.inputOuter}>
-            <View style={styles.inputShadow} />
-            <TextInput
-              style={styles.input}
-              placeholder="Type a name..."
-              placeholderTextColor={Colors.outline}
-              value={inputValue}
-              onChangeText={setInputValue}
-              onSubmitEditing={handleAdd}
-              returnKeyType="done"
-              maxLength={20}
-              autoCapitalize="words"
-            />
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <View style={{ flex: 1 }}>
+          <View style={styles.header}>
+            <JackIconButton icon="arrow-back" onPress={() => navigation.goBack()} size={42} />
+            <Logo />
+            <View style={{ width: 42 }} />
           </View>
-          <JackIconButton
-            icon="add"
-            onPress={handleAdd}
-            color={Colors.primary}
-            iconColor={Colors.ink}
-            size={54}
-          />
-        </Animated.View>
 
-        <View style={styles.listHeader}>
-          <Text style={styles.listLabel}>AT THE TABLE</Text>
-          <Text style={styles.playerCount}>{String(state.players.length).padStart(2, '0')}</Text>
-        </View>
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
+          >
+            <View style={styles.pageHeader}>
+              <Text style={styles.pageTitle}>WHO'S{'\n'}<Text style={styles.pageTitleAccent}>IN?</Text></Text>
+              <Text style={styles.pageSubtitle}>Add everyone at the table.</Text>
+            </View>
 
-        {state.players.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Ionicons name="people-outline" size={40} color={Colors.outlineVariant} />
-            <Text style={styles.emptyText}>Add at least 2 players to start.</Text>
-          </View>
-        ) : (
-          <View style={styles.playerList}>
-            {state.players.map((player, i) => (
-              <View
-                key={player.id}
-                style={[
-                  styles.ticketOuter,
-                  { transform: [{ rotate: i % 2 === 0 ? '-0.5deg' : '0.5deg' }] },
-                ]}
-              >
-                <View style={styles.ticketShadow} />
-                <View style={[styles.ticketFace, { borderColor: player.color }]}>
-                  <View style={styles.playerLeft}>
-                    <TouchableOpacity onPress={() => handleTakePhoto(player.id)} activeOpacity={0.8} style={styles.orbWrapper}>
-                      <View style={[styles.playerOrb, { borderColor: player.color }]}>
-                        {player.photo ? (
-                          <Image source={{ uri: player.photo }} style={styles.playerPhoto} />
-                        ) : (
-                          <Text style={[styles.playerInitial, { color: player.color }]}>
-                            {player.name.charAt(0).toUpperCase()}
-                          </Text>
-                        )}
+            <Animated.View style={[styles.inputRow, { transform: [{ translateX: shakeAnim }] }]}>
+              <View style={styles.inputOuter}>
+                <View style={styles.inputShadow} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Type a name..."
+                  placeholderTextColor={Colors.outline}
+                  value={inputValue}
+                  onChangeText={setInputValue}
+                  onSubmitEditing={handleAdd}
+                  returnKeyType="done"
+                  maxLength={20}
+                  autoCapitalize="words"
+                />
+              </View>
+              <JackIconButton
+                icon="add"
+                onPress={handleAdd}
+                color={Colors.primary}
+                iconColor={Colors.ink}
+                size={54}
+              />
+            </Animated.View>
+
+            <View style={styles.listHeader}>
+              <Text style={styles.listLabel}>AT THE TABLE</Text>
+              <Text style={styles.playerCount}>{String(state.players.length).padStart(2, '0')}</Text>
+            </View>
+
+            {state.players.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Ionicons name="people-outline" size={40} color={Colors.outlineVariant} />
+                <Text style={styles.emptyText}>Add at least 2 players to start.</Text>
+              </View>
+            ) : (
+              <View style={styles.playerList}>
+                {state.players.map((player, i) => (
+                  <View
+                    key={player.id}
+                    style={[
+                      styles.ticketOuter,
+                      { transform: [{ rotate: i % 2 === 0 ? '-0.5deg' : '0.5deg' }] },
+                    ]}
+                  >
+                    <View style={styles.ticketShadow} />
+                    <View style={[styles.ticketFace, { borderColor: player.color }]}>
+                      <View style={styles.playerLeft}>
+                        <TouchableOpacity onPress={() => handleTakePhoto(player.id)} activeOpacity={0.8} style={styles.orbWrapper}>
+                          <View style={[styles.playerOrb, { borderColor: player.color }]}>
+                            {player.photo ? (
+                              <Image source={{ uri: player.photo }} style={styles.playerPhoto} />
+                            ) : (
+                              <Text style={[styles.playerInitial, { color: player.color }]}>
+                                {player.name.charAt(0).toUpperCase()}
+                              </Text>
+                            )}
+                          </View>
+                          <View style={[styles.cameraBadge, { backgroundColor: player.color }]}>
+                            <Ionicons name="camera" size={10} color={Colors.ink} />
+                          </View>
+                        </TouchableOpacity>
+                        <View>
+                          <Text style={styles.playerName}>{player.name.toUpperCase()}</Text>
+                          <Text style={[styles.playerRank, { color: player.color }]}>{player.rank}</Text>
+                        </View>
                       </View>
-                      <View style={[styles.cameraBadge, { backgroundColor: player.color }]}>
-                        <Ionicons name="camera" size={10} color={Colors.ink} />
-                      </View>
-                    </TouchableOpacity>
-                    <View>
-                      <Text style={styles.playerName}>{player.name.toUpperCase()}</Text>
-                      <Text style={[styles.playerRank, { color: player.color }]}>{player.rank}</Text>
+                      <TouchableOpacity
+                        onPress={() => handleRemove(player.id)}
+                        style={styles.removeBtn}
+                        activeOpacity={0.7}
+                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                      >
+                        <Ionicons name="close" size={20} color={Colors.outline} />
+                      </TouchableOpacity>
                     </View>
                   </View>
-                  <TouchableOpacity
-                    onPress={() => handleRemove(player.id)}
-                    style={styles.removeBtn}
-                    activeOpacity={0.7}
-                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                  >
-                    <Ionicons name="close" size={20} color={Colors.outline} />
-                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+
+            {canStart && (
+              <>
+                {/* Deck chips */}
+                <View style={styles.section}>
+                  <Text style={styles.sectionEyebrow}>ACTIVE DECKS</Text>
+                  <View style={styles.deckChipsRow}>
+                    {MODES.map(mode => {
+                      const active = state.selectedModes.includes(mode.id);
+                      const isLast = state.selectedModes.length === 1 && active;
+                      return (
+                        <TouchableOpacity
+                          key={mode.id}
+                          onPress={() => { if (!isLast) { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); toggleMode(mode.id); } }}
+                          activeOpacity={0.8}
+                          style={[
+                            styles.deckChip,
+                            active
+                              ? { backgroundColor: mode.color, borderColor: Colors.ink }
+                              : { borderColor: Colors.outlineVariant },
+                          ]}
+                        >
+                          <Text style={[styles.deckChipText, active && { color: Colors.ink }]}>{mode.label}</Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
                 </View>
-              </View>
-            ))}
+
+                {/* Sip bonus stepper */}
+                <View style={styles.section}>
+                  <Text style={styles.sectionEyebrow}>SIP INTENSITY</Text>
+                  <View style={styles.bonusRow}>
+                    {BONUS_STEPS.map(step => {
+                      const active = state.sipBonus === step;
+                      return (
+                        <TouchableOpacity
+                          key={step}
+                          onPress={() => handleBonusChange(step)}
+                          activeOpacity={0.8}
+                          style={[styles.bonusPill, active && styles.bonusPillActive]}
+                        >
+                          <Text style={[styles.bonusPillText, active && styles.bonusPillTextActive]}>
+                            {BONUS_DISPLAY[step]}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                </View>
+              </>
+            )}
+          </ScrollView>
+
+          <View style={styles.footer}>
+            <JackButton
+              label={canStart ? 'Start Game' : 'Add 2+ Players'}
+              icon={canStart ? 'play' : undefined}
+              onPress={handleStart}
+              disabled={!canStart}
+            />
           </View>
-        )}
-
-        {canStart && (
-          <>
-            {/* Deck chips */}
-            <View style={styles.section}>
-              <Text style={styles.sectionEyebrow}>ACTIVE DECKS</Text>
-              <View style={styles.deckChipsRow}>
-                {MODES.map(mode => {
-                  const active = state.selectedModes.includes(mode.id);
-                  const isLast = state.selectedModes.length === 1 && active;
-                  return (
-                    <TouchableOpacity
-                      key={mode.id}
-                      onPress={() => { if (!isLast) { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); toggleMode(mode.id); } }}
-                      activeOpacity={0.8}
-                      style={[
-                        styles.deckChip,
-                        active
-                          ? { backgroundColor: mode.color, borderColor: Colors.ink }
-                          : { borderColor: Colors.outlineVariant },
-                      ]}
-                    >
-                      <Text style={[styles.deckChipText, active && { color: Colors.ink }]}>{mode.label}</Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            </View>
-
-            {/* Sip bonus stepper */}
-            <View style={styles.section}>
-              <Text style={styles.sectionEyebrow}>SIP INTENSITY</Text>
-              <View style={styles.bonusRow}>
-                {BONUS_STEPS.map(step => {
-                  const active = state.sipBonus === step;
-                  return (
-                    <TouchableOpacity
-                      key={step}
-                      onPress={() => handleBonusChange(step)}
-                      activeOpacity={0.8}
-                      style={[styles.bonusPill, active && styles.bonusPillActive]}
-                    >
-                      <Text style={[styles.bonusPillText, active && styles.bonusPillTextActive]}>
-                        {BONUS_DISPLAY[step]}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            </View>
-          </>
-        )}
-      </ScrollView>
-
-      <View style={styles.footer}>
-        <JackButton
-          label={canStart ? 'Start Game' : 'Add 2+ Players'}
-          icon={canStart ? 'play' : undefined}
-          onPress={handleStart}
-          disabled={!canStart}
-        />
-      </View>
+        </View>
+      </TouchableWithoutFeedback>
     </SafeAreaView>
   );
 }

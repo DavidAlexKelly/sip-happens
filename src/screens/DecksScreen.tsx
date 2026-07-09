@@ -1,11 +1,16 @@
 // src/screens/DecksScreen.tsx
-// Deck manager. Custom decks are color-shadowed stickers; the create/edit
-// sheet keeps the same fields (name, icon, colour). Logic unchanged.
+// Deck manager, now with a real deck editor:
+//   • Tap a deck (or +) → full-screen editor sheet
+//   • Toggle any card from your library in/out of the deck
+//   • "Import from deck" — copy every card from another deck in one tap
+//   • Keyboard: tap anywhere outside an input (or drag) to dismiss
+// Storage shape unchanged: CustomDeck.cardIds references CustomCard ids.
 
 import React, { useState, useCallback } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView,
-  TextInput, Modal, Alert,
+  TextInput, Modal, Alert, Keyboard, TouchableWithoutFeedback,
+  KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
@@ -16,6 +21,7 @@ import { RootStackParamList } from '../navigation/types';
 import { Colors, Jack, Type } from '../styles/theme';
 import Logo from '../components/Logo';
 import BottomNav from '../components/BottomNav';
+import TokenText from '../components/TokenText';
 import { JackButton, JackIconButton } from '../components/jack';
 import {
   CustomDeck, CustomCard, loadCustomDecks, saveCustomDecks,
@@ -32,11 +38,14 @@ const DECK_COLORS = [Colors.primary, Colors.secondary, Colors.tertiary, '#8C6BFF
 export default function DecksScreen({ navigation }: Props) {
   const [decks, setDecks] = useState<CustomDeck[]>([]);
   const [allCards, setAllCards] = useState<CustomCard[]>([]);
-  const [showNewModal, setShowNewModal] = useState(false);
+
+  // Deck editor state
+  const [editorVisible, setEditorVisible] = useState(false);
   const [editingDeck, setEditingDeck] = useState<CustomDeck | null>(null);
-  const [newName, setNewName] = useState('');
-  const [newIcon, setNewIcon] = useState<string>(DECK_ICONS[0]);
-  const [newColor, setNewColor] = useState<string>(DECK_COLORS[0]);
+  const [name, setName] = useState('');
+  const [icon, setIcon] = useState<string>(DECK_ICONS[0]);
+  const [color, setColor] = useState<string>(DECK_COLORS[0]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const refresh = useCallback(() => {
     loadCustomDecks().then(setDecks);
@@ -45,44 +54,66 @@ export default function DecksScreen({ navigation }: Props) {
 
   useFocusEffect(useCallback(() => { refresh(); }, [refresh]));
 
-  const openNewModal = () => {
+  const openNewEditor = () => {
     setEditingDeck(null);
-    setNewName('');
-    setNewIcon(DECK_ICONS[0]);
-    setNewColor(DECK_COLORS[0]);
-    setShowNewModal(true);
+    setName('');
+    setIcon(DECK_ICONS[0]);
+    setColor(DECK_COLORS[0]);
+    setSelectedIds([]);
+    setEditorVisible(true);
   };
 
-  const openEditModal = (deck: CustomDeck) => {
+  const openEditEditor = (deck: CustomDeck) => {
     setEditingDeck(deck);
-    setNewName(deck.name);
-    setNewIcon(deck.icon);
-    setNewColor(deck.color);
-    setShowNewModal(true);
+    setName(deck.name);
+    setIcon(deck.icon);
+    setColor(deck.color);
+    // Only keep ids that still exist in the library.
+    const existing = new Set(allCards.map(c => c.id));
+    setSelectedIds(deck.cardIds.filter(id => existing.has(id)));
+    setEditorVisible(true);
+  };
+
+  const toggleCard = (id: string) => {
+    Haptics.selectionAsync();
+    setSelectedIds(prev =>
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
+
+  /** Copy every card from another deck into this one (no duplicates). */
+  const importFromDeck = (source: CustomDeck) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    const existing = new Set(allCards.map(c => c.id));
+    setSelectedIds(prev => {
+      const merged = new Set(prev);
+      source.cardIds.forEach(id => { if (existing.has(id)) merged.add(id); });
+      return Array.from(merged);
+    });
   };
 
   const handleSave = async () => {
-    if (!newName.trim()) return;
+    if (!name.trim()) return;
+    Keyboard.dismiss();
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     let updated: CustomDeck[];
     if (editingDeck) {
       updated = decks.map(d => d.id === editingDeck.id
-        ? { ...d, name: newName.trim(), icon: newIcon, color: newColor }
+        ? { ...d, name: name.trim(), icon, color, cardIds: selectedIds }
         : d);
     } else {
       const newDeck: CustomDeck = {
         id: `custom-deck-${Date.now()}`,
-        name: newName.trim(),
-        icon: newIcon,
-        color: newColor,
-        cardIds: [],
+        name: name.trim(),
+        icon,
+        color,
+        cardIds: selectedIds,
         createdAt: Date.now(),
       };
       updated = [newDeck, ...decks];
     }
     setDecks(updated);
     await saveCustomDecks(updated);
-    setShowNewModal(false);
+    setEditorVisible(false);
   };
 
   const handleDelete = (id: string) => {
@@ -100,13 +131,15 @@ export default function DecksScreen({ navigation }: Props) {
     ]);
   };
 
+  const otherDecks = decks.filter(d => d.id !== editingDeck?.id && d.cardIds.length > 0);
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <Logo />
         <JackIconButton
           icon="add"
-          onPress={openNewModal}
+          onPress={openNewEditor}
           color={Colors.primary}
           iconColor={Colors.ink}
           size={42}
@@ -124,7 +157,7 @@ export default function DecksScreen({ navigation }: Props) {
           <View style={styles.emptySection}>
             <Ionicons name="layers-outline" size={40} color={Colors.outlineVariant} />
             <Text style={styles.emptySectionText}>No custom decks yet.</Text>
-            <TouchableOpacity onPress={openNewModal} activeOpacity={0.85}>
+            <TouchableOpacity onPress={openNewEditor} activeOpacity={0.85}>
               <Text style={[styles.emptySectionText, { color: Colors.primary, marginTop: 4, fontFamily: Type.display }]}>
                 Create your first deck →
               </Text>
@@ -141,7 +174,7 @@ export default function DecksScreen({ navigation }: Props) {
                 <TouchableOpacity
                   style={styles.deckFace}
                   activeOpacity={0.9}
-                  onPress={() => openEditModal(deck)}
+                  onPress={() => openEditEditor(deck)}
                 >
                   <View style={[styles.deckIconWrap, { backgroundColor: deck.color }]}>
                     <Ionicons name={deck.icon as any} size={22} color={Colors.ink} />
@@ -149,7 +182,7 @@ export default function DecksScreen({ navigation }: Props) {
                   <View style={styles.deckInfo}>
                     <Text style={styles.deckName}>{deck.name}</Text>
                     <Text style={styles.deckMeta}>
-                      {deck.cardIds.length} card{deck.cardIds.length !== 1 ? 's' : ''}
+                      {deck.cardIds.length} card{deck.cardIds.length !== 1 ? 's' : ''} — tap to edit
                     </Text>
                   </View>
                   <TouchableOpacity
@@ -167,71 +200,148 @@ export default function DecksScreen({ navigation }: Props) {
 
         {allCards.length > 0 && (
           <Text style={styles.footnote}>
-            {allCards.length} card{allCards.length !== 1 ? 's' : ''} in your library — manage them in the Cards tab.
+            {allCards.length} card{allCards.length !== 1 ? 's' : ''} in your library — write more in the Cards tab.
           </Text>
         )}
       </ScrollView>
 
-      {/* Create / edit deck sheet */}
-      <Modal visible={showNewModal} transparent animationType="slide" onRequestClose={() => setShowNewModal(false)}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalSheet}>
-            <Text style={styles.modalTitle}>{editingDeck ? 'EDIT DECK' : 'NEW DECK'}</Text>
+      {/* ── Deck editor — full screen ── */}
+      <Modal
+        visible={editorVisible}
+        animationType="slide"
+        onRequestClose={() => setEditorVisible(false)}
+      >
+        <SafeAreaView style={styles.editorContainer} edges={['top', 'bottom']}>
+          <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          >
+            <View style={styles.editorHeader}>
+              <JackIconButton icon="close" onPress={() => setEditorVisible(false)} size={42} />
+              <Text style={styles.editorTitle}>{editingDeck ? 'EDIT DECK' : 'NEW DECK'}</Text>
+              <View style={{ width: 96 }}>
+                <JackButton label="Save" size="small" disabled={!name.trim()} onPress={handleSave} />
+              </View>
+            </View>
 
-            <Text style={styles.inputLabel}>NAME</Text>
-            <TextInput
-              style={styles.modalInput}
-              placeholder="e.g. Flat Party Pack"
-              placeholderTextColor={Colors.outline}
-              value={newName}
-              onChangeText={setNewName}
-              maxLength={30}
-            />
+            <ScrollView
+              contentContainerStyle={styles.editorScroll}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              keyboardDismissMode="on-drag"
+            >
+              <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+                <View>
+                  <Text style={styles.inputLabel}>NAME</Text>
+                  <TextInput
+                    style={styles.editorInput}
+                    placeholder="e.g. Flat Party Pack"
+                    placeholderTextColor={Colors.outline}
+                    value={name}
+                    onChangeText={setName}
+                    maxLength={30}
+                  />
 
-            <Text style={styles.inputLabel}>ICON</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.iconRow}>
-              {DECK_ICONS.map(ic => (
-                <TouchableOpacity
-                  key={ic}
-                  onPress={() => { setNewIcon(ic); Haptics.selectionAsync(); }}
-                  style={[
-                    styles.iconChip,
-                    newIcon === ic && { backgroundColor: newColor, borderColor: Colors.ink },
-                  ]}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons name={ic as any} size={20} color={newIcon === ic ? Colors.ink : Colors.outline} />
-                </TouchableOpacity>
-              ))}
+                  <Text style={styles.inputLabel}>ICON</Text>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.iconRow}>
+                    {DECK_ICONS.map(ic => (
+                      <TouchableOpacity
+                        key={ic}
+                        onPress={() => { setIcon(ic); Haptics.selectionAsync(); }}
+                        style={[
+                          styles.iconChip,
+                          icon === ic && { backgroundColor: color, borderColor: Colors.ink },
+                        ]}
+                        activeOpacity={0.7}
+                      >
+                        <Ionicons name={ic as any} size={20} color={icon === ic ? Colors.ink : Colors.outline} />
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+
+                  <Text style={styles.inputLabel}>COLOUR</Text>
+                  <View style={styles.colorRow}>
+                    {DECK_COLORS.map(col => (
+                      <TouchableOpacity
+                        key={col}
+                        onPress={() => { setColor(col); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
+                        style={[styles.colorDot, { backgroundColor: col }, color === col && styles.colorDotActive]}
+                        activeOpacity={0.7}
+                      />
+                    ))}
+                  </View>
+
+                  {otherDecks.length > 0 && (
+                    <>
+                      <Text style={styles.inputLabel}>IMPORT ALL CARDS FROM</Text>
+                      <View style={styles.importRow}>
+                        {otherDecks.map(d => (
+                          <TouchableOpacity
+                            key={d.id}
+                            onPress={() => importFromDeck(d)}
+                            activeOpacity={0.8}
+                            style={[styles.importChip, { borderColor: d.color }]}
+                          >
+                            <Ionicons name={d.icon as any} size={14} color={d.color} />
+                            <Text style={styles.importChipText}>{d.name}</Text>
+                            <Text style={[styles.importChipCount, { color: d.color }]}>+{d.cardIds.length}</Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    </>
+                  )}
+
+                  <View style={styles.cardsHeaderRow}>
+                    <Text style={styles.inputLabel}>
+                      CARDS IN THIS DECK
+                    </Text>
+                    <Text style={styles.cardsCount}>
+                      {selectedIds.length}/{allCards.length}
+                    </Text>
+                  </View>
+
+                  {allCards.length === 0 ? (
+                    <View style={styles.emptyCards}>
+                      <Text style={styles.emptyCardsText}>
+                        Your card library is empty. Write cards in the Cards tab, then add them here.
+                      </Text>
+                    </View>
+                  ) : (
+                    <View style={styles.cardChecklist}>
+                      {allCards.map(card => {
+                        const checked = selectedIds.includes(card.id);
+                        return (
+                          <TouchableOpacity
+                            key={card.id}
+                            onPress={() => toggleCard(card.id)}
+                            activeOpacity={0.85}
+                            style={[
+                              styles.checkCard,
+                              checked && { borderColor: color, backgroundColor: Colors.surfaceContainerHigh },
+                            ]}
+                          >
+                            <View style={[
+                              styles.checkbox,
+                              checked
+                                ? { backgroundColor: color, borderColor: Colors.ink }
+                                : { borderColor: Colors.outlineVariant },
+                            ]}>
+                              {checked && <Ionicons name="checkmark" size={15} color={Colors.ink} />}
+                            </View>
+                            <View style={{ flex: 1 }}>
+                              <Text style={styles.checkCardAction}>{card.action.toUpperCase()}</Text>
+                              <TokenText text={card.text} variant="stage" fontSize={13} />
+                            </View>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  )}
+                </View>
+              </TouchableWithoutFeedback>
             </ScrollView>
-
-            <Text style={styles.inputLabel}>COLOUR</Text>
-            <View style={styles.colorRow}>
-              {DECK_COLORS.map(col => (
-                <TouchableOpacity
-                  key={col}
-                  onPress={() => { setNewColor(col); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
-                  style={[styles.colorDot, { backgroundColor: col }, newColor === col && styles.colorDotActive]}
-                  activeOpacity={0.7}
-                />
-              ))}
-            </View>
-
-            <View style={styles.modalBtns}>
-              <View style={{ flex: 1 }}>
-                <JackButton label="Cancel" variant="ghost" size="medium" onPress={() => setShowNewModal(false)} />
-              </View>
-              <View style={{ flex: 2 }}>
-                <JackButton
-                  label={editingDeck ? 'Save' : 'Create Deck'}
-                  size="medium"
-                  disabled={!newName.trim()}
-                  onPress={handleSave}
-                />
-              </View>
-            </View>
-          </View>
-        </View>
+          </KeyboardAvoidingView>
+        </SafeAreaView>
       </Modal>
 
       <BottomNav current="decks" navigation={navigation} />
@@ -280,16 +390,18 @@ const styles = StyleSheet.create({
     textAlign: 'center', marginTop: 26,
   },
 
-  modalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(10,6,32,0.72)' },
-  modalSheet: {
-    backgroundColor: Colors.surfaceContainerLow,
-    borderTopLeftRadius: 28, borderTopRightRadius: 28,
-    padding: 24, paddingBottom: 40,
-    borderTopWidth: Jack.border, borderTopColor: Colors.ink,
+  // ── Deck editor ──
+  editorContainer: { flex: 1, backgroundColor: Colors.background },
+  editorHeader: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: 20, paddingVertical: 12,
+    borderBottomWidth: Jack.border, borderBottomColor: Colors.ink,
   },
-  modalTitle: { fontFamily: Type.display, fontSize: 20, color: Colors.onSurface, marginBottom: 20, letterSpacing: 1 },
+  editorTitle: { fontFamily: Type.display, fontSize: 15, letterSpacing: 1.5, color: Colors.onSurface },
+  editorScroll: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 40 },
+
   inputLabel: { fontFamily: Type.display, fontSize: 11, letterSpacing: 1.5, color: Colors.outline, marginBottom: 8 },
-  modalInput: {
+  editorInput: {
     height: 52, borderRadius: 14, paddingHorizontal: 16, marginBottom: 20,
     backgroundColor: Colors.surfaceContainer, color: Colors.onSurface,
     fontFamily: Type.bodyMedium, fontSize: 15,
@@ -302,11 +414,46 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surfaceContainer,
     alignItems: 'center', justifyContent: 'center',
   },
-  colorRow: { flexDirection: 'row', gap: 10, marginBottom: 26 },
+  colorRow: { flexDirection: 'row', gap: 10, marginBottom: 24 },
   colorDot: {
     width: 32, height: 32, borderRadius: 16,
     borderWidth: 2.5, borderColor: 'transparent',
   },
   colorDotActive: { borderColor: Colors.onSurface },
-  modalBtns: { flexDirection: 'row', gap: 12 },
+
+  importRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 24 },
+  importChip: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    paddingHorizontal: 12, paddingVertical: 8,
+    borderRadius: 12, borderWidth: 2.5,
+    backgroundColor: Colors.surfaceContainerLow,
+  },
+  importChipText: { fontFamily: Type.display, fontSize: 11, color: Colors.onSurface },
+  importChipCount: { fontFamily: Type.display, fontSize: 11 },
+
+  cardsHeaderRow: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+  },
+  cardsCount: { fontFamily: Type.display, fontSize: 12, color: Colors.primary, marginBottom: 8 },
+  emptyCards: {
+    padding: 20, borderRadius: Jack.radius,
+    borderWidth: 2, borderColor: Colors.outlineVariant, borderStyle: 'dashed',
+  },
+  emptyCardsText: { fontFamily: Type.body, fontSize: 13, color: Colors.onSurfaceVariant, lineHeight: 19 },
+
+  cardChecklist: { gap: 10 },
+  checkCard: {
+    flexDirection: 'row', alignItems: 'flex-start', gap: 12,
+    borderRadius: Jack.radius, borderWidth: 2.5, borderColor: Colors.outlineVariant,
+    backgroundColor: Colors.surfaceContainerLow,
+    padding: 12,
+  },
+  checkbox: {
+    width: 26, height: 26, borderRadius: 8, borderWidth: 2.5, marginTop: 2,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  checkCardAction: {
+    fontFamily: Type.display, fontSize: 9, letterSpacing: 1.2,
+    color: Colors.outline, marginBottom: 4,
+  },
 });

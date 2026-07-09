@@ -1,7 +1,7 @@
 // src/screens/PlayScreen.tsx
-// The title stage. Confetti-dotted indigo backdrop, a tilted marquee panel
-// carrying the wordmark, and one giant buzzer-yellow START sticker that
-// gently pulses. Logic unchanged: resetGame → DeckSelect.
+// The title stage. The logo now lives in the SAME header row as Decks and
+// Cards (identical padding), so it sits at an identical vertical position
+// across all three tabs. Hero content centers in the remaining space.
 
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
@@ -50,13 +50,15 @@ export default function PlayScreen({ navigation }: Props) {
     <SafeAreaView style={styles.container} edges={['top']}>
       <ConfettiDots opacity={0.55} />
 
+      {/* Header — identical structure/padding to DecksScreen & CardsScreen */}
+      <View style={styles.header}>
+        <Logo />
+        <View style={{ width: 42 }} />
+      </View>
+
       <Animated.View
         style={[styles.content, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}
       >
-        <View style={styles.logoRow}>
-          <Logo />
-        </View>
-
         {/* Marquee panel — the stage sign */}
         <JackPanel
           color={Colors.surfaceContainer}
@@ -86,10 +88,14 @@ export default function PlayScreen({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  content: {
-    flex: 1, paddingHorizontal: 26, justifyContent: 'center', paddingBottom: 90, gap: 34,
+  // Must match the header style in DecksScreen/CardsScreen exactly.
+  header: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: 24, paddingVertical: 14,
   },
-  logoRow: { alignItems: 'flex-start' },
+  content: {
+    flex: 1, paddingHorizontal: 24, justifyContent: 'center', paddingBottom: 110, gap: 34,
+  },
   marqueeFace: { padding: 26, gap: 6 },
   heroLine1: {
     fontFamily: Type.display, fontSize: 46, lineHeight: 50, color: Colors.onSurface,
