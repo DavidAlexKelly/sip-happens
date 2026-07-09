@@ -1,10 +1,10 @@
+// src/components/BottomNav.tsx
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
-import { Colors } from '../styles/theme';
+import { Colors, Type } from '../styles/theme';
 
 type Props = {
   current: 'play' | 'decks' | 'cards';
@@ -24,14 +24,10 @@ export default function BottomNav({ current, navigation }: Props) {
         const isActive = tab.id === current;
         if (isActive) {
           return (
-            <LinearGradient
-              key={tab.id}
-              colors={[Colors.primary, Colors.primaryContainer]}
-              style={styles.navItemActive}
-            >
+            <View key={tab.id} style={styles.navItemActive}>
               <Ionicons name={tab.icon as any} size={22} color={Colors.onPrimary} />
               <Text style={[styles.navLabel, styles.navLabelActive]}>{tab.label}</Text>
-            </LinearGradient>
+            </View>
           );
         }
         return (
@@ -55,21 +51,22 @@ const styles = StyleSheet.create({
     position: 'absolute', bottom: 0, left: 0, right: 0,
     flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center',
     paddingTop: 12, paddingBottom: 32, paddingHorizontal: 16,
-    backgroundColor: 'rgba(14,14,17,0.95)',
-    borderTopWidth: 1, borderTopColor: 'rgba(72,71,75,0.2)',
+    backgroundColor: 'rgba(12,10,18,0.95)',
+    borderTopWidth: 1, borderTopColor: Colors.outlineVariant,
     borderTopLeftRadius: 28, borderTopRightRadius: 28,
   },
   navItemActive: {
     flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
     paddingHorizontal: 24, paddingVertical: 10, borderRadius: 999, gap: 2,
-    shadowColor: Colors.primary, shadowOpacity: 0.4, shadowRadius: 12, shadowOffset: { width: 0, height: 4 },
+    backgroundColor: Colors.primary,
+    shadowColor: Colors.primary, shadowOpacity: 0.35, shadowRadius: 12, shadowOffset: { width: 0, height: 4 },
   },
   navItem: {
     flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
     padding: 10, gap: 2,
   },
   navLabel: {
-    fontFamily: 'PlusJakartaSans_700Bold',
+    fontFamily: Type.bodyBold,
     fontSize: 8, letterSpacing: 1.5, color: Colors.onSurface, textTransform: 'uppercase', opacity: 0.4,
   },
   navLabelActive: {

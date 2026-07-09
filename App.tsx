@@ -82,6 +82,7 @@ export default function App() {
             screenOptions={{
               headerShown: false,
               contentStyle: { backgroundColor: Colors.background },
+              animation: 'fade_from_bottom',
             }}
           >
             <Stack.Screen name="Play"       component={PlayScreen} />

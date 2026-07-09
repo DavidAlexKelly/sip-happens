@@ -1,3 +1,4 @@
+// src/screens/GameOverScreen.tsx
 import React, { useEffect, useRef } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, Animated, Image,
@@ -8,7 +9,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { RootStackParamList } from '../navigation/types';
-import { Colors } from '../styles/theme';
+import { Colors, Type } from '../styles/theme';
 import { useGame } from '../components/GameContext';
 
 type Props = {
@@ -39,7 +40,7 @@ export default function GameOverScreen({ navigation }: Props) {
   };
 
   const stats = [
-    { label: 'Rounds', value: state.currentRound - 1, color: Colors.primary },
+    { label: 'Rounds', value: Math.min(state.currentRound, state.totalRounds), color: Colors.primary },
     { label: 'Players', value: state.players.length, color: Colors.secondary },
     { label: 'Skipped', value: state.skips, color: Colors.tertiary },
   ];
@@ -47,7 +48,7 @@ export default function GameOverScreen({ navigation }: Props) {
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
-        colors={['rgba(255,122,251,0.12)', 'transparent']}
+        colors={['rgba(255,107,74,0.16)', 'transparent']}
         style={styles.topGlow}
         start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 1 }}
         pointerEvents="none"
@@ -55,15 +56,14 @@ export default function GameOverScreen({ navigation }: Props) {
 
       <View style={styles.content}>
         <Animated.View style={[styles.hero, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
-          <Text style={styles.eyebrow}>Night Complete</Text>
+          <Text style={styles.eyebrow}>NIGHT COMPLETE</Text>
           <Text style={styles.ggText}>GG.</Text>
-          <Text style={styles.subtitle}>That's a wrap!</Text>
+          <Text style={styles.subtitle}>That's a wrap.</Text>
           <Text style={styles.body}>
-            You survived Nekkit.{'\n'}Pour one out for the legends who made it.
+            Sip Happens has spoken.{'\n'}Refill your glass, legends.
           </Text>
         </Animated.View>
 
-        {/* Player shoutout */}
         <Animated.View style={[styles.playersRow, { opacity: fadeAnim }]}>
           {state.players.map((p) => (
             <View key={p.id} style={[styles.playerChip, { borderColor: `${p.color}40` }]}>
@@ -81,7 +81,6 @@ export default function GameOverScreen({ navigation }: Props) {
           ))}
         </Animated.View>
 
-        {/* Stats */}
         <Animated.View style={[styles.statsRow, { opacity: fadeAnim }]}>
           {stats.map(s => (
             <View key={s.label} style={styles.statCard}>
@@ -91,7 +90,6 @@ export default function GameOverScreen({ navigation }: Props) {
           ))}
         </Animated.View>
 
-        {/* Actions */}
         <Animated.View style={[styles.actions, { opacity: fadeAnim }]}>
           <TouchableOpacity onPress={handlePlayAgain} activeOpacity={0.85}>
             <LinearGradient
@@ -115,54 +113,45 @@ export default function GameOverScreen({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  topGlow: { position: 'absolute', top: 0, left: 0, right: 0, height: 400 },
-  content: {
-    flex: 1, paddingHorizontal: 28, justifyContent: 'center',
-    gap: 28, paddingBottom: 32,
-  },
-  hero: { alignItems: 'center', gap: 8 },
+  topGlow: { position: 'absolute', top: 0, left: 0, right: 0, height: 300 },
+  content: { flex: 1, paddingHorizontal: 24, paddingTop: 60, justifyContent: 'space-between', paddingBottom: 24 },
+
+  hero: { alignItems: 'center', gap: 4 },
   eyebrow: {
-    fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 11, letterSpacing: 4, textTransform: 'uppercase', color: Colors.secondary,
+    fontFamily: Type.bodyBold, fontSize: 12, letterSpacing: 2.5, color: Colors.secondary,
   },
   ggText: {
-    fontFamily: 'PlusJakartaSans_800ExtraBold_Italic',
-    fontSize: 96, color: Colors.primary, lineHeight: 96,
-    textShadowColor: 'rgba(255,122,251,0.5)',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 20,
+    fontFamily: Type.display, fontSize: 72, color: Colors.primary, marginTop: 6,
   },
-  subtitle: { fontFamily: 'PlusJakartaSans_800ExtraBold', fontSize: 26, color: Colors.onSurface },
+  subtitle: { fontFamily: Type.display, fontSize: 20, color: Colors.onSurface, marginTop: 2 },
   body: {
-    fontFamily: 'BeVietnamPro_400Regular',
-    fontSize: 14, color: Colors.onSurfaceVariant, textAlign: 'center', lineHeight: 22,
+    fontFamily: Type.body, fontSize: 14, color: Colors.onSurfaceVariant, textAlign: 'center',
+    marginTop: 10, lineHeight: 20,
   },
-  playersRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' },
+
+  playersRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 10 },
   playerChip: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    paddingHorizontal: 10, paddingVertical: 6,
-    borderRadius: 999, borderWidth: 1,
-    backgroundColor: Colors.surfaceContainerLow,
+    flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingVertical: 6,
+    borderRadius: 18, borderWidth: 1, backgroundColor: Colors.surfaceContainerLow,
   },
   chipOrb: {
-    width: 26, height: 26, borderRadius: 13,
-    backgroundColor: Colors.surfaceContainerHighest,
-    alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, overflow: 'hidden',
+    width: 26, height: 26, borderRadius: 13, borderWidth: 1,
+    backgroundColor: Colors.surfaceContainerHighest, alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
   },
   chipPhoto: { width: 26, height: 26, borderRadius: 13 },
-  playerChipText: { fontFamily: 'PlusJakartaSans_800ExtraBold', fontSize: 12 },
-  playerChipName: { fontFamily: 'PlusJakartaSans_700Bold', fontSize: 12, color: Colors.onSurface },
+  playerChipText: { fontFamily: Type.display, fontSize: 12 },
+  playerChipName: { fontFamily: Type.bodyBold, fontSize: 12, color: Colors.onSurface },
+
   statsRow: { flexDirection: 'row', gap: 12 },
   statCard: {
     flex: 1, backgroundColor: Colors.surfaceContainerLow,
     borderRadius: 16, padding: 20, alignItems: 'center', gap: 6,
   },
-  statValue: { fontFamily: 'PlusJakartaSans_800ExtraBold', fontSize: 32 },
+  statValue: { fontFamily: Type.display, fontSize: 32 },
   statLabel: {
-    fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', color: Colors.outline,
+    fontFamily: Type.bodyBold, fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', color: Colors.outline,
   },
+
   actions: { gap: 12 },
   primaryBtn: {
     paddingVertical: 20, borderRadius: 999,
@@ -170,15 +159,13 @@ const styles = StyleSheet.create({
     shadowColor: Colors.primary, shadowOpacity: 0.4, shadowRadius: 20, shadowOffset: { width: 0, height: 8 },
   },
   primaryBtnText: {
-    fontFamily: 'PlusJakartaSans_800ExtraBold',
-    fontSize: 18, letterSpacing: 2, color: Colors.onPrimary, textTransform: 'uppercase',
+    fontFamily: Type.display, fontSize: 18, letterSpacing: 2, color: Colors.onPrimary, textTransform: 'uppercase',
   },
   secondaryBtn: {
     paddingVertical: 18, borderRadius: 16,
     alignItems: 'center', backgroundColor: Colors.surfaceContainerHighest,
   },
   secondaryBtnText: {
-    fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 13, letterSpacing: 2, textTransform: 'uppercase', color: Colors.onSurface,
+    fontFamily: Type.bodyBold, fontSize: 13, letterSpacing: 2, textTransform: 'uppercase', color: Colors.onSurface,
   },
 });

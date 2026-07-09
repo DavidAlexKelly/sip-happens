@@ -1,3 +1,4 @@
+// src/screens/PlayersScreen.tsx
 import React, { useState, useRef } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView,
@@ -10,27 +11,33 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import * as ImagePicker from 'expo-image-picker';
 import { RootStackParamList } from '../navigation/types';
-import { Colors } from '../styles/theme';
+import { Colors, Type } from '../styles/theme';
 import { MODES } from '../data/gameData';
 import { useGame } from '../components/GameContext';
-
+import Logo from '../components/Logo';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Players'>;
 };
 
 const BONUS_STEPS = [0, 1, 2, 3] as const;
-const BONUS_LABELS = ['standard', '+1', '+2', '+3'] as const;
 const BONUS_DISPLAY = ['Standard', '+1 sip', '+2 sips', '+3 sips'] as const;
 
 export default function PlayersScreen({ navigation }: Props) {
   const { state, addPlayer, removePlayer, updatePlayerPhoto, startGame, toggleMode, setSipBonus } = useGame();
   const [inputValue, setInputValue] = useState('');
   const shakeAnim = useRef(new Animated.Value(0)).current;
-  const bonusAnim = useRef(new Animated.Value(state.sipBonus)).current;
+
+  const shake = () => {
+    Animated.sequence([
+      Animated.timing(shakeAnim, { toValue: 8, duration: 60, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: -8, duration: 60, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: 0, duration: 60, useNativeDriver: true }),
+    ]).start();
+  };
 
   const handleAdd = () => {
-    if (!inputValue.trim()) return;
+    if (!inputValue.trim()) { shake(); return; }
     addPlayer(inputValue);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setInputValue('');
@@ -67,27 +74,18 @@ export default function PlayersScreen({ navigation }: Props) {
     if (value === state.sipBonus) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setSipBonus(value);
-    Animated.spring(bonusAnim, {
-      toValue: value,
-      tension: 120,
-      friction: 10,
-      useNativeDriver: true,
-    }).start();
   };
 
   const canStart = state.players.length >= 2;
-  const firstMode = MODES.find(m => state.selectedModes.includes(m.id)) ?? MODES[0];
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={Colors.onSurface} style={{ opacity: 0.7 }} />
+        <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+          <Ionicons name="arrow-back" size={22} color={Colors.onSurface} />
         </TouchableOpacity>
-        <LinearGradient colors={[Colors.primary, Colors.primaryContainer]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.titleGradient}>
-          <Text style={styles.headerTitle}>NEKKIT</Text>
-        </LinearGradient>
-        <Ionicons name="person-circle-outline" size={24} color={Colors.onSurface} style={{ opacity: 0.7 }} />
+        <Logo />
+        <View style={{ width: 22 }} />
       </View>
 
       <ScrollView
@@ -97,14 +95,13 @@ export default function PlayersScreen({ navigation }: Props) {
       >
         <View style={styles.pageHeader}>
           <Text style={styles.pageTitle}>WHO'S{'\n'}<Text style={styles.pageTitleAccent}>IN?</Text></Text>
-          <Text style={styles.pageSubtitle}>Enter the legends joining the night.</Text>
+          <Text style={styles.pageSubtitle}>Add everyone at the table.</Text>
         </View>
 
-        {/* Input row */}
         <Animated.View style={[styles.inputRow, { transform: [{ translateX: shakeAnim }] }]}>
           <TextInput
             style={styles.input}
-            placeholder="Type player name..."
+            placeholder="Type a name..."
             placeholderTextColor={Colors.outline}
             value={inputValue}
             onChangeText={setInputValue}
@@ -120,17 +117,15 @@ export default function PlayersScreen({ navigation }: Props) {
           </TouchableOpacity>
         </Animated.View>
 
-        {/* Player list header */}
         <View style={styles.listHeader}>
-          <Text style={styles.listLabel}>Active Party</Text>
+          <Text style={styles.listLabel}>At the Table</Text>
           <Text style={styles.playerCount}>{String(state.players.length).padStart(2, '0')}</Text>
         </View>
 
-        {/* Players */}
         {state.players.length === 0 ? (
           <View style={styles.emptyState}>
             <Ionicons name="people-outline" size={40} color={Colors.outlineVariant} />
-            <Text style={styles.emptyText}>Add at least 2 players to start the game.</Text>
+            <Text style={styles.emptyText}>Add at least 2 players to start.</Text>
           </View>
         ) : (
           <View style={styles.playerList}>
@@ -170,113 +165,73 @@ export default function PlayersScreen({ navigation }: Props) {
           </View>
         )}
 
-        {/* Deck selector */}
         {canStart && (
-          <View style={styles.modeSelectorSection}>
-            <Text style={styles.modeSelectorEyebrow}>ACTIVE DECKS</Text>
-            <View style={styles.deckChipsRow}>
-              {MODES.map(mode => {
-                const active = state.selectedModes.includes(mode.id);
-                const isLast = state.selectedModes.length === 1 && active;
-                return (
-                  <TouchableOpacity
-                    key={mode.id}
-                    onPress={() => {
-                      if (isLast) return;
-                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                      toggleMode(mode.id);
-                    }}
-                    activeOpacity={0.8}
-                    style={[
-                      styles.deckChip,
-                      active
-                        ? { backgroundColor: `${mode.color}20`, borderColor: `${mode.color}60` }
-                        : { borderColor: Colors.outlineVariant },
-                    ]}
-                  >
-                    <Ionicons name={mode.icon as any} size={14} color={active ? mode.color : Colors.outline} />
-                    <Text style={[styles.deckChipText, { color: active ? mode.color : Colors.outline }]}>
-                      {mode.label}
-                    </Text>
-                    {active && <Ionicons name="checkmark" size={12} color={mode.color} />}
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('DeckSelect')}
-              activeOpacity={0.7}
-              style={styles.manageDeckBtn}
-            >
-              <Ionicons name="options-outline" size={14} color={Colors.onSurfaceVariant} />
-              <Text style={styles.manageDeckText}>MANAGE DECKS</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {/* Sip bonus selector */}
-        {canStart && (() => {
-          const STEP_WIDTH = 200 / BONUS_STEPS.length;
-          const pillTranslateX = bonusAnim.interpolate({
-            inputRange: [0, BONUS_STEPS.length - 1],
-            outputRange: [0, STEP_WIDTH * (BONUS_STEPS.length - 1)],
-          });
-          return (
-            <View style={styles.bonusSection}>
-              <View style={styles.bonusHeader}>
-                <Text style={styles.bonusEyebrow}>DRINK STRENGTH</Text>
-                <Text style={[styles.bonusValue, { color: firstMode.color }]}>
-                  {BONUS_DISPLAY[state.sipBonus]}
-                </Text>
+          <>
+            {/* Deck chips */}
+            <View style={styles.section}>
+              <Text style={styles.sectionEyebrow}>ACTIVE DECKS</Text>
+              <View style={styles.deckChipsRow}>
+                {MODES.map(mode => {
+                  const active = state.selectedModes.includes(mode.id);
+                  const isLast = state.selectedModes.length === 1 && active;
+                  return (
+                    <TouchableOpacity
+                      key={mode.id}
+                      onPress={() => { if (!isLast) { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); toggleMode(mode.id); } }}
+                      activeOpacity={0.8}
+                      style={[
+                        styles.deckChip,
+                        active
+                          ? { backgroundColor: `${mode.color}22`, borderColor: mode.color }
+                          : { borderColor: Colors.outlineVariant },
+                      ]}
+                    >
+                      <Text style={[styles.deckChipText, active && { color: mode.color }]}>{mode.label}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
-              <View style={[styles.bonusTrack, { borderColor: `${firstMode.color}20` }]}>
-                <Animated.View
-                  style={[
-                    styles.bonusPill,
-                    { width: STEP_WIDTH, backgroundColor: firstMode.color, transform: [{ translateX: pillTranslateX }] },
-                  ]}
-                />
-                {BONUS_STEPS.map(step => (
-                  <TouchableOpacity
-                    key={step}
-                    style={styles.bonusStep}
-                    onPress={() => handleBonusChange(step)}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={[
-                      styles.bonusStepLabel,
-                      state.sipBonus === step && { color: Colors.onPrimary, fontFamily: 'PlusJakartaSans_800ExtraBold' },
-                    ]}>
-                      {BONUS_LABELS[step]}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-              <Text style={styles.bonusHint}>
-                {state.sipBonus === 0
-                  ? 'Cards play at their base sip values.'
-                  : `Every sip value on every card is increased by ${state.sipBonus}.`}
-              </Text>
             </View>
-          );
-        })()}
 
-        {/* Start button */}
-        {canStart && (
-          <TouchableOpacity onPress={handleStart} activeOpacity={0.85} style={styles.startBtnWrapper}>
-            <LinearGradient
-              colors={[Colors.primary, Colors.primaryContainer]}
-              start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-              style={styles.startBtn}
-            >
-              <Text style={styles.startBtnText}>LET'S GO</Text>
-              <Ionicons name="arrow-forward" size={22} color={Colors.onPrimary} />
-            </LinearGradient>
-          </TouchableOpacity>
+            {/* Sip bonus stepper */}
+            <View style={styles.section}>
+              <Text style={styles.sectionEyebrow}>SIP INTENSITY</Text>
+              <View style={styles.bonusRow}>
+                {BONUS_STEPS.map(step => {
+                  const active = state.sipBonus === step;
+                  return (
+                    <TouchableOpacity
+                      key={step}
+                      onPress={() => handleBonusChange(step)}
+                      activeOpacity={0.8}
+                      style={[styles.bonusPill, active && styles.bonusPillActive]}
+                    >
+                      <Text style={[styles.bonusPillText, active && styles.bonusPillTextActive]}>
+                        {BONUS_DISPLAY[step]}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+          </>
         )}
       </ScrollView>
 
-      
+      <View style={styles.footer}>
+        <TouchableOpacity onPress={handleStart} activeOpacity={0.88} disabled={!canStart}>
+          <LinearGradient
+            colors={canStart ? [Colors.primary, Colors.primaryContainer] : [Colors.surfaceContainerHigh, Colors.surfaceContainerHigh]}
+            start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+            style={styles.startBtn}
+          >
+            <Text style={[styles.startBtnText, !canStart && { color: Colors.outline }]}>
+              {canStart ? 'START GAME' : 'ADD 2+ PLAYERS'}
+            </Text>
+            {canStart && <Ionicons name="play" size={18} color={Colors.onPrimary} />}
+          </LinearGradient>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 }
@@ -285,169 +240,81 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 24, paddingVertical: 16,
-    backgroundColor: 'rgba(14,14,17,0.9)',
+    paddingHorizontal: 20, paddingVertical: 14,
   },
-  titleGradient: { borderRadius: 4 },
-  headerTitle: {
-    fontFamily: 'PlusJakartaSans_800ExtraBold_Italic',
-    fontSize: 17, letterSpacing: -0.5, color: Colors.onPrimary, paddingHorizontal: 4,
-  },
-  scrollContent: { paddingHorizontal: 24, paddingBottom: 40 },
-  pageHeader: { marginTop: 32, marginBottom: 32 },
-  pageTitle: {
-    fontFamily: 'PlusJakartaSans_800ExtraBold',
-    fontSize: 56, letterSpacing: -2, lineHeight: 58, color: Colors.onSurface,
-  },
-  pageTitleAccent: {
-    fontFamily: 'PlusJakartaSans_800ExtraBold_Italic',
-    color: Colors.primary,
-  },
-  pageSubtitle: {
-    fontFamily: 'BeVietnamPro_400Regular',
-    fontSize: 14, color: Colors.onSurfaceVariant, marginTop: 8,
-  },
-  inputRow: { flexDirection: 'row', gap: 12, marginBottom: 32 },
+  scrollContent: { paddingHorizontal: 20, paddingBottom: 140 },
+  pageHeader: { marginTop: 8, marginBottom: 24 },
+  pageTitle: { fontFamily: Type.display, fontSize: 38, lineHeight: 40, color: Colors.onSurface },
+  pageTitleAccent: { color: Colors.primary },
+  pageSubtitle: { fontFamily: Type.body, fontSize: 15, color: Colors.onSurfaceVariant, marginTop: 8 },
+
+  inputRow: { flexDirection: 'row', gap: 10, marginBottom: 24 },
   input: {
-    flex: 1,
-    backgroundColor: Colors.surfaceContainerHighest,
-    borderRadius: 16, paddingHorizontal: 20, paddingVertical: 16,
-    fontFamily: 'BeVietnamPro_400Regular',
-    fontSize: 15, color: Colors.onSurface,
+    flex: 1, height: 52, borderRadius: 16, paddingHorizontal: 18,
+    backgroundColor: Colors.surfaceContainer, color: Colors.onSurface,
+    fontFamily: Type.bodyMedium, fontSize: 15,
+    borderWidth: 1, borderColor: Colors.outlineVariant,
   },
-  addBtn: {
-    width: 56, height: 56, borderRadius: 28,
-    alignItems: 'center', justifyContent: 'center',
-    shadowColor: Colors.primary, shadowOpacity: 0.4, shadowRadius: 12, shadowOffset: { width: 0, height: 4 },
-  },
+  addBtn: { width: 52, height: 52, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+
   listHeader: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end',
-    marginBottom: 16,
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12,
   },
-  listLabel: {
-    fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 10, letterSpacing: 3, textTransform: 'uppercase', color: Colors.outline,
-  },
-  playerCount: {
-    fontFamily: 'PlusJakartaSans_800ExtraBold_Italic',
-    fontSize: 28, color: Colors.primary,
-  },
-  emptyState: {
-    borderWidth: 1, borderColor: 'rgba(72,71,75,0.3)', borderStyle: 'dashed',
-    borderRadius: 16, padding: 40,
-    alignItems: 'center', justifyContent: 'center', gap: 12,
-    backgroundColor: 'rgba(37,37,42,0.2)',
-  },
-  emptyText: {
-    fontFamily: 'BeVietnamPro_400Regular',
-    fontSize: 13, color: Colors.outline, textAlign: 'center',
-  },
-  playerList: { gap: 10 },
+  listLabel: { fontFamily: Type.bodyBold, fontSize: 12, letterSpacing: 1.5, color: Colors.outline, textTransform: 'uppercase' },
+  playerCount: { fontFamily: Type.display, fontSize: 16, color: Colors.onSurfaceVariant },
+
+  emptyState: { alignItems: 'center', gap: 10, paddingVertical: 40, opacity: 0.7 },
+  emptyText: { fontFamily: Type.body, fontSize: 14, color: Colors.onSurfaceVariant },
+
+  playerList: { gap: 8 },
   playerCard: {
-    borderRadius: 16, padding: 8,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    borderRadius: 16, padding: 12,
   },
-  playerLeft: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+  playerLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   orbWrapper: { position: 'relative' },
   playerOrb: {
-    width: 56, height: 56, borderRadius: 28,
-    backgroundColor: Colors.surfaceContainerHighest,
-    alignItems: 'center', justifyContent: 'center',
-    borderWidth: 2, overflow: 'hidden',
+    width: 46, height: 46, borderRadius: 23, borderWidth: 2,
+    alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
+    backgroundColor: Colors.surfaceContainerHigh,
   },
-  playerPhoto: { width: 56, height: 56, borderRadius: 28 },
-  playerInitial: { fontFamily: 'PlusJakartaSans_800ExtraBold', fontSize: 22 },
+  playerPhoto: { width: '100%', height: '100%' },
+  playerInitial: { fontFamily: Type.display, fontSize: 17 },
   cameraBadge: {
-    position: 'absolute', bottom: 0, right: 0,
-    width: 20, height: 20, borderRadius: 10,
-    alignItems: 'center', justifyContent: 'center',
-    borderWidth: 2, borderColor: Colors.background,
+    position: 'absolute', bottom: -2, right: -2, width: 18, height: 18, borderRadius: 9,
+    alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: Colors.background,
   },
-  playerName: {
-    fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 16, color: Colors.onSurface, letterSpacing: -0.5,
-  },
-  playerRank: {
-    fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 10, letterSpacing: 1.5, textTransform: 'uppercase', marginTop: 2,
-  },
-  removeBtn: {
-    width: 36, height: 36, borderRadius: 18,
-    alignItems: 'center', justifyContent: 'center', marginRight: 8,
-  },
+  playerName: { fontFamily: Type.bodyBold, fontSize: 14, color: Colors.onSurface, letterSpacing: 0.5 },
+  playerRank: { fontFamily: Type.bodyMedium, fontSize: 12, marginTop: 2 },
+  removeBtn: { padding: 6 },
 
-  // Deck selector
-  modeSelectorSection: { marginTop: 32 },
-  modeSelectorEyebrow: {
-    fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 10, letterSpacing: 3, textTransform: 'uppercase',
-    color: Colors.outline, marginBottom: 12,
+  section: { marginTop: 28 },
+  sectionEyebrow: {
+    fontFamily: Type.bodyBold, fontSize: 11, letterSpacing: 2, color: Colors.outline,
+    textTransform: 'uppercase', marginBottom: 12,
   },
-  deckChipsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 },
-  deckChip: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    paddingHorizontal: 12, paddingVertical: 8,
-    borderRadius: 999, borderWidth: 1,
-    backgroundColor: Colors.surfaceContainerLow,
-  },
-  deckChipText: {
-    fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 11, letterSpacing: 1, textTransform: 'uppercase',
-  },
-  manageDeckBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    alignSelf: 'flex-start',
-    paddingHorizontal: 12, paddingVertical: 8,
-    borderRadius: 999,
-    backgroundColor: Colors.surfaceContainerHighest,
-  },
-  manageDeckText: {
-    fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', color: Colors.onSurfaceVariant,
-  },
+  deckChipsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  deckChip: { paddingHorizontal: 14, paddingVertical: 9, borderRadius: 14, borderWidth: 1 },
+  deckChipText: { fontFamily: Type.bodyBold, fontSize: 12, color: Colors.onSurfaceVariant },
 
-  // Bonus selector
-  bonusSection: { marginTop: 24 },
-  bonusHeader: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10,
-  },
-  bonusEyebrow: {
-    fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 10, letterSpacing: 3, textTransform: 'uppercase', color: Colors.outline,
-  },
-  bonusValue: {
-    fontFamily: 'PlusJakartaSans_800ExtraBold_Italic',
-    fontSize: 22,
-  },
-  bonusTrack: {
-    height: 52, borderRadius: 16,
-    backgroundColor: Colors.surfaceContainerLow,
-    borderWidth: 1,
-    flexDirection: 'row', overflow: 'hidden', position: 'relative',
-  },
+  bonusRow: { flexDirection: 'row', gap: 8 },
   bonusPill: {
-    position: 'absolute', top: 0, bottom: 0, borderRadius: 14,
+    flex: 1, paddingVertical: 12, borderRadius: 14, alignItems: 'center',
+    backgroundColor: Colors.surfaceContainer, borderWidth: 1, borderColor: Colors.outlineVariant,
   },
-  bonusStep: {
-    flex: 1, alignItems: 'center', justifyContent: 'center', zIndex: 1,
-  },
-  bonusStepLabel: {
-    fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 13, color: Colors.onSurfaceVariant,
-  },
-  bonusHint: {
-    fontFamily: 'BeVietnamPro_400Regular',
-    fontSize: 11, color: Colors.outline, marginTop: 8, textAlign: 'center',
-  },
+  bonusPillActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
+  bonusPillText: { fontFamily: Type.bodyBold, fontSize: 12, color: Colors.onSurfaceVariant },
+  bonusPillTextActive: { color: Colors.onPrimary },
 
-  startBtnWrapper: { marginTop: 16 },
+  footer: {
+    position: 'absolute', bottom: 0, left: 0, right: 0,
+    paddingHorizontal: 20, paddingTop: 16, paddingBottom: 34,
+    backgroundColor: 'rgba(12,10,18,0.95)',
+    borderTopWidth: 1, borderTopColor: Colors.outlineVariant,
+  },
   startBtn: {
-    paddingVertical: 20, borderRadius: 999,
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
-    shadowColor: Colors.primary, shadowOpacity: 0.4, shadowRadius: 20, shadowOffset: { width: 0, height: 8 },
+    height: 56, borderRadius: 28, flexDirection: 'row', alignItems: 'center',
+    justifyContent: 'center', gap: 10,
   },
-  startBtnText: {
-    fontFamily: 'PlusJakartaSans_800ExtraBold',
-    fontSize: 20, letterSpacing: 2, color: Colors.onPrimary, textTransform: 'uppercase',
-  },
+  startBtnText: { fontFamily: Type.display, fontSize: 15, letterSpacing: 1.5, color: Colors.onPrimary },
 });
