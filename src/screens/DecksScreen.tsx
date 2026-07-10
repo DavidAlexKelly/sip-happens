@@ -26,6 +26,7 @@ import { ALL_CHALLENGES, Challenge } from '../data/gameData';
 import Logo from '../components/Logo';
 import BottomNav from '../components/BottomNav';
 import TokenText from '../components/TokenText';
+import { getCardTitle, getChallengeTitle } from '../utils/cardTitles';
 import { JackButton, JackIconButton } from '../components/jack';
 import {
   CustomDeck, CustomCard, loadCustomDecks, saveCustomDecks,
@@ -294,6 +295,8 @@ export default function DecksScreen({ navigation }: Props) {
 
   const renderMineItem = ({ item }: { item: CustomCard }) => {
     const checked = selectedIds.includes(item.id);
+    const cat = item.category ?? 'other';
+    const badgeColor = ModeColors[cat] || Colors.primary;
     return (
       <TouchableOpacity
         onPress={() => toggleId(item.id)}
@@ -310,7 +313,12 @@ export default function DecksScreen({ navigation }: Props) {
           {checked && <Ionicons name="checkmark" size={15} color={Colors.ink} />}
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={styles.checkCardAction}>{item.action.toUpperCase()}</Text>
+          <View style={styles.builtinTopRow}>
+            <View style={[styles.categoryBadge, { backgroundColor: badgeColor }]}>
+              <Text style={styles.categoryBadgeText}>{ModeLabels[cat] || cat}</Text>
+            </View>
+          </View>
+          <Text style={styles.checkCardTitle}>{getCardTitle(item)}</Text>
           <TokenText text={item.text} variant="stage" fontSize={13} />
         </View>
       </TouchableOpacity>
@@ -343,6 +351,7 @@ export default function DecksScreen({ navigation }: Props) {
             </View>
             <Text style={styles.intensityText}>{'🌶'.repeat(item.intensity)}</Text>
           </View>
+          <Text style={styles.checkCardTitle}>{getChallengeTitle(item)}</Text>
           <TokenText text={item.text} variant="stage" fontSize={13} />
         </View>
       </TouchableOpacity>
@@ -598,9 +607,8 @@ const styles = StyleSheet.create({
     width: 26, height: 26, borderRadius: 8, borderWidth: 2.5, marginTop: 2,
     alignItems: 'center', justifyContent: 'center',
   },
-  checkCardAction: {
-    fontFamily: Type.display, fontSize: 9, letterSpacing: 1.2,
-    color: Colors.outline, marginBottom: 4,
+  checkCardTitle: {
+    fontFamily: Type.display, fontSize: 13, color: Colors.onSurface, marginBottom: 4,
   },
 
   builtinTopRow: {

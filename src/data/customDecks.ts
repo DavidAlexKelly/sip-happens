@@ -15,11 +15,20 @@ import { ALL_CHALLENGES, Challenge } from './gameData';
 const DECKS_KEY = '@nekkit_custom_decks';
 const CARDS_KEY = '@nekkit_custom_cards';
 
+/** Categories a custom card can belong to — the built-in five plus a catch-all. */
+export type CardCategory = 'drink' | 'dare' | 'truth' | 'chaos' | 'spicy' | 'other';
+
+export const CARD_CATEGORIES: CardCategory[] = ['drink', 'dare', 'truth', 'chaos', 'spicy', 'other'];
+
 export interface CustomCard {
   id: string;
   text: string;
   action: string;
   createdAt: number;
+  /** Display title. Legacy cards may lack one — derive via utils/cardTitles. */
+  title?: string;
+  /** Category. Legacy cards lack one — treated as 'other'. */
+  category?: CardCategory;
 }
 
 export interface CustomDeck {
@@ -102,13 +111,16 @@ export function buildCustomPool(
 
       const card = cardById.get(cardId);
       if (!card) continue; // card deleted after the deck referenced it
+      // A card categorised as one of the built-in five plays AS that
+      // category in-game (badge colour, label); 'other'/legacy → 'custom'.
+      const mode = card.category && card.category !== 'other' ? card.category : 'custom';
       pool.push({
         id: `custom-${card.id}`,
         text: card.text,
         action: card.action || 'Do it',
         icon: 'sparkles' as const,
         intensity: 2,
-        mode: 'custom',
+        mode,
       } as Challenge);
     }
   }

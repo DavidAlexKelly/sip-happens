@@ -87,6 +87,7 @@ export const ModeColors: Record<string, string> = {
   chaos:  '#FFCC26', // yellow
   spicy:  '#FF4D8D', // pink-red
   custom: '#5EB8FF', // sky — user-made
+  other:  '#5EB8FF', // custom-card catch-all category
 };
 
 export const ModeLabels: Record<string, string> = {
@@ -96,6 +97,7 @@ export const ModeLabels: Record<string, string> = {
   chaos:  'Chaos',
   spicy:  'Spicy 🌶️',
   custom: 'Your Deck',
+  other:  'Other',
 };
 
 // Typography roles — same bundled families, no new packages.
