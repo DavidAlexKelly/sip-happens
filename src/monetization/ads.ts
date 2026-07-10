@@ -14,6 +14,14 @@
 //   • Cooldown — a safety net so a bug can never chain-fire ads.
 //   • Test ads in dev — Google bans accounts for clicking real ads in
 //     development, so __DEV__ always uses Google's test unit ids.
+//
+// CHANGED for release readiness:
+//   • init(personalizedAdsAllowed) — pass the App Tracking Transparency
+//     result (see src/utils/tracking.ts). When false, every ad request sets
+//     requestNonPersonalizedAdsOnly: true, so a "no" on the iOS tracking
+//     prompt is actually honored rather than silently ignored.
+//   • Call order matters: request ATT BEFORE Ads.init() so the flag is known
+//     before the first ad loads. See App.tsx.
 
 import { Platform } from 'react-native';
 import mobileAds, {
@@ -44,14 +52,20 @@ class InterstitialManager {
   private loaded = false;
   private initialized = false;
   private lastShownAt = 0;
+  private personalizedAdsAllowed = true;
   private unsubscribers: Array<() => void> = [];
 
   /**
-   * Call once from App.tsx after mount. Runs the Google UMP consent flow
-   * (GDPR/UK consent form + iOS ATT where applicable), then initializes the
-   * SDK and preloads the first interstitial. Safe to call more than once.
+   * Call once from App.tsx after mount — AFTER the ATT prompt has resolved.
+   * Runs the Google UMP consent flow (GDPR/UK consent form), then
+   * initializes the SDK and preloads the first interstitial.
+   * Safe to call more than once (no-ops after the first successful call).
+   *
+   * @param personalizedAdsAllowed  Result of requestTrackingPermission().
+   *   false → every ad request is marked non-personalized (no IDFA use).
    */
-  async init(): Promise<void> {
+  async init(personalizedAdsAllowed: boolean = true): Promise<void> {
+    this.personalizedAdsAllowed = personalizedAdsAllowed;
     if (this.initialized) return;
     try {
       // Consent first — required for UK/EU users. Shows Google's consent
@@ -85,7 +99,9 @@ class InterstitialManager {
     this.loaded = false;
 
     const ad = InterstitialAd.createForAdRequest(UNIT_ID, {
-      requestNonPersonalizedAdsOnly: false, // UMP consent governs this
+      // UMP consent governs EU/UK personalization; this flag additionally
+      // covers the iOS ATT decision, which UMP doesn't know about.
+      requestNonPersonalizedAdsOnly: !this.personalizedAdsAllowed,
     });
 
     this.unsubscribers.push(

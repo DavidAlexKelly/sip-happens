@@ -13,7 +13,7 @@ import { Colors, Jack, Type } from '../styles/theme';
 import { APP_TAGLINE } from '../branding';
 import Logo from '../components/Logo';
 import BottomNav from '../components/BottomNav';
-import { JackButton, JackPanel, JackBadge, ConfettiDots } from '../components/jack';
+import { JackButton, JackPanel, JackBadge, JackIconButton, ConfettiDots } from '../components/jack';
 import { useGame } from '../components/GameContext';
 
 type Props = {
@@ -53,7 +53,11 @@ export default function PlayScreen({ navigation }: Props) {
       {/* Header — identical structure/padding to DecksScreen & CardsScreen */}
       <View style={styles.header}>
         <Logo />
-        <View style={{ width: 42 }} />
+        <JackIconButton
+          icon="settings-outline"
+          onPress={() => navigation.navigate('Legal')}
+          size={42}
+        />
       </View>
 
       <Animated.View
