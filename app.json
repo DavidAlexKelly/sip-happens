@@ -12,7 +12,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#0d0b14"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "bundleIdentifier": "app.siphappens.mobile",
       "buildNumber": "1",
@@ -30,7 +32,9 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0d0b14"
       },
-      "permissions": ["CAMERA"]
+      "permissions": [
+        "CAMERA"
+      ]
     },
     "plugins": [
       [
@@ -96,7 +100,8 @@
             "3qcr597p9d.skadnetwork"
           ]
         }
-      ]
+      ],
+      "expo-tracking-transparency"
     ],
     "extra": {
       "eas": {
