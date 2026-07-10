@@ -1,18 +1,17 @@
 // src/data/customDecks.ts
-// Single owner of custom-deck types, storage and — crucially — the conversion
-// of custom cards into playable Challenge objects. Previously DeckSelectScreen
-// and DecksScreen each declared their own copies, and custom decks never made
-// it into the game pool at all (empty pool → crash in GameScreen).
+// Single owner of custom-deck types, storage and the conversion of deck
+// contents into playable Challenge objects.
 //
-// Migration: update DecksScreen / CardsScreen / DeckSelectScreen to import
-// CustomDeck, CustomCard, loadCustomDecks, saveCustomDecks, loadCustomCards,
-// saveCustomCards from here and delete their local duplicates.
+// NEW: decks can now contain built-in Sip Happens cards. A deck's cardIds
+// array holds two kinds of ids:
+//   • a CustomCard id            → resolved from the user's card library
+//   • "builtin:<challenge id>"   → resolved from ALL_CHALLENGES in gameData
+// Old decks (custom ids only) load unchanged — this is backward compatible.
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Challenge } from './gameData';
+import { ALL_CHALLENGES, Challenge } from './gameData';
 
 // NOTE: legacy keys kept so existing users' decks survive the update.
-// If you rename them for the Sip Happens brand, write a one-time migration.
 const DECKS_KEY = '@nekkit_custom_decks';
 const CARDS_KEY = '@nekkit_custom_cards';
 
@@ -28,9 +27,27 @@ export interface CustomDeck {
   name: string;
   icon: string;
   color: string;
+  /** CustomCard ids and/or "builtin:<challenge id>" references. */
   cardIds: string[];
   createdAt: number;
 }
+
+// ── Built-in card references ─────────────────────────────────
+
+export const BUILTIN_PREFIX = 'builtin:';
+
+export const builtinRefId = (challengeId: string) => `${BUILTIN_PREFIX}${challengeId}`;
+export const isBuiltinRef = (id: string) => id.startsWith(BUILTIN_PREFIX);
+
+const builtinById: Map<string, Challenge> = new Map(
+  ALL_CHALLENGES.map(c => [c.id, c]),
+);
+
+/** Resolve a builtin ref back to its Challenge (or undefined if unknown). */
+export const resolveBuiltinRef = (refId: string): Challenge | undefined =>
+  builtinById.get(refId.slice(BUILTIN_PREFIX.length));
+
+// ── Storage ──────────────────────────────────────────────────
 
 async function loadJson<T>(key: string, fallback: T): Promise<T> {
   try {
@@ -50,10 +67,16 @@ export const saveCustomDecks = (decks: CustomDeck[]) =>
 export const saveCustomCards = (cards: CustomCard[]) =>
   AsyncStorage.setItem(CARDS_KEY, JSON.stringify(cards));
 
+// ── Pool building ────────────────────────────────────────────
+
 /**
  * Resolve the selected custom decks into Challenge objects the card engine
- * can draw from. Ids are namespaced (`custom-…`) so they can never collide
- * with built-in card ids in the used-card sets.
+ * can draw from.
+ *   • Custom cards get namespaced ids (`custom-…`) so they never collide with
+ *     built-in ids in the used-card sets.
+ *   • Built-in references resolve to the ORIGINAL challenge object (same id),
+ *     so the engine's dedupe naturally prevents seeing the same card twice
+ *     when it's also drawable from a selected built-in deck.
  */
 export function buildCustomPool(
   selectedDeckIds: string[],
@@ -69,9 +92,16 @@ export function buildCustomPool(
     if (!deck) continue;
     for (const cardId of deck.cardIds) {
       if (seen.has(cardId)) continue; // card may appear in several decks
+      seen.add(cardId);
+
+      if (isBuiltinRef(cardId)) {
+        const challenge = resolveBuiltinRef(cardId);
+        if (challenge) pool.push(challenge);
+        continue;
+      }
+
       const card = cardById.get(cardId);
       if (!card) continue; // card deleted after the deck referenced it
-      seen.add(cardId);
       pool.push({
         id: `custom-${card.id}`,
         text: card.text,

@@ -1,41 +1,50 @@
 // src/screens/DecksScreen.tsx
-// Deck manager, now with a real deck editor:
-//   • Tap a deck (or +) → full-screen editor sheet
-//   • Toggle any card from your library in/out of the deck
-//   • "Import from deck" — copy every card from another deck in one tap
-//   • Keyboard: tap anywhere outside an input (or drag) to dismiss
-// Storage shape unchanged: CustomDeck.cardIds references CustomCard ids.
+// Deck manager v3:
+//   • FIX: the deck editor modal now applies safe-area insets manually
+//     (useSafeAreaInsets) — RN <Modal> doesn't reliably inherit SafeAreaView
+//     insets, which left the close/save buttons under the iPhone status bar.
+//   • NEW: decks can include built-in Sip Happens cards. The editor's
+//     checklist has MY CARDS / SIP HAPPENS source tabs (with a category
+//     filter), and built-in picks are stored as "builtin:<id>" references.
+//   • The editor's card list is a FlatList so the few-hundred-card built-in
+//     library scrolls smoothly.
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView,
   TextInput, Modal, Alert, Keyboard, TouchableWithoutFeedback,
-  KeyboardAvoidingView, Platform,
+  KeyboardAvoidingView, Platform, FlatList,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { RootStackParamList } from '../navigation/types';
-import { Colors, Jack, Type } from '../styles/theme';
+import { Colors, Jack, Type, ModeColors, ModeLabels } from '../styles/theme';
+import { ALL_CHALLENGES, Challenge } from '../data/gameData';
 import Logo from '../components/Logo';
 import BottomNav from '../components/BottomNav';
 import TokenText from '../components/TokenText';
 import { JackButton, JackIconButton } from '../components/jack';
 import {
   CustomDeck, CustomCard, loadCustomDecks, saveCustomDecks,
-  loadCustomCards,
+  loadCustomCards, builtinRefId, isBuiltinRef, resolveBuiltinRef,
 } from '../data/customDecks';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Decks'>;
 };
 
+type CardSource = 'mine' | 'builtin';
+
 const DECK_ICONS = ['sparkles', 'flame', 'wine', 'happy', 'heart', 'skull', 'game-controller', 'star'] as const;
 const DECK_COLORS = [Colors.primary, Colors.secondary, Colors.tertiary, '#8C6BFF', '#B6F44A', '#FF7A3C', '#5EB8FF'];
+const CATEGORY_FILTERS = ['all', 'drink', 'dare', 'truth', 'chaos', 'spicy'] as const;
 
 export default function DecksScreen({ navigation }: Props) {
+  const insets = useSafeAreaInsets();
+
   const [decks, setDecks] = useState<CustomDeck[]>([]);
   const [allCards, setAllCards] = useState<CustomCard[]>([]);
 
@@ -46,6 +55,8 @@ export default function DecksScreen({ navigation }: Props) {
   const [icon, setIcon] = useState<string>(DECK_ICONS[0]);
   const [color, setColor] = useState<string>(DECK_COLORS[0]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [cardSource, setCardSource] = useState<CardSource>('mine');
+  const [builtinFilter, setBuiltinFilter] = useState<string>('all');
 
   const refresh = useCallback(() => {
     loadCustomDecks().then(setDecks);
@@ -54,12 +65,20 @@ export default function DecksScreen({ navigation }: Props) {
 
   useFocusEffect(useCallback(() => { refresh(); }, [refresh]));
 
+  /** An id is valid if it points at an existing custom card or built-in card. */
+  const isValidId = useCallback((id: string) => {
+    if (isBuiltinRef(id)) return resolveBuiltinRef(id) !== undefined;
+    return allCards.some(c => c.id === id);
+  }, [allCards]);
+
   const openNewEditor = () => {
     setEditingDeck(null);
     setName('');
     setIcon(DECK_ICONS[0]);
     setColor(DECK_COLORS[0]);
     setSelectedIds([]);
+    setCardSource('mine');
+    setBuiltinFilter('all');
     setEditorVisible(true);
   };
 
@@ -68,13 +87,13 @@ export default function DecksScreen({ navigation }: Props) {
     setName(deck.name);
     setIcon(deck.icon);
     setColor(deck.color);
-    // Only keep ids that still exist in the library.
-    const existing = new Set(allCards.map(c => c.id));
-    setSelectedIds(deck.cardIds.filter(id => existing.has(id)));
+    setSelectedIds(deck.cardIds.filter(isValidId));
+    setCardSource('mine');
+    setBuiltinFilter('all');
     setEditorVisible(true);
   };
 
-  const toggleCard = (id: string) => {
+  const toggleId = (id: string) => {
     Haptics.selectionAsync();
     setSelectedIds(prev =>
       prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
@@ -83,10 +102,9 @@ export default function DecksScreen({ navigation }: Props) {
   /** Copy every card from another deck into this one (no duplicates). */
   const importFromDeck = (source: CustomDeck) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    const existing = new Set(allCards.map(c => c.id));
     setSelectedIds(prev => {
       const merged = new Set(prev);
-      source.cardIds.forEach(id => { if (existing.has(id)) merged.add(id); });
+      source.cardIds.forEach(id => { if (isValidId(id)) merged.add(id); });
       return Array.from(merged);
     });
   };
@@ -133,6 +151,204 @@ export default function DecksScreen({ navigation }: Props) {
 
   const otherDecks = decks.filter(d => d.id !== editingDeck?.id && d.cardIds.length > 0);
 
+  const builtinList = useMemo(
+    () => builtinFilter === 'all'
+      ? ALL_CHALLENGES
+      : ALL_CHALLENGES.filter(c => c.mode === builtinFilter),
+    [builtinFilter],
+  );
+
+  // ── Editor pieces ────────────────────────────────────────────
+
+  // Passed as an ELEMENT (not a component) so the TextInput keeps focus
+  // across re-renders while typing.
+  const editorHeaderEl = (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <View>
+        <Text style={styles.inputLabel}>NAME</Text>
+        <TextInput
+          style={styles.editorInput}
+          placeholder="e.g. Flat Party Pack"
+          placeholderTextColor={Colors.outline}
+          value={name}
+          onChangeText={setName}
+          maxLength={30}
+        />
+
+        <Text style={styles.inputLabel}>ICON</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.iconRow}>
+          {DECK_ICONS.map(ic => (
+            <TouchableOpacity
+              key={ic}
+              onPress={() => { setIcon(ic); Haptics.selectionAsync(); }}
+              style={[
+                styles.iconChip,
+                icon === ic && { backgroundColor: color, borderColor: Colors.ink },
+              ]}
+              activeOpacity={0.7}
+            >
+              <Ionicons name={ic as any} size={20} color={icon === ic ? Colors.ink : Colors.outline} />
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        <Text style={styles.inputLabel}>COLOUR</Text>
+        <View style={styles.colorRow}>
+          {DECK_COLORS.map(col => (
+            <TouchableOpacity
+              key={col}
+              onPress={() => { setColor(col); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
+              style={[styles.colorDot, { backgroundColor: col }, color === col && styles.colorDotActive]}
+              activeOpacity={0.7}
+            />
+          ))}
+        </View>
+
+        {otherDecks.length > 0 && (
+          <>
+            <Text style={styles.inputLabel}>IMPORT ALL CARDS FROM</Text>
+            <View style={styles.importRow}>
+              {otherDecks.map(d => (
+                <TouchableOpacity
+                  key={d.id}
+                  onPress={() => importFromDeck(d)}
+                  activeOpacity={0.8}
+                  style={[styles.importChip, { borderColor: d.color }]}
+                >
+                  <Ionicons name={d.icon as any} size={14} color={d.color} />
+                  <Text style={styles.importChipText}>{d.name}</Text>
+                  <Text style={[styles.importChipCount, { color: d.color }]}>+{d.cardIds.length}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </>
+        )}
+
+        <View style={styles.cardsHeaderRow}>
+          <Text style={styles.inputLabel}>ADD CARDS</Text>
+          <Text style={styles.cardsCount}>{selectedIds.length} in deck</Text>
+        </View>
+
+        {/* Source tabs: your library vs the built-in Sip Happens cards */}
+        <View style={styles.sourceTabRow}>
+          <TouchableOpacity
+            onPress={() => { if (cardSource !== 'mine') { Haptics.selectionAsync(); setCardSource('mine'); } }}
+            activeOpacity={0.85}
+            style={[styles.sourceTab, cardSource === 'mine' && styles.sourceTabActive]}
+          >
+            <Text style={[styles.sourceTabText, cardSource === 'mine' && styles.sourceTabTextActive]}>
+              MY CARDS
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => { if (cardSource !== 'builtin') { Haptics.selectionAsync(); setCardSource('builtin'); } }}
+            activeOpacity={0.85}
+            style={[styles.sourceTab, cardSource === 'builtin' && styles.sourceTabActive]}
+          >
+            <Text style={[styles.sourceTabText, cardSource === 'builtin' && styles.sourceTabTextActive]}>
+              SIP HAPPENS
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {cardSource === 'builtin' && (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.filterRow}
+            contentContainerStyle={{ gap: 8 }}
+          >
+            {CATEGORY_FILTERS.map(cat => {
+              const active = builtinFilter === cat;
+              const chipColor = cat === 'all' ? Colors.onSurface : (ModeColors[cat] || Colors.primary);
+              return (
+                <TouchableOpacity
+                  key={cat}
+                  onPress={() => { Haptics.selectionAsync(); setBuiltinFilter(cat); }}
+                  activeOpacity={0.8}
+                  style={[
+                    styles.filterChip,
+                    active && { backgroundColor: chipColor, borderColor: Colors.ink },
+                  ]}
+                >
+                  <Text style={[styles.filterChipText, active && { color: Colors.ink }]}>
+                    {cat === 'all' ? 'All' : (ModeLabels[cat] || cat)}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        )}
+
+        {cardSource === 'mine' && allCards.length === 0 && (
+          <View style={styles.emptyCards}>
+            <Text style={styles.emptyCardsText}>
+              Your card library is empty. Write cards in the Cards tab, or switch to
+              SIP HAPPENS to add built-in cards.
+            </Text>
+          </View>
+        )}
+      </View>
+    </TouchableWithoutFeedback>
+  );
+
+  const renderMineItem = ({ item }: { item: CustomCard }) => {
+    const checked = selectedIds.includes(item.id);
+    return (
+      <TouchableOpacity
+        onPress={() => toggleId(item.id)}
+        activeOpacity={0.85}
+        style={[
+          styles.checkCard,
+          checked && { borderColor: color, backgroundColor: Colors.surfaceContainerHigh },
+        ]}
+      >
+        <View style={[
+          styles.checkbox,
+          checked ? { backgroundColor: color, borderColor: Colors.ink } : { borderColor: Colors.outlineVariant },
+        ]}>
+          {checked && <Ionicons name="checkmark" size={15} color={Colors.ink} />}
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.checkCardAction}>{item.action.toUpperCase()}</Text>
+          <TokenText text={item.text} variant="stage" fontSize={13} />
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
+  const renderBuiltinItem = ({ item }: { item: Challenge }) => {
+    const refId = builtinRefId(item.id);
+    const checked = selectedIds.includes(refId);
+    const badgeColor = ModeColors[item.mode] || Colors.primary;
+    return (
+      <TouchableOpacity
+        onPress={() => toggleId(refId)}
+        activeOpacity={0.85}
+        style={[
+          styles.checkCard,
+          checked && { borderColor: color, backgroundColor: Colors.surfaceContainerHigh },
+        ]}
+      >
+        <View style={[
+          styles.checkbox,
+          checked ? { backgroundColor: color, borderColor: Colors.ink } : { borderColor: Colors.outlineVariant },
+        ]}>
+          {checked && <Ionicons name="checkmark" size={15} color={Colors.ink} />}
+        </View>
+        <View style={{ flex: 1 }}>
+          <View style={styles.builtinTopRow}>
+            <View style={[styles.categoryBadge, { backgroundColor: badgeColor }]}>
+              <Text style={styles.categoryBadgeText}>{ModeLabels[item.mode] || item.mode}</Text>
+            </View>
+            <Text style={styles.intensityText}>{'🌶'.repeat(item.intensity)}</Text>
+          </View>
+          <TokenText text={item.text} variant="stage" fontSize={13} />
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
@@ -150,7 +366,7 @@ export default function DecksScreen({ navigation }: Props) {
         <View style={styles.pageHeader}>
           <Text style={styles.eyebrow}>DECK MANAGER</Text>
           <Text style={styles.pageTitle}>MY{'\n'}<Text style={styles.pageTitleAccent}>DECKS</Text></Text>
-          <Text style={styles.pageSubtitle}>Group your custom cards, then mix them into any game.</Text>
+          <Text style={styles.pageSubtitle}>Build decks from your own cards and Sip Happens cards, then mix them into any game.</Text>
         </View>
 
         {decks.length === 0 ? (
@@ -205,13 +421,13 @@ export default function DecksScreen({ navigation }: Props) {
         )}
       </ScrollView>
 
-      {/* ── Deck editor — full screen ── */}
+      {/* ── Deck editor — full screen, safe-area applied manually ── */}
       <Modal
         visible={editorVisible}
         animationType="slide"
         onRequestClose={() => setEditorVisible(false)}
       >
-        <SafeAreaView style={styles.editorContainer} edges={['top', 'bottom']}>
+        <View style={[styles.editorContainer, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
           <KeyboardAvoidingView
             style={{ flex: 1 }}
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -224,124 +440,37 @@ export default function DecksScreen({ navigation }: Props) {
               </View>
             </View>
 
-            <ScrollView
-              contentContainerStyle={styles.editorScroll}
-              showsVerticalScrollIndicator={false}
-              keyboardShouldPersistTaps="handled"
-              keyboardDismissMode="on-drag"
-            >
-              <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-                <View>
-                  <Text style={styles.inputLabel}>NAME</Text>
-                  <TextInput
-                    style={styles.editorInput}
-                    placeholder="e.g. Flat Party Pack"
-                    placeholderTextColor={Colors.outline}
-                    value={name}
-                    onChangeText={setName}
-                    maxLength={30}
-                  />
-
-                  <Text style={styles.inputLabel}>ICON</Text>
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.iconRow}>
-                    {DECK_ICONS.map(ic => (
-                      <TouchableOpacity
-                        key={ic}
-                        onPress={() => { setIcon(ic); Haptics.selectionAsync(); }}
-                        style={[
-                          styles.iconChip,
-                          icon === ic && { backgroundColor: color, borderColor: Colors.ink },
-                        ]}
-                        activeOpacity={0.7}
-                      >
-                        <Ionicons name={ic as any} size={20} color={icon === ic ? Colors.ink : Colors.outline} />
-                      </TouchableOpacity>
-                    ))}
-                  </ScrollView>
-
-                  <Text style={styles.inputLabel}>COLOUR</Text>
-                  <View style={styles.colorRow}>
-                    {DECK_COLORS.map(col => (
-                      <TouchableOpacity
-                        key={col}
-                        onPress={() => { setColor(col); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
-                        style={[styles.colorDot, { backgroundColor: col }, color === col && styles.colorDotActive]}
-                        activeOpacity={0.7}
-                      />
-                    ))}
-                  </View>
-
-                  {otherDecks.length > 0 && (
-                    <>
-                      <Text style={styles.inputLabel}>IMPORT ALL CARDS FROM</Text>
-                      <View style={styles.importRow}>
-                        {otherDecks.map(d => (
-                          <TouchableOpacity
-                            key={d.id}
-                            onPress={() => importFromDeck(d)}
-                            activeOpacity={0.8}
-                            style={[styles.importChip, { borderColor: d.color }]}
-                          >
-                            <Ionicons name={d.icon as any} size={14} color={d.color} />
-                            <Text style={styles.importChipText}>{d.name}</Text>
-                            <Text style={[styles.importChipCount, { color: d.color }]}>+{d.cardIds.length}</Text>
-                          </TouchableOpacity>
-                        ))}
-                      </View>
-                    </>
-                  )}
-
-                  <View style={styles.cardsHeaderRow}>
-                    <Text style={styles.inputLabel}>
-                      CARDS IN THIS DECK
-                    </Text>
-                    <Text style={styles.cardsCount}>
-                      {selectedIds.length}/{allCards.length}
-                    </Text>
-                  </View>
-
-                  {allCards.length === 0 ? (
-                    <View style={styles.emptyCards}>
-                      <Text style={styles.emptyCardsText}>
-                        Your card library is empty. Write cards in the Cards tab, then add them here.
-                      </Text>
-                    </View>
-                  ) : (
-                    <View style={styles.cardChecklist}>
-                      {allCards.map(card => {
-                        const checked = selectedIds.includes(card.id);
-                        return (
-                          <TouchableOpacity
-                            key={card.id}
-                            onPress={() => toggleCard(card.id)}
-                            activeOpacity={0.85}
-                            style={[
-                              styles.checkCard,
-                              checked && { borderColor: color, backgroundColor: Colors.surfaceContainerHigh },
-                            ]}
-                          >
-                            <View style={[
-                              styles.checkbox,
-                              checked
-                                ? { backgroundColor: color, borderColor: Colors.ink }
-                                : { borderColor: Colors.outlineVariant },
-                            ]}>
-                              {checked && <Ionicons name="checkmark" size={15} color={Colors.ink} />}
-                            </View>
-                            <View style={{ flex: 1 }}>
-                              <Text style={styles.checkCardAction}>{card.action.toUpperCase()}</Text>
-                              <TokenText text={card.text} variant="stage" fontSize={13} />
-                            </View>
-                          </TouchableOpacity>
-                        );
-                      })}
-                    </View>
-                  )}
-                </View>
-              </TouchableWithoutFeedback>
-            </ScrollView>
+            {cardSource === 'mine' ? (
+              <FlatList
+                data={allCards}
+                keyExtractor={item => item.id}
+                renderItem={renderMineItem}
+                ListHeaderComponent={editorHeaderEl}
+                contentContainerStyle={styles.editorScroll}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+                keyboardDismissMode="on-drag"
+                ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+                extraData={selectedIds}
+              />
+            ) : (
+              <FlatList
+                data={builtinList}
+                keyExtractor={item => item.id}
+                renderItem={renderBuiltinItem}
+                ListHeaderComponent={editorHeaderEl}
+                contentContainerStyle={styles.editorScroll}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+                keyboardDismissMode="on-drag"
+                initialNumToRender={12}
+                windowSize={7}
+                ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+                extraData={selectedIds}
+              />
+            )}
           </KeyboardAvoidingView>
-        </SafeAreaView>
+        </View>
       </Modal>
 
       <BottomNav current="decks" navigation={navigation} />
@@ -435,13 +564,30 @@ const styles = StyleSheet.create({
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
   },
   cardsCount: { fontFamily: Type.display, fontSize: 12, color: Colors.primary, marginBottom: 8 },
+
+  sourceTabRow: { flexDirection: 'row', gap: 10, marginBottom: 12 },
+  sourceTab: {
+    flex: 1, paddingVertical: 10, borderRadius: 12, alignItems: 'center',
+    borderWidth: 2.5, borderColor: Colors.outlineVariant, backgroundColor: Colors.surfaceContainerLow,
+  },
+  sourceTabActive: { backgroundColor: Colors.primary, borderColor: Colors.ink },
+  sourceTabText: { fontFamily: Type.display, fontSize: 11, letterSpacing: 1, color: Colors.onSurfaceVariant },
+  sourceTabTextActive: { color: Colors.ink },
+
+  filterRow: { marginBottom: 12, flexGrow: 0 },
+  filterChip: {
+    paddingHorizontal: 13, paddingVertical: 7, borderRadius: 10,
+    borderWidth: 2, borderColor: Colors.outlineVariant,
+    backgroundColor: Colors.surfaceContainerLow,
+  },
+  filterChipText: { fontFamily: Type.display, fontSize: 11, color: Colors.onSurfaceVariant },
+
   emptyCards: {
     padding: 20, borderRadius: Jack.radius,
     borderWidth: 2, borderColor: Colors.outlineVariant, borderStyle: 'dashed',
   },
   emptyCardsText: { fontFamily: Type.body, fontSize: 13, color: Colors.onSurfaceVariant, lineHeight: 19 },
 
-  cardChecklist: { gap: 10 },
   checkCard: {
     flexDirection: 'row', alignItems: 'flex-start', gap: 12,
     borderRadius: Jack.radius, borderWidth: 2.5, borderColor: Colors.outlineVariant,
@@ -456,4 +602,17 @@ const styles = StyleSheet.create({
     fontFamily: Type.display, fontSize: 9, letterSpacing: 1.2,
     color: Colors.outline, marginBottom: 4,
   },
+
+  builtinTopRow: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6,
+  },
+  categoryBadge: {
+    paddingHorizontal: 8, paddingVertical: 3, borderRadius: 7,
+    borderWidth: 2, borderColor: Colors.ink,
+  },
+  categoryBadgeText: {
+    fontFamily: Type.display, fontSize: 9, letterSpacing: 0.8,
+    color: Colors.ink, textTransform: 'uppercase',
+  },
+  intensityText: { fontSize: 10 },
 });
