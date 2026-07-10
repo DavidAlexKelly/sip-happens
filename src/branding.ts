@@ -4,9 +4,9 @@
 
 export const APP_NAME = 'Sip Happens';
 export const APP_TAGLINE = 'Pick a deck, pass the phone, see who cracks first.';
-export const SUPPORT_EMAIL = 'support@siphappens.app'; // update to your real inbox
-export const PRIVACY_URL = 'https://deft-taffy-ed5431.netlify.app/privacy.html';
-export const TERMS_URL = 'https://deft-taffy-ed5431.netlify.app/terms.html';
+export const SUPPORT_EMAIL = 'siphappensapp@gmail.com';
+export const PRIVACY_URL = 'https://siphappens.app/privacy'; // must be live before store submission
+export const TERMS_URL = 'https://siphappens.app/terms'; // must be live before store submission
 
 /**
  * The age gate confirms the LOCAL legal drinking age, not a fixed number —
