@@ -65,17 +65,14 @@ class InterstitialManager {
    *   false → every ad request is marked non-personalized (no IDFA use).
    */
   async init(personalizedAdsAllowed: boolean = true): Promise<void> {
-    console.log('[Ads] init() called, personalizedAdsAllowed =', personalizedAdsAllowed);
     this.personalizedAdsAllowed = personalizedAdsAllowed;
     if (this.initialized) {
-      console.log('[Ads] already initialized, skipping');
       return;
     }
     try {
       // Consent first — required for UK/EU users. Shows Google's consent
       // form when needed; no-ops for users outside consent regions.
       await AdsConsent.gatherConsent();
-      console.log('[Ads] consent gathered ok');
 
       await mobileAds().setRequestConfiguration({
         // Drinking game, 17+/18 rated app → allow mature ad inventory.
@@ -85,13 +82,11 @@ class InterstitialManager {
       });
 
       await mobileAds().initialize();
-      console.log('[Ads] mobileAds().initialize() ok, unit id =', UNIT_ID);
       this.initialized = true;
       this.loadNext();
     } catch (err) {
       // Consent flow or init failed (offline first launch, etc.).
       // Stay uninitialized — show() will fail open. Retry next launch.
-      console.log('[Ads] init() FAILED:', err);
     }
   }
 
@@ -114,12 +109,10 @@ class InterstitialManager {
     this.unsubscribers.push(
       ad.addAdEventListener(AdEventType.LOADED, () => {
         this.loaded = true;
-        console.log('[Ads] ad LOADED, ready to show');
       }),
       ad.addAdEventListener(AdEventType.ERROR, (err) => {
         // No fill / network error — retry after a pause.
         this.loaded = false;
-        console.log('[Ads] ad failed to load:', err);
         setTimeout(() => this.loadNext(), 30_000);
       }),
     );
@@ -139,17 +132,10 @@ class InterstitialManager {
    * If no ad is available for any reason, onDone runs immediately.
    */
   show(onDone: () => void): void {
-    console.log(
-      '[Ads] show() called. initialized=', this.initialized,
-      'loaded=', this.loaded,
-      'msSinceLastShown=', Date.now() - this.lastShownAt,
-    );
     if (!this.isReady() || !this.ad) {
-      console.log('[Ads] not ready — skipping ad, running onDone() immediately');
       onDone();
       return;
     }
-    console.log('[Ads] showing ad now');
 
     let finished = false;
     const finish = () => {
