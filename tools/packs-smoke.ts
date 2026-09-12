@@ -5,11 +5,9 @@
 // The migration checks are the important ones: losing somebody's saved decks
 // is the only genuinely destructive risk in the packs work.
 //
-//   npx tsc --outDir .packs --rootDir . --module commonjs --target ES2020 \
-//     --moduleResolution node --resolveJsonModule --strict --skipLibCheck \
-//     --esModuleInterop tools/packs-smoke.ts
-//   node .packs/tools/packs-smoke.js
+//   npm test        (from the repo root — vitest reports one test per check)
 
+import { suite } from '../tests/harness';
 import {
   CustomItem, LegacyCard, LegacyDeck, Pack, TruthOrDarePayload,
   addToPack, buildPool, builtinIdOf, builtinRef, collectRefs, findPack,
@@ -18,11 +16,7 @@ import {
   upsertItem, upsertPack,
 } from '../src/data/packs';
 
-let failures = 0;
-function check(name: string, cond: boolean, detail = '') {
-  if (cond) console.log(`  ok   ${name}`);
-  else { console.error(`  FAIL ${name} ${detail}`); failures++; }
-}
+const check = suite('packs');
 
 const item = (id: string, text: string): CustomItem<TruthOrDarePayload> => ({
   id, scope: 'truthOrDare', createdAt: 1, payload: { text, action: 'Do it' },
@@ -32,7 +26,6 @@ const pack = (id: string, itemIds: string[], scope: Pack['scope'] = 'truthOrDare
   id, scope, name: id, icon: 'star', color: '#fff', itemIds, createdAt: 1,
 });
 
-console.log('\n1. Built-in references');
 check('builtinRef prefixes', builtinRef('drink-3') === 'builtin:drink-3');
 check('isBuiltinRef detects them', isBuiltinRef('builtin:drink-3'));
 check('a custom id is not a builtin ref', !isBuiltinRef('truthOrDare-item-1'));
@@ -40,7 +33,6 @@ check('builtinIdOf strips the prefix', builtinIdOf('builtin:drink-3') === 'drink
 check('builtinIdOf returns null for custom', builtinIdOf('abc') === null);
 check('round trip', builtinIdOf(builtinRef('x-1')) === 'x-1');
 
-console.log('\n2. Ids');
 {
   const a = newId('trivia', 'item');
   const b = newId('trivia', 'item');
@@ -52,7 +44,6 @@ console.log('\n2. Ids');
     !newId('trivia', 'item').startsWith('ring-'));
 }
 
-console.log('\n3. Scoping');
 {
   const packs = [pack('p1', []), pack('p2', [], 'trivia')];
   const items = [item('i1', 'a'), { ...item('i2', 'b'), scope: 'trivia' as const }];
@@ -61,7 +52,6 @@ console.log('\n3. Scoping');
   check('an empty scope returns nothing', packsInScope(packs, 'ring').length === 0);
 }
 
-console.log('\n4. Pack CRUD');
 {
   let packs = [pack('p1', ['i1'])];
   check('findPack finds', findPack(packs, 'p1')?.id === 'p1');
@@ -78,7 +68,6 @@ console.log('\n4. Pack CRUD');
   check('removePack removes', packs.length === 1 && !findPack(packs, 'p2'));
 }
 
-console.log('\n5. Pack membership');
 {
   let p = pack('p1', []);
   p = addToPack(p, 'i1');
@@ -98,7 +87,6 @@ console.log('\n5. Pack membership');
   check('removing an absent ref is harmless', p.itemIds.length === 2);
 }
 
-console.log('\n6. Deleting an item cleans up references');
 {
   const items = [item('i1', 'a'), item('i2', 'b')];
   const packs = [pack('p1', ['i1', 'i2']), pack('p2', ['i1'])];
@@ -114,7 +102,6 @@ console.log('\n6. Deleting an item cleans up references');
     removeItem(items, packs, 'zzz').items.length === 2);
 }
 
-console.log('\n7. Reference collection and pooling');
 {
   const packs = [
     pack('p1', ['i1', builtinRef('b1')]),
@@ -156,7 +143,6 @@ console.log('\n7. Reference collection and pooling');
     livePackSize(pack('p4', ['i1', builtinRef('b9'), 'deleted']), items) === 2);
 }
 
-console.log('\n8. splitSelection');
 {
   const s = splitSelection(['getting_started', 'p1', 'spicy'], ['getting_started', 'spicy']);
   check('built-ins separated', s.builtIn.join(',') === 'getting_started,spicy');
@@ -165,7 +151,6 @@ console.log('\n8. splitSelection');
     splitSelection([], ['a']).builtIn.length === 0);
 }
 
-console.log('\n9. Legacy migration — the destructive risk');
 {
   const cards: LegacyCard[] = [
     { id: 'c1', text: 'Old card one', action: 'Drink', createdAt: 111, title: 'One', category: 'dare' },
@@ -227,7 +212,6 @@ console.log('\n9. Legacy migration — the destructive risk');
     noTimestamps.items[0].createdAt === 0 && noTimestamps.packs[0].createdAt === 0);
 }
 
-console.log('\n10. Item CRUD');
 {
   let items = [item('i1', 'a')];
   items = upsertItem(items, item('i2', 'b'));
@@ -238,5 +222,3 @@ console.log('\n10. Item CRUD');
     items.find(i => i.id === 'i1')!.payload.text === 'edited');
 }
 
-console.log(failures === 0 ? '\nALL CHECKS PASSED\n' : `\n${failures} CHECK(S) FAILED\n`);
-process.exit(failures === 0 ? 0 : 1);

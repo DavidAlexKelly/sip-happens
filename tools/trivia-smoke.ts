@@ -8,15 +8,13 @@
 // Run from the project root (needs the app's own devDependency typescript,
 // so `npm install` in this folder first):
 //
-//   npx tsc --outDir .trivia-build --rootDir . --module commonjs \
-//           --target ES2020 --moduleResolution node --resolveJsonModule \
-//           --strict --skipLibCheck --esModuleInterop tools/trivia-smoke.ts
-//   node .trivia-build/tools/trivia-smoke.js
+//   npm test        (from the repo root — vitest reports one test per check)
 //
 // Exits non-zero on failure. Not wired into CI — the app has no test runner
 // yet; adding vitest here is a worthwhile follow-up.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { suite } from '../tests/harness';
 import {
   ALL_QUESTIONS, QUESTION_COUNTS, STREAK_THRESHOLD, TIMEOUT_SENTINEL, WEDGE_POOLS,
   buildOptions, failedStealSips, formatSips, getWedgePool, isCorrect,
@@ -24,13 +22,8 @@ import {
 } from '../src/data/triviaData';
 import { WEDGE_IDS } from '../src/data/trivia/types';
 
-let failures = 0;
-function check(name: string, cond: boolean, detail = '') {
-  if (cond) { console.log(`  ok   ${name}`); }
-  else { console.error(`  FAIL ${name} ${detail}`); failures++; }
-}
+const check = suite('trivia');
 
-console.log('\n1. Pools');
 check('total question count is 100', ALL_QUESTIONS.length === 100, `got ${ALL_QUESTIONS.length}`);
 check('counts match validator output',
   JSON.stringify(QUESTION_COUNTS) === JSON.stringify({
@@ -41,7 +34,6 @@ check('smallestPoolSize picks the thinnest wedge',
   smallestPoolSize(['entertainment', 'geography']) === 4);
 check('smallestPoolSize of nothing is 0', smallestPoolSize([]) === 0);
 
-console.log('\n2. Option building');
 const boolQ = ALL_QUESTIONS.find(q => q.type === 'boolean')!;
 const multiQ = ALL_QUESTIONS.find(q => q.type === 'multiple')!;
 check('boolean renders exactly True/False',
@@ -55,7 +47,6 @@ const positions = new Set(Array.from({ length: 200 },
   () => buildOptions(multiQ).indexOf(multiQ.answer)));
 check('answer is not always in the same slot', positions.size > 1, `slots seen: ${[...positions]}`);
 
-console.log('\n3. Grading');
 check('exact match is correct', isCorrect(multiQ, multiQ.answer));
 check('case/whitespace insensitive', isCorrect(multiQ, `  ${multiQ.answer.toUpperCase()}  `));
 check('a distractor is wrong', !isCorrect(multiQ, multiQ.distractors[0]));
@@ -64,7 +55,6 @@ check('timeout sentinel matches no real answer anywhere',
   ALL_QUESTIONS.every(q => !isCorrect(q, TIMEOUT_SENTINEL)));
 check('boolean False answers grade correctly', isCorrect(boolQ, boolQ.answer));
 
-console.log('\n4. Difficulty filtering + the no-strand guarantee');
 check('filter narrows the pool',
   getWedgePool('entertainment', [1]).every(q => q.difficulty === 1));
 const impossible = getWedgePool('geography', [3]);
@@ -75,7 +65,6 @@ check('empty filter result falls back to the full wedge rather than stranding',
 check('no filter returns everything',
   getWedgePool('sport').length === QUESTION_COUNTS.sport);
 
-console.log('\n5. Penalties honour the Sip Intensity bonus');
 check('easy miss = 1 sip', wrongAnswerSips(1) === 1);
 check('medium miss = 2 sips', wrongAnswerSips(2) === 2);
 check('hard miss = 3 sips', wrongAnswerSips(3) === 3);
@@ -92,7 +81,6 @@ check('formatSips plural', formatSips(4) === '4 sips');
 check('formatSips renders the finish-your-drink sentinel',
   formatSips(99) === 'finish your drink');
 
-console.log('\n6. Data sanity');
 check('no answer appears among its own distractors',
   ALL_QUESTIONS.every(q => !q.distractors
     .map(d => d.toLowerCase()).includes(q.answer.toLowerCase())));
@@ -103,5 +91,3 @@ check('boolean questions have exactly 1 distractor',
 check('multiple questions have exactly 3 distractors',
   ALL_QUESTIONS.filter(q => q.type === 'multiple').every(q => q.distractors.length === 3));
 
-console.log(failures === 0 ? '\nALL CHECKS PASSED\n' : `\n${failures} CHECK(S) FAILED\n`);
-process.exit(failures === 0 ? 0 : 1);

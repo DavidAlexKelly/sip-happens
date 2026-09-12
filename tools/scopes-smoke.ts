@@ -5,23 +5,16 @@
 // serve three content types. If a round trip loses a field, editing an item
 // silently destroys part of it.
 //
-//   npx tsc --outDir .scopes --rootDir . --module commonjs --target ES2020 \
-//     --moduleResolution node --resolveJsonModule --strict --skipLibCheck \
-//     --esModuleInterop tools/scopes-smoke.ts
-//   node .scopes/tools/scopes-smoke.js
+//   npm test        (from the repo root — vitest reports one test per check)
 
+import { suite } from '../tests/harness';
 import {
   LIBRARY_SCOPES, LibraryScope, adapterFor, isLibraryScope,
 } from '../src/data/scopes';
 import { FormValues } from '../src/data/scopes/types';
 
-let failures = 0;
-function check(name: string, cond: boolean, detail = '') {
-  if (cond) console.log(`  ok   ${name}`);
-  else { console.error(`  FAIL ${name} ${detail}`); failures++; }
-}
+const check = suite('scopes');
 
-console.log('\n1. Registry');
 check('three library scopes', LIBRARY_SCOPES.length === 3);
 check('ring is NOT a library scope', !isLibraryScope('ring'));
 check('truthOrDare is', isLibraryScope('truthOrDare'));
@@ -62,7 +55,6 @@ function roundTrip(scope: LibraryScope, form: FormValues, label: string) {
   check(`${label}: describes with a title`, d.title.trim().length > 0);
 }
 
-console.log('\n2. Truth or Dare');
 {
   const a = adapterFor('truthOrDare');
   roundTrip('truthOrDare', {
@@ -92,7 +84,6 @@ console.log('\n2. Truth or Dare');
     a.describe({ text: 'everyone must drink now', action: 'a' }).title.length > 0);
 }
 
-console.log('\n3. Trivia');
 {
   const a = adapterFor('trivia');
   roundTrip('trivia', {
@@ -140,7 +131,6 @@ console.log('\n3. Trivia');
     a.formFromPayload({ question: 'q' }).type === 'multiple');
 }
 
-console.log('\n4. Word Traitors');
 {
   const a = adapterFor('traitors');
   roundTrip('traitors', { word: 'Pizza', hint: 'Round' }, 'word + hint');
@@ -162,7 +152,6 @@ console.log('\n4. Word Traitors');
     a.describe({ word: 'Pizza', hint: 'Round' }).subtitle.includes('Round'));
 }
 
-console.log('\n5. Built-ins line up with the shipped content');
 {
   check('Truth or Dare built-ins are grouped by mechanic',
     adapterFor('truthOrDare').builtins().every(b => (b.group ?? '').length > 0));
@@ -172,5 +161,3 @@ console.log('\n5. Built-ins line up with the shipped content');
     adapterFor('traitors').builtins().length === 30);
 }
 
-console.log(failures === 0 ? '\nALL CHECKS PASSED\n' : `\n${failures} CHECK(S) FAILED\n`);
-process.exit(failures === 0 ? 0 : 1);

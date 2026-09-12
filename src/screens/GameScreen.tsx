@@ -19,6 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { RootStackParamList } from '../navigation/types';
 import { Colors, Jack, Type, ModeColors, ModeLabels } from '../styles/theme';
+import { closeSheetThen } from '../utils/afterModal';
 import { Challenge, PenaltyContext, MODES } from '../data/gameData';
 import { useGame } from '../components/GameContext';
 import { useCardEngine } from '../hooks/useCardEngine';
@@ -27,6 +28,7 @@ import { loadItems, loadPacks } from '../data/packStorage';
 import { buildTruthOrDarePool } from '../data/scopes/truthOrDare';
 import { Ads } from '../monetization/ads';
 import { JackButton } from '../components/jack';
+import QuitSheet from '../components/QuitSheet';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Game'>;
@@ -40,6 +42,7 @@ export default function GameScreen({ navigation }: Props) {
   const [extraPool, setExtraPool] = useState<Challenge[]>([]);
   const [poolReady, setPoolReady] = useState(false);
   const [showQuitModal, setShowQuitModal] = useState(false);
+  const closeQuitThen = closeSheetThen(setShowQuitModal);
 
   const { builtIn: modeIds } = splitSelection(state.selectedModes, BUILT_IN_MODE_IDS);
 
@@ -310,32 +313,13 @@ export default function GameScreen({ navigation }: Props) {
         </View>
       </View>
 
-      {/* Quit confirm */}
-      <Modal visible={showQuitModal} transparent animationType="slide" onRequestClose={() => setShowQuitModal(false)}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalSheet}>
-            <Text style={styles.modalTitle}>Quit the game?</Text>
-            <Text style={styles.modalSubtitle}>Progress will be lost.</Text>
-            <View style={styles.modalBtns}>
-              <View style={{ flex: 1 }}>
-                <JackButton
-                  label="Keep Playing"
-                  size="medium"
-                  onPress={() => setShowQuitModal(false)}
-                />
-              </View>
-              <View style={{ flex: 1 }}>
-                <JackButton
-                  label="Quit"
-                  size="medium"
-                  variant="ghost"
-                  onPress={() => { setShowQuitModal(false); navigation.replace('Play'); }}
-                />
-              </View>
-            </View>
-          </View>
-        </View>
-      </Modal>
+      <QuitSheet
+        visible={showQuitModal}
+        title="Quit the game?"
+        subtitle="Progress will be lost."
+        onDismiss={() => setShowQuitModal(false)}
+        onQuitToMenu={() => closeQuitThen(() => navigation.replace('Play'))}
+      />
     </SafeAreaView>
   );
 }

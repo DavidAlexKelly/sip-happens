@@ -4,7 +4,7 @@
 
 import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Modal, Alert,
+  View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Modal, Alert, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -12,6 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { RootStackParamList } from '../navigation/types';
 import { Colors, Jack, Type } from '../styles/theme';
+import { afterModalClose } from '../utils/afterModal';
 import { livePackSize } from '../data/packs';
 import { usePackLibrary } from '../hooks/usePackLibrary';
 import { JackButton, JackIconButton } from '../components/jack';
@@ -31,7 +32,9 @@ export default function PackListScreen({ navigation, route }: Props) {
     setCreating(false);
     setName('');
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    navigation.navigate('PackEditor', { scope, packId: pack.id });
+    // Wait for the sheet to dismiss — navigating straight away leaves the
+    // modal's native window over the editor and nothing responds.
+    afterModalClose(() => navigation.navigate('PackEditor', { scope, packId: pack.id }));
   };
 
   const handleDelete = (id: string, packName: string) => {
@@ -123,7 +126,10 @@ export default function PackListScreen({ navigation, route }: Props) {
 
       <Modal visible={creating} transparent animationType="slide"
         onRequestClose={() => setCreating(false)}>
-        <View style={styles.overlay}>
+        <KeyboardAvoidingView
+          style={styles.overlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
           <View style={styles.sheet}>
             <Text style={styles.sheetTitle}>New {adapter.packNoun}</Text>
             <View style={styles.inputOuter}>
@@ -150,7 +156,7 @@ export default function PackListScreen({ navigation, route }: Props) {
               </View>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </SafeAreaView>
   );

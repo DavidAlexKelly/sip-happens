@@ -9,14 +9,12 @@
 //
 // Run from the project root:
 //
-//   npx tsc --outDir .dealer-build --rootDir . --module commonjs \
-//           --target ES2020 --moduleResolution node --resolveJsonModule \
-//           --strict --skipLibCheck --esModuleInterop tools/dealer-smoke.ts
-//   node .dealer-build/tools/dealer-smoke.js
+//   npm test        (from the repo root — vitest reports one test per check)
 //
 // Exits non-zero on failure.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { suite } from '../tests/harness';
 import {
   Card, DECK_SIZE, RANKS, SUITS,
   buildDeck, cardName, dealerDrinks, hintFor, possibleRanks, rankLabel,
@@ -28,11 +26,7 @@ import {
   nextGuesserIndex,
 } from '../src/data/dealerGame';
 
-let failures = 0;
-function check(name: string, cond: boolean, detail = '') {
-  if (cond) { console.log(`  ok   ${name}`); }
-  else { console.error(`  FAIL ${name} ${detail}`); failures++; }
-}
+const check = suite('dealer');
 
 const PLAYERS = [
   { id: 1, name: 'Ada' },
@@ -60,7 +54,6 @@ function playTurn(state: DealerState, c: DealerConfig, g1: number, g2?: number) 
   return s;
 }
 
-console.log('\n1. Deck');
 const deck = buildDeck();
 check('52 cards', deck.length === DECK_SIZE, `got ${deck.length}`);
 check('four of every rank',
@@ -73,7 +66,6 @@ check('face labels', rankLabel(11) === 'J' && rankLabel(12) === 'Q');
 check('card names read properly',
   cardName({ rank: 12, suit: 'hearts', id: 'x' }) === 'Queen of Hearts');
 
-console.log('\n2. Hints are honest');
 check('card above the guess says higher', hintFor(5, 9) === 'higher');
 check('card below the guess says lower', hintFor(9, 5) === 'lower');
 check('possible ranks after higher exclude the guess',
@@ -83,7 +75,6 @@ check('possible ranks after lower exclude the guess',
 check('higher on 12 leaves only the king',
   JSON.stringify(possibleRanks(12, 'higher')) === '[13]');
 
-console.log('\n3. Drink maths');
 check('your example: guessed 6, card was 3 → 3 drinks',
   wrongGuessDrinks(6, 3, 10) === 3);
 check('your example: guessed 5, card was 2 → 3 drinks',
@@ -98,7 +89,6 @@ check('dealer takes 4 when beaten first guess', dealerDrinks(1) === 4);
 check('dealer takes 2 when beaten second guess', dealerDrinks(2) === 2);
 check('sip intensity raises the dealer penalty', dealerDrinks(1, { bonus: 2 }) === 6);
 
-console.log('\n4. Turn resolution');
 {
   const c = cfg();
   // Deck: first card is a 7.
@@ -145,7 +135,6 @@ console.log('\n4. Turn resolution');
     missedTwice.revealed[0].rank === 7);
 }
 
-console.log('\n5. Streak and passing the deck');
 {
   const c = cfg();
   let s = createGame(c, deckOf([7, 7, 7, 7, 7, 7, 7, 7]));
@@ -174,7 +163,6 @@ console.log('\n5. Streak and passing the deck');
     s.stats.reigns[PLAYERS[1].id] === 1);
 }
 
-console.log('\n6. A correct guess breaks the streak');
 {
   const c = cfg();
   let s = createGame(c, deckOf([7, 7, 7, 7, 7, 7]));
@@ -188,7 +176,6 @@ console.log('\n6. A correct guess breaks the streak');
   check('  → no reign completed', s.reignsCompleted === 0);
 }
 
-console.log('\n7. Guesser rotation never lands on the dealer');
 {
   for (const count of [2, 3, 4, 5]) {
     const players = Array.from({ length: count }, (_, i) => ({ id: i + 1, name: `P${i + 1}` }));
@@ -205,7 +192,6 @@ console.log('\n7. Guesser rotation never lands on the dealer');
   }
 }
 
-console.log('\n8. Mercy rule');
 {
   const c = cfg({ mercyTurns: 4 });
   let s = createGame(c, deckOf(Array(20).fill(7)));
@@ -227,7 +213,6 @@ console.log('\n8. Mercy rule');
   check('mercy off → dealer never escapes by time', s.dealerIndex === 0);
 }
 
-console.log('\n9. End conditions');
 {
   // deck: runs out and stops.
   const c = cfg({ endCondition: 'deck' });
@@ -266,7 +251,6 @@ console.log('\n9. End conditions');
     s.reignsCompleted === PLAYERS.length, `got ${s.reignsCompleted}`);
 }
 
-console.log('\n10. Stats and the cap flag');
 {
   const c = cfg({ drinkCap: 6 });
   let s = createGame(c, deckOf([13, 13]));
@@ -285,7 +269,6 @@ console.log('\n10. Stats and the cap flag');
     playTurn(createGame(c, deckOf([7])), c, 5, 6).outcome?.capped === false);
 }
 
-console.log('\n11. Guards');
 {
   const c = cfg();
   const s = createGame(c, deckOf([7]));
@@ -300,5 +283,3 @@ console.log('\n11. Guards');
     remainingByRank([{ rank: 7, suit: 'spades', id: '7-spades' }])[8] === 4);
 }
 
-console.log(failures === 0 ? '\nALL CHECKS PASSED\n' : `\n${failures} CHECK(S) FAILED\n`);
-process.exit(failures === 0 ? 0 : 1);

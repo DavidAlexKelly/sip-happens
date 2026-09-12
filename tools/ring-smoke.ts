@@ -2,11 +2,9 @@
 // Behavioural checks for Ring of Fire. src/data/ringGame.ts is React-free, so
 // these play whole games with a stacked deck.
 //
-//   npx tsc --outDir .ring --rootDir . --module commonjs --target ES2020 \
-//     --moduleResolution node --resolveJsonModule --strict --skipLibCheck \
-//     --esModuleInterop tools/ring-smoke.ts
-//   node .ring/tools/ring-smoke.js
+//   npm test        (from the repo root — vitest reports one test per check)
 
+import { suite } from '../tests/harness';
 import { Card, RANKS, buildDeck } from '../src/data/playingCards';
 import {
   KINGS_IN_DECK, RING_RULES, ruleForRank, suggestionFor,
@@ -22,11 +20,7 @@ import {
   isOver, kingsLeft, nextTurn, pickMate, summarise,
 } from '../src/data/ringGame';
 
-let failures = 0;
-function check(name: string, cond: boolean, detail = '') {
-  if (cond) console.log(`  ok   ${name}`);
-  else { console.error(`  FAIL ${name} ${detail}`); failures++; }
-}
+const check = suite('ring');
 
 const players = (n: number) =>
   Array.from({ length: n }, (_, i) => ({ id: i + 1, name: `P${i + 1}` }));
@@ -44,7 +38,6 @@ const stack = (ranks: number[]): Card[] =>
 /** Draw, then immediately pass on. */
 const playOne = (s: RingState, c: RingConfig): RingState => nextTurn(drawCard(s, c), c);
 
-console.log('\n1. Rule table');
 check('exactly one rule per rank', RING_RULES.length === 13);
 check('covers ranks 1-13',
   RANKS.every(r => RING_RULES.some(rule => rule.rank === r)));
@@ -75,7 +68,6 @@ check('10 suggests a category',
 check('cards with no prompt suggest nothing',
   suggestionFor(ruleForRank(3)) === null);
 
-console.log('\n2. Deck and turn order');
 {
   const c = cfg();
   let s = createGame(c, buildDeck());
@@ -110,7 +102,6 @@ console.log('\n2. Deck and turn order');
     t.drawn.length + t.deck.length === 52);
 }
 
-console.log('\n3. Roles persist until the next matching card');
 {
   const c = cfg();
   // P1 draws a 4, P2 a blank, P3 a 4.
@@ -141,7 +132,6 @@ console.log('\n3. Roles persist until the next matching card');
     s.roles.thumbMasterId === null);
 }
 
-console.log('\n4. Mate (the 8)');
 {
   const c = cfg();
   let s = createGame(c, stack([8, 3, 8]));
@@ -170,7 +160,6 @@ console.log('\n4. Mate (the 8)');
   check('solo player is never asked to pick a mate', !s.awaitingMate);
 }
 
-console.log('\n5. Kings and the glass');
 {
   const c = cfg();
   let s = createGame(c, stack([13, 13, 13, 13]));
@@ -211,7 +200,6 @@ console.log('\n5. Kings and the glass');
   check('  → over after passing on', isOver(nextTurn(s, c)));
 }
 
-console.log('\n6. House rules (the Jacks)');
 {
   const c = cfg();
   let s = createGame(c, stack([11, 11, 3]));
@@ -234,7 +222,6 @@ console.log('\n6. House rules (the Jacks)');
     addHouseRule(s, c, 'nope').houseRules.length === 2);
 }
 
-console.log('\n7. Guards and summary');
 {
   const c = cfg();
   check('empty deck starts over', isOver(createGame(c, [])));
@@ -253,7 +240,6 @@ console.log('\n7. Guards and summary');
   check('drawing after the end is ignored', drawCard(endGame(s), c).phase === 'over');
 }
 
-console.log('\n12. Rule sets: catalogue');
 {
   check('every mechanic has a label and blurb',
     MECHANICS.every(m => m.label.length > 0 && m.blurb.length > 10));
@@ -271,7 +257,6 @@ console.log('\n12. Rule sets: catalogue');
   })());
 }
 
-console.log('\n13. Rule sets: the classic set');
 {
   check('has 13 entries', CLASSIC_SET.entries.length === 13);
   check('one per rank',
@@ -297,7 +282,6 @@ console.log('\n13. Rule sets: the classic set');
   }
 }
 
-console.log('\n14. Rule sets: invariants are enforced');
 {
   const custom = duplicateSet(CLASSIC_SET, 'mine', 'Mine');
   check('a duplicate is editable', custom.builtIn === false);
@@ -357,5 +341,3 @@ console.log('\n14. Rule sets: invariants are enforced');
     (() => { try { resolveRule(missing, 6); return false; } catch { return true; } })());
 }
 
-console.log(failures === 0 ? '\nALL CHECKS PASSED\n' : `\n${failures} CHECK(S) FAILED\n`);
-process.exit(failures === 0 ? 0 : 1);

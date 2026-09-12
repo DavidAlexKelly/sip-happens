@@ -23,6 +23,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { RootStackParamList } from '../navigation/types';
 import { Colors, Jack, Type } from '../styles/theme';
+import { closeSheetThen } from '../utils/afterModal';
 import { WEDGES } from '../data/trivia/types';
 import { STREAK_THRESHOLD, formatSips } from '../data/triviaData';
 import { useGame } from '../components/GameContext';
@@ -33,6 +34,7 @@ import { loadItems, loadPacks } from '../data/packStorage';
 import { buildTriviaPool } from '../data/scopes/trivia';
 import { Ads } from '../monetization/ads';
 import { JackButton } from '../components/jack';
+import QuitSheet from '../components/QuitSheet';
 import CategoryWheel from '../components/CategoryWheel';
 import WedgeTracker from '../components/WedgeTracker';
 
@@ -78,6 +80,7 @@ export default function TriviaGameScreen({ navigation }: Props) {
 
   const [phase, setPhase] = useState<Phase>('spin');
   const [showQuitModal, setShowQuitModal] = useState(false);
+  const closeQuitThen = closeSheetThen(setShowQuitModal);
   const [turnCount, setTurnCount] = useState(0);
   const [remaining, setRemaining] = useState<number | null>(null);
   // The first turn is drawn in an effect, so `current` is null on the very
@@ -187,10 +190,15 @@ export default function TriviaGameScreen({ navigation }: Props) {
     fadeIn();
   };
 
+  const beginTurnRef = useRef(engine.beginTurn);
+  beginTurnRef.current = engine.beginTurn;
+
+  // Reads the engine through a ref so this callback is stable — depending on
+  // `engine` recreated it on every render, re-rendering everything below it.
   const nextTurn = useCallback(() => {
-    engine.beginTurn();
+    beginTurnRef.current();
     setPhase('spin');
-  }, [engine]);
+  }, []);
 
   const handleContinue = () => {
     const result = engine.lastResolution;
@@ -546,36 +554,13 @@ export default function TriviaGameScreen({ navigation }: Props) {
       </View>
 
       {/* Quit confirm — same pattern as GameScreen */}
-      <Modal
+      <QuitSheet
         visible={showQuitModal}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setShowQuitModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalSheet}>
-            <Text style={styles.modalTitle}>Quit the game?</Text>
-            <Text style={styles.modalSubtitle}>All wedges will be lost.</Text>
-            <View style={styles.modalBtns}>
-              <View style={{ flex: 1 }}>
-                <JackButton
-                  label="Keep Playing"
-                  size="medium"
-                  onPress={() => setShowQuitModal(false)}
-                />
-              </View>
-              <View style={{ flex: 1 }}>
-                <JackButton
-                  label="Quit"
-                  size="medium"
-                  variant="ghost"
-                  onPress={() => { setShowQuitModal(false); navigation.replace('Play'); }}
-                />
-              </View>
-            </View>
-          </View>
-        </View>
-      </Modal>
+        title="Quit the game?"
+        subtitle="Progress will be lost."
+        onDismiss={() => setShowQuitModal(false)}
+        onQuitToMenu={() => closeQuitThen(() => navigation.replace('Play'))}
+      />
     </SafeAreaView>
   );
 }

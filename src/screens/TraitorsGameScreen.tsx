@@ -33,8 +33,9 @@ import { useTraitorsEngine } from '../hooks/useTraitorsEngine';
 import { TraitorWord } from '../data/traitorsData';
 import { loadItems, loadPacks } from '../data/packStorage';
 import { buildTraitorsPool } from '../data/scopes/traitors';
-import { Ads } from '../monetization/ads';
 import { JackButton } from '../components/jack';
+import QuitSheet from '../components/QuitSheet';
+import { useGameSession } from '../hooks/useGameSession';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'TraitorsGame'>;
@@ -76,30 +77,20 @@ export default function TraitorsGameScreen({ navigation }: Props) {
     totalRounds: settings.totalRounds,
   });
 
-  const [showQuit, setShowQuit] = useState(false);
-  const midpointAdShown = useRef(false);
-  const endHandled = useRef(false);
+  const session = useGameSession({
+    isOver: engine.isOver,
+    onFinish: engine.finishGame,
+    onQuit: engine.quit,
+    toResults: () => navigation.replace('TraitorsOver'),
+    toMenu: () => navigation.replace('Play'),
+    midpointAfter: MIDPOINT_ROUNDS,
+  });
 
   const fade = useRef(new Animated.Value(1)).current;
   const fadeIn = useCallback(() => {
     fade.setValue(0);
     Animated.timing(fade, { toValue: 1, duration: 180, useNativeDriver: true }).start();
   }, [fade]);
-
-  useEffect(() => {
-    const handler = BackHandler.addEventListener('hardwareBackPress', () => {
-      setShowQuit(true);
-      return true;
-    });
-    return () => handler.remove();
-  }, []);
-
-  useEffect(() => {
-    if (!engine.isOver || endHandled.current) return;
-    endHandled.current = true;
-    engine.finishGame();
-    Ads.show(() => navigation.replace('TraitorsOver'));
-  }, [engine.isOver, engine, navigation]);
 
   const { phase } = engine;
 
@@ -116,13 +107,10 @@ export default function TraitorsGameScreen({ navigation }: Props) {
     const isFinalRound =
       settings.totalRounds != null && engine.round >= settings.totalRounds;
 
-    if (!isFinalRound && !midpointAdShown.current && engine.round >= MIDPOINT_ROUNDS) {
-      midpointAdShown.current = true;
-      Ads.show(() => { engine.advanceRound(); fadeIn(); });
-      return;
-    }
-    engine.advanceRound();
-    fadeIn();
+    session.withMidpointAd(engine.round, () => {
+      engine.advanceRound();
+      fadeIn();
+    }, isFinalRound);
   };
 
   if (players.length === 0) {
@@ -193,7 +181,7 @@ export default function TraitorsGameScreen({ navigation }: Props) {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity
-            onPress={() => setShowQuit(true)}
+            onPress={session.openQuit}
             style={styles.quitBtn}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
@@ -362,45 +350,14 @@ export default function TraitorsGameScreen({ navigation }: Props) {
       </View>
 
       {/* Quit */}
-      <Modal
-        visible={showQuit}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setShowQuit(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalSheet}>
-            <Text style={styles.modalTitle}>End the game?</Text>
-            <Text style={styles.modalSubtitle}>
-              Stop here and see the score, or bail out entirely.
-            </Text>
-            <View style={styles.modalBtns}>
-              <View style={{ flex: 1 }}>
-                <JackButton
-                  label="Keep Playing"
-                  size="medium"
-                  onPress={() => setShowQuit(false)}
-                />
-              </View>
-              <View style={{ flex: 1 }}>
-                <JackButton
-                  label="See Score"
-                  size="medium"
-                  variant="ghost"
-                  onPress={() => { setShowQuit(false); engine.quit(); }}
-                />
-              </View>
-            </View>
-            <JackButton
-              label="Quit to Menu"
-              size="small"
-              variant="ghost"
-              onPress={() => { setShowQuit(false); navigation.replace('Play'); }}
-              style={{ marginTop: 12 }}
-            />
-          </View>
-        </View>
-      </Modal>
+      <QuitSheet
+        visible={session.showQuit}
+        title="Leave the game?"
+        subtitle="End here and see the final score, or drop out entirely."
+        onDismiss={session.dismissQuit}
+        onEndGame={session.endGame}
+        onQuitToMenu={session.quitToMenu}
+      />
     </SafeAreaView>
   );
 }

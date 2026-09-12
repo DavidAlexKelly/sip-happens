@@ -3,11 +3,9 @@
 // so these play complete rounds and verify the reveal pass, role assignment,
 // accusation scoring and round progression.
 //
-//   npx tsc --outDir .tr-build --rootDir . --module commonjs --target ES2020 \
-//           --moduleResolution node --resolveJsonModule --strict --skipLibCheck \
-//           --esModuleInterop tools/traitors-smoke.ts
-//   node .tr-build/tools/traitors-smoke.js
+//   npm test        (from the repo root — vitest reports one test per check)
 
+import { suite } from '../tests/harness';
 import { WORDS, pickTraitorIndices, suggestedTraitors, wordId } from '../src/data/traitorsData';
 import {
   TraitorsConfig, TraitorsState,
@@ -16,11 +14,7 @@ import {
   toggleAccused,
 } from '../src/data/traitorsGame';
 
-let failures = 0;
-function check(name: string, cond: boolean, detail = '') {
-  if (cond) { console.log(`  ok   ${name}`); }
-  else { console.error(`  FAIL ${name} ${detail}`); failures++; }
-}
+const check = suite('traitors');
 
 const players = (n: number) =>
   Array.from({ length: n }, (_, i) => ({ id: i + 1, name: `P${i + 1}` }));
@@ -40,7 +34,6 @@ function completeReveal(s: TraitorsState, c: TraitorsConfig): TraitorsState {
   return s;
 }
 
-console.log('\n1. Word pack');
 check('pack is loaded', WORDS.length === 30, `got ${WORDS.length}`);
 check('ids are derived and unique',
   new Set(WORDS.map(w => w.id)).size === WORDS.length);
@@ -50,7 +43,6 @@ check('no hint equals its word',
 check('no hint contains its word',
   WORDS.every(w => !w.hint.toLowerCase().includes(w.word.toLowerCase())));
 
-console.log('\n2. Role assignment');
 {
   check('one traitor by default in a small group', suggestedTraitors(4) === 1);
   check('two at six players', suggestedTraitors(6) === 2);
@@ -67,7 +59,6 @@ console.log('\n2. Role assignment');
     pickTraitorIndices(5, 0).length === 1);
 }
 
-console.log('\n3. The reveal pass');
 {
   const c = cfg({ players: players(4) });
   let s = createGame(c);
@@ -102,7 +93,6 @@ console.log('\n3. The reveal pass');
     c.players.some(p => p.name === firstSpeaker(t, c)!.name));
 }
 
-console.log('\n4. Phase order is enforced');
 {
   const c = cfg();
   const fresh = createGame(c);
@@ -115,7 +105,6 @@ console.log('\n4. Phase order is enforced');
   check('clues → accuse', goToAccuse(startClues(atStarter)).phase === 'accuse');
 }
 
-console.log('\n5. Accusation');
 {
   const c = cfg({ players: players(5), traitorCount: 2 });
   let s = goToAccuse(startClues(completeReveal(createGame(c), c)));
@@ -142,7 +131,6 @@ console.log('\n5. Accusation');
     submitAccusation(toggleAccused(s, 0), c).phase === 'accuse');
 }
 
-console.log('\n6. Scoring');
 {
   // Exact catch → innocents win.
   const c = cfg({ players: players(5), traitorCount: 1 });
@@ -179,7 +167,6 @@ console.log('\n6. Scoring');
     s3.current.innocentsWin === false);
 }
 
-console.log('\n7. Rounds');
 {
   const c = cfg({ players: players(4), traitorCount: 1, totalRounds: 3 });
   let s = createGame(c);
@@ -210,7 +197,6 @@ console.log('\n7. Rounds');
   check('quit ends it', isOver(endGame(s)));
 }
 
-console.log('\n8. Role lookup');
 {
   const c = cfg({ players: players(5), traitorCount: 2 });
   const s = createGame(c);
@@ -220,5 +206,3 @@ console.log('\n8. Role lookup');
   check('at least two players are innocent', 5 - flagged.length >= 2);
 }
 
-console.log(failures === 0 ? '\nALL CHECKS PASSED\n' : `\n${failures} CHECK(S) FAILED\n`);
-process.exit(failures === 0 ? 0 : 1);

@@ -8,7 +8,7 @@
 
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Modal,
+  View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Modal, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -137,7 +137,10 @@ export default function RingSetEditorScreen({ navigation, route }: Props) {
         animationType="slide"
         onRequestClose={() => setEditingRank(null)}
       >
-        <View style={styles.overlay}>
+        <KeyboardAvoidingView
+          style={styles.overlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
           {entry && (
             <View style={styles.sheet}>
               <View style={styles.sheetHead}>
@@ -231,7 +234,7 @@ export default function RingSetEditorScreen({ navigation, route }: Props) {
               <JackButton label="Done" size="medium" onPress={() => setEditingRank(null)} />
             </View>
           )}
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </SafeAreaView>
   );

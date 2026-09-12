@@ -32,6 +32,7 @@ import {
   BeVietnamPro_700Bold,
 } from '@expo-google-fonts/be-vietnam-pro';
 
+import ErrorBoundary from './src/components/ErrorBoundary';
 import { GameProvider } from './src/components/GameContext';
 import { TriviaProvider } from './src/components/TriviaContext';
 import { DealerProvider } from './src/components/DealerContext';
@@ -143,6 +144,7 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
+      <ErrorBoundary>
       <GameProvider>
         <TriviaProvider>
         <DealerProvider>
@@ -247,6 +249,7 @@ export default function App() {
         </DealerProvider>
         </TriviaProvider>
       </GameProvider>
+      </ErrorBoundary>
     </SafeAreaProvider>
   );
 }

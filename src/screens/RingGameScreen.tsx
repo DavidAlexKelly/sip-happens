@@ -7,8 +7,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, Pressable, Modal, ScrollView,
-  BackHandler, TextInput, Animated,
+  View, Text, StyleSheet, TouchableOpacity, Pressable, Modal, ScrollView, BackHandler, TextInput, Animated, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -25,8 +24,9 @@ import { CLASSIC_SET, RingRuleSet } from '../data/ringSets';
 import { loadActiveSet } from '../data/ringSetStorage';
 import PlayingCard from '../components/PlayingCard';
 import DealtGrid from '../components/DealtGrid';
-import { Ads } from '../monetization/ads';
 import { JackButton } from '../components/jack';
+import QuitSheet from '../components/QuitSheet';
+import { useGameSession } from '../hooks/useGameSession';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'RingGame'>;
@@ -53,36 +53,26 @@ export default function RingGameScreen({ navigation }: Props) {
     ruleSet,
   });
 
-  const [showQuit, setShowQuit] = useState(false);
   const [showRules, setShowRules] = useState(false);
   const [showRing, setShowRing] = useState(false);
   const [ruleDraft, setRuleDraft] = useState('');
-  const midpointAdShown = useRef(false);
-  const endHandled = useRef(false);
+
+  // Quit sheet, hardware back, midpoint ad and the hand-off to the results
+  // screen all live in the shared session hook.
+  const session = useGameSession({
+    isOver: engine.isOver,
+    onFinish: engine.finishGame,
+    onQuit: engine.quit,
+    toResults: () => navigation.replace('RingOver'),
+    toMenu: () => navigation.replace('Play'),
+    midpointAfter: MIDPOINT_CARDS,
+  });
 
   const fade = useRef(new Animated.Value(1)).current;
   const fadeIn = useCallback(() => {
     fade.setValue(0);
     Animated.timing(fade, { toValue: 1, duration: 220, useNativeDriver: true }).start();
   }, [fade]);
-
-  // Android back → quit sheet.
-  useEffect(() => {
-    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
-      setShowQuit(true);
-      return true;
-    });
-    return () => sub.remove();
-  }, []);
-
-  // Game over is driven off engine state: it can arrive from the last King,
-  // the deck running out, or a manual quit.
-  useEffect(() => {
-    if (!engine.isOver || endHandled.current) return;
-    endHandled.current = true;
-    engine.finishGame();
-    Ads.show(() => navigation.replace('RingOver'));
-  }, [engine.isOver, engine, navigation]);
 
   const handleDraw = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -101,16 +91,12 @@ export default function RingGameScreen({ navigation }: Props) {
       setRuleDraft('');
     }
 
-    // Don't queue a midpoint ad on the final card — the game-over effect shows
-    // its own, and two in a row is wrong even with the cooldown.
-    if (!engine.isFinalCard
-      && !midpointAdShown.current
-      && engine.drawnCards.length >= MIDPOINT_CARDS) {
-      midpointAdShown.current = true;
-      Ads.show(() => { engine.advance(); });
-      return;
-    }
-    engine.advance();
+    // `suppress` on the final card: the game-over effect shows its own ad.
+    session.withMidpointAd(
+      engine.drawnCards.length,
+      () => engine.advance(),
+      engine.isFinalCard,
+    );
   };
 
   const handlePickMate = (id: number) => {
@@ -144,7 +130,7 @@ export default function RingGameScreen({ navigation }: Props) {
         {/* ── Header ── */}
         <View style={styles.header}>
           <TouchableOpacity
-            onPress={() => setShowQuit(true)}
+            onPress={session.openQuit}
             style={styles.quit}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
@@ -340,7 +326,10 @@ export default function RingGameScreen({ navigation }: Props) {
       {/* ── House rules sheet ── */}
       <Modal visible={showRules} transparent animationType="slide"
         onRequestClose={() => setShowRules(false)}>
-        <View style={styles.overlay}>
+        <KeyboardAvoidingView
+          style={styles.overlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
           <View style={styles.sheet}>
             <Text style={styles.sheetTitle}>House Rules</Text>
             <ScrollView style={styles.sheetScroll}>
@@ -366,13 +355,16 @@ export default function RingGameScreen({ navigation }: Props) {
             <JackButton label="Close" size="medium" variant="ghost"
               onPress={() => setShowRules(false)} />
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* ── The ring ── */}
       <Modal visible={showRing} transparent animationType="slide"
         onRequestClose={() => setShowRing(false)}>
-        <View style={styles.overlay}>
+        <KeyboardAvoidingView
+          style={styles.overlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
           <View style={styles.sheet}>
             <Text style={styles.sheetTitle}>The Ring</Text>
             <Text style={styles.sheetSub}>
@@ -384,37 +376,17 @@ export default function RingGameScreen({ navigation }: Props) {
             <JackButton label="Close" size="medium" variant="ghost"
               onPress={() => setShowRing(false)} />
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
-      {/* ── Quit ── */}
-      <Modal visible={showQuit} transparent animationType="slide"
-        onRequestClose={() => setShowQuit(false)}>
-        <View style={styles.overlay}>
-          <View style={styles.sheet}>
-            <Text style={styles.sheetTitle}>Leave the ring?</Text>
-            <Text style={styles.sheetSub}>
-              End here and see the damage, or drop out entirely.
-            </Text>
-            <View style={styles.sheetBtns}>
-              <View style={{ flex: 1 }}>
-                <JackButton label="Keep Playing" size="medium"
-                  onPress={() => setShowQuit(false)} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <JackButton
-                  label="End Game"
-                  size="medium"
-                  variant="ghost"
-                  onPress={() => { setShowQuit(false); engine.quit(); }}
-                />
-              </View>
-            </View>
-            <JackButton label="Quit to Menu" size="small" variant="ghost"
-              onPress={() => { setShowQuit(false); navigation.replace('Play'); }} />
-          </View>
-        </View>
-      </Modal>
+      <QuitSheet
+        visible={session.showQuit}
+        title="Leave the ring?"
+        subtitle="End here and see the damage, or drop out entirely."
+        onDismiss={session.dismissQuit}
+        onEndGame={session.endGame}
+        onQuitToMenu={session.quitToMenu}
+      />
     </SafeAreaView>
   );
 }

@@ -22,8 +22,9 @@ import { STREAK_TO_PASS, cardName, rankLabel } from '../data/dealerData';
 import { useGame } from '../components/GameContext';
 import { useDealer } from '../components/DealerContext';
 import { useDealerEngine } from '../hooks/useDealerEngine';
-import { Ads } from '../monetization/ads';
 import { JackButton } from '../components/jack';
+import QuitSheet from '../components/QuitSheet';
+import { useGameSession } from '../hooks/useGameSession';
 import PlayingCard from '../components/PlayingCard';
 import RankPad from '../components/RankPad';
 import DealtGrid from '../components/DealtGrid';
@@ -47,36 +48,22 @@ export default function DealerGameScreen({ navigation }: Props) {
     penaltyCtx: { bonus: gameState.sipBonus },
   });
 
-  const [showQuit, setShowQuit] = useState(false);
   const [showTable, setShowTable] = useState(false);
-  const midpointAdShown = useRef(false);
-  const endHandled = useRef(false);
+
+  const session = useGameSession({
+    isOver: engine.isOver,
+    onFinish: engine.finishGame,
+    onQuit: engine.quit,
+    toResults: () => navigation.replace('DealerOver'),
+    toMenu: () => navigation.replace('Play'),
+    midpointAfter: MIDPOINT_CARDS,
+  });
 
   const fade = useRef(new Animated.Value(1)).current;
   const fadeIn = useCallback(() => {
     fade.setValue(0);
     Animated.timing(fade, { toValue: 1, duration: 200, useNativeDriver: true }).start();
   }, [fade]);
-
-  // ── Android hardware back → quit sheet ──────────────────────
-  useEffect(() => {
-    const handler = BackHandler.addEventListener('hardwareBackPress', () => {
-      setShowQuit(true);
-      return true;
-    });
-    return () => handler.remove();
-  }, []);
-
-  // ── Game over → snapshot, ad, results ───────────────────────
-  // Driven off engine state rather than the Continue handler, because the
-  // engine can end the game from several places (deck out, everyone dealt,
-  // manual quit) and all of them should land here.
-  useEffect(() => {
-    if (!engine.isOver || endHandled.current) return;
-    endHandled.current = true;
-    engine.finishGame();
-    Ads.show(() => navigation.replace('DealerOver'));
-  }, [engine.isOver, engine, navigation]);
 
   const { phase, dealer, guesser, outcome, hint, firstGuess } = engine;
 
@@ -87,13 +74,10 @@ export default function DealerGameScreen({ navigation }: Props) {
 
   const handleContinue = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    if (!midpointAdShown.current && engine.state.cardsPlayed >= MIDPOINT_CARDS) {
-      midpointAdShown.current = true;
-      Ads.show(() => { engine.nextTurn(); fadeIn(); });
-      return;
-    }
-    engine.nextTurn();
-    fadeIn();
+    session.withMidpointAd(engine.state.cardsPlayed, () => {
+      engine.nextTurn();
+      fadeIn();
+    });
   };
 
   // A misconfigured game (no players) — fail to the menu rather than crash.
@@ -121,7 +105,7 @@ export default function DealerGameScreen({ navigation }: Props) {
         {/* Header: quit · dealer + damage · deck left */}
         <View style={styles.header}>
           <TouchableOpacity
-            onPress={() => setShowQuit(true)}
+            onPress={session.openQuit}
             style={styles.quitBtn}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
@@ -293,45 +277,14 @@ export default function DealerGameScreen({ navigation }: Props) {
       </Modal>
 
       {/* Quit */}
-      <Modal
-        visible={showQuit}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setShowQuit(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalSheet}>
-            <Text style={styles.modalTitle}>End the game?</Text>
-            <Text style={styles.modalSubtitle}>
-              You can stop here and see the damage, or bail out entirely.
-            </Text>
-            <View style={styles.modalBtns}>
-              <View style={{ flex: 1 }}>
-                <JackButton
-                  label="Keep Playing"
-                  size="medium"
-                  onPress={() => setShowQuit(false)}
-                />
-              </View>
-              <View style={{ flex: 1 }}>
-                <JackButton
-                  label="See Results"
-                  size="medium"
-                  variant="ghost"
-                  onPress={() => { setShowQuit(false); engine.quit(); }}
-                />
-              </View>
-            </View>
-            <JackButton
-              label="Quit to Menu"
-              size="small"
-              variant="ghost"
-              onPress={() => { setShowQuit(false); navigation.replace('Play'); }}
-              style={{ marginTop: 12 }}
-            />
-          </View>
-        </View>
-      </Modal>
+      <QuitSheet
+        visible={session.showQuit}
+        title="Quit the game?"
+        subtitle="End here and see the damage, or drop out entirely."
+        onDismiss={session.dismissQuit}
+        onEndGame={session.endGame}
+        onQuitToMenu={session.quitToMenu}
+      />
     </SafeAreaView>
   );
 }

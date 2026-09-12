@@ -5,7 +5,7 @@
 
 import React, { useMemo, useState } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Modal, Alert,
+  View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Modal, Alert, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -41,12 +41,17 @@ export default function ItemLibraryScreen({ navigation, route }: Props) {
       .sort((a, b) => b.item.createdAt - a.item.createdAt);
   }, [lib.items, adapter, query]);
 
+  // builtins() maps the whole shipped catalogue (240+ cards for Truth or Dare),
+  // so it must never be called from render. Memoised once here and reused for
+  // both the tab count and the list.
+  const allBuiltins = useMemo(() => adapter.builtins(), [adapter]);
+
   const builtinRows = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return adapter.builtins().filter(b => q.length === 0
+    return allBuiltins.filter(b => q.length === 0
       || b.title.toLowerCase().includes(q)
       || (b.subtitle ?? '').toLowerCase().includes(q));
-  }, [adapter, query]);
+  }, [allBuiltins, query]);
 
   const openNew = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -124,7 +129,7 @@ export default function ItemLibraryScreen({ navigation, route }: Props) {
           onPress={() => setShowBuiltins(false)}
         />
         <Tab
-          label={`BUILT-IN · ${adapter.builtins().length}`}
+          label={`BUILT-IN · ${allBuiltins.length}`}
           active={showBuiltins}
           onPress={() => setShowBuiltins(true)}
         />
@@ -187,7 +192,10 @@ export default function ItemLibraryScreen({ navigation, route }: Props) {
         animationType="slide"
         onRequestClose={() => setEditing(null)}
       >
-        <View style={styles.overlay}>
+        <KeyboardAvoidingView
+          style={styles.overlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
           <View style={styles.sheet}>
             <View style={styles.sheetHead}>
               <Text style={styles.sheetTitle}>
@@ -221,7 +229,7 @@ export default function ItemLibraryScreen({ navigation, route }: Props) {
 
             <JackButton label="Save" icon="checkmark" onPress={handleSave} />
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </SafeAreaView>
   );

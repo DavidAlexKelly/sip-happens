@@ -42,15 +42,18 @@ export default function PackEditorScreen({ navigation, route }: Props) {
         || r.subtitle.toLowerCase().includes(q));
   }, [lib.items, adapter, query]);
 
+  // Same reason as ItemLibraryScreen: never call builtins() from render.
+  const allBuiltins = useMemo(() => adapter.builtins(), [adapter]);
+
   const builtins = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return adapter.builtins()
+    return allBuiltins
       .filter(b => q.length === 0 || b.title.toLowerCase().includes(q)
         || (b.subtitle ?? '').toLowerCase().includes(q))
       .map(b => ({ ref: builtinRef(b.id), title: b.title, subtitle: b.subtitle ?? '' }))
       // Keep the list workable — the built-in catalogues run to hundreds.
       .slice(0, 200);
-  }, [adapter, query]);
+  }, [allBuiltins, query]);
 
   if (!pack) {
     return (
