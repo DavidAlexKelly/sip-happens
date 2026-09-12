@@ -22,9 +22,9 @@ import { Colors, Jack, Type, ModeColors, ModeLabels } from '../styles/theme';
 import { Challenge, PenaltyContext, MODES } from '../data/gameData';
 import { useGame } from '../components/GameContext';
 import { useCardEngine } from '../hooks/useCardEngine';
-import {
-  loadCustomDecks, loadCustomCards, buildCustomPool, splitSelection,
-} from '../data/customDecks';
+import { splitSelection } from '../data/packs';
+import { loadItems, loadPacks } from '../data/packStorage';
+import { buildTruthOrDarePool } from '../data/scopes/truthOrDare';
 import { Ads } from '../monetization/ads';
 import { JackButton } from '../components/jack';
 
@@ -41,7 +41,7 @@ export default function GameScreen({ navigation }: Props) {
   const [poolReady, setPoolReady] = useState(false);
   const [showQuitModal, setShowQuitModal] = useState(false);
 
-  const { modeIds } = splitSelection(state.selectedModes, BUILT_IN_MODE_IDS);
+  const { builtIn: modeIds } = splitSelection(state.selectedModes, BUILT_IN_MODE_IDS);
 
   const buildPenaltyCtx = useCallback((c: Challenge): PenaltyContext => ({
     currentRound: state.currentRound,
@@ -88,10 +88,13 @@ export default function GameScreen({ navigation }: Props) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const [decks, cards] = await Promise.all([loadCustomDecks(), loadCustomCards()]);
+      const [packs, items] = await Promise.all([
+        loadPacks('truthOrDare'),
+        loadItems('truthOrDare'),
+      ]);
       if (cancelled) return;
-      const { customDeckIds } = splitSelection(state.selectedModes, BUILT_IN_MODE_IDS);
-      setExtraPool(buildCustomPool(customDeckIds, decks, cards));
+      const { packIds } = splitSelection(state.selectedModes, BUILT_IN_MODE_IDS);
+      setExtraPool(buildTruthOrDarePool(packs, packIds, items));
       setPoolReady(true);
     })();
     return () => { cancelled = true; };
@@ -182,8 +185,8 @@ export default function GameScreen({ navigation }: Props) {
 
   const isRuleStart = challenge?.isRule === true;
   const isRuleEnd = challenge?.isRule === false && challenge?.ruleId !== undefined;
-  const modeColor = isRuleStart ? '#FFCC26'
-    : isRuleEnd ? '#B6F44A'
+  const modeColor = isRuleStart ? Colors.primary
+    : isRuleEnd ? Colors.lime
     : (challenge ? (ModeColors[challenge.mode] || Colors.primary) : Colors.primary);
   const modeLabel = isRuleStart ? '📜 NEW RULE'
     : isRuleEnd ? '✅ RULE OVER'
@@ -412,7 +415,7 @@ const styles = StyleSheet.create({
   actionDot: { width: 10, height: 10, borderRadius: 5, borderWidth: 1.5 },
   actionText: {
     fontFamily: Type.bodyBold, fontSize: 13, letterSpacing: 1, textTransform: 'uppercase',
-    color: '#5A5370',
+    color: Colors.inkMuted,
   },
   watermark: { position: 'absolute', bottom: -40, right: -40 },
 

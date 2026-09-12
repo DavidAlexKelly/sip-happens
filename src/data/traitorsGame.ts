@@ -40,6 +40,11 @@ export interface TraitorsPlayerRef {
 }
 
 export interface TraitorsConfig {
+  /**
+   * Words resolved from the player's selected packs, drawn alongside the
+   * built-in pack. Empty means built-ins only.
+   */
+  extraWords?: TraitorWord[];
   players: TraitorsPlayerRef[];
   traitorCount: number;
   /** Traitors see the word's vague hint rather than nothing at all. */
@@ -129,7 +134,7 @@ export function accusationComplete(state: TraitorsState): boolean {
 // ─────────────────────────────────────────────
 
 function buildRound(cfg: TraitorsConfig, usedWordIds: string[]): TraitorsRound {
-  const word = pickWord(new Set(usedWordIds));
+  const word = pickWord(new Set(usedWordIds), cfg.extraWords);
   return {
     word,
     traitorIndices: pickTraitorIndices(cfg.players.length, cfg.traitorCount),

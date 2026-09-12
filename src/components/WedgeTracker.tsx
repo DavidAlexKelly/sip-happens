@@ -9,7 +9,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Jack, Type } from '../styles/theme';
+import { Colors, Type } from '../styles/theme';
 import { WedgeId, WEDGES, WEDGE_IDS } from '../data/trivia/types';
 
 type Props = {
@@ -85,5 +85,3 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
 });
-
-export const WEDGE_TRACKER_BORDER = Jack.border;

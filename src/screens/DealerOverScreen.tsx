@@ -145,14 +145,14 @@ const styles = StyleSheet.create({
   heroFace: { alignItems: 'center', paddingVertical: 24, paddingHorizontal: 20 },
   eyebrow: {
     fontFamily: Type.display, fontSize: 12, letterSpacing: 2.5,
-    color: '#fff', opacity: 0.8,
+    color: Colors.onAccent, opacity: 0.8,
   },
   heroText: {
     fontFamily: Type.display, fontSize: 32, lineHeight: 36,
-    color: '#fff', marginTop: 4, textAlign: 'center',
+    color: Colors.onAccent, marginTop: 4, textAlign: 'center',
   },
   subtitle: {
-    fontFamily: Type.body, fontSize: 13, color: '#fff',
+    fontFamily: Type.body, fontSize: 13, color: Colors.onAccent,
     opacity: 0.9, marginTop: 8, textAlign: 'center',
   },
 

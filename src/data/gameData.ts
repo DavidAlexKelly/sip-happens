@@ -204,11 +204,37 @@ const frontendPools: Record<string, Challenge[]> = {
   spicy: backendPools.spicy,
 };
 
-export const ALL_CHALLENGES: Challenge[] = Object.values(frontendPools).flat();
+/**
+ * The frontend pools OVERLAP by design, so they must be de-duplicated before
+ * being concatenated.
+ *
+ * Two sources of overlap:
+ *   • intensity boundaries — getting_started takes dare/drink `<= 2` while
+ *     letting_loose takes `>= 2`, so every intensity-2 card is in both
+ *   • the "bar" tag — raising_the_bar pulls tagged cards that may also qualify
+ *     for another deck on intensity alone
+ *
+ * Without this, selecting two overlapping decks made 27 of the ~240 cards
+ * twice as likely to be drawn, and listed them twice in the card library.
+ */
+function dedupeById(cards: Challenge[]): Challenge[] {
+  const seen = new Set<string>();
+  const out: Challenge[] = [];
+  for (const card of cards) {
+    if (seen.has(card.id)) continue;
+    seen.add(card.id);
+    out.push(card);
+  }
+  return out;
+}
+
+export const ALL_CHALLENGES: Challenge[] = dedupeById(
+  Object.values(frontendPools).flat(),
+);
 
 export function getChallengePool(modes: string[]): Challenge[] {
   if (modes.length === 0) return ALL_CHALLENGES;
-  return modes.flatMap(m => frontendPools[m] ?? []);
+  return dedupeById(modes.flatMap(m => frontendPools[m] ?? []));
 }
 
 // ─────────────────────────────────────────────

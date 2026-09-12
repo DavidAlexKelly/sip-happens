@@ -16,6 +16,8 @@ export const TRAITOR_COUNT_OPTIONS: TraitorCountSetting[] = ['auto', 1, 2, 3];
 export const ROUND_OPTIONS: Array<number | null> = [3, 5, 7, null];
 
 export interface TraitorsSettings {
+  /** Ids of the player's own packs mixed into this game. */
+  selectedPackIds: string[];
   traitorCount: TraitorCountSetting;
   /** Traitors see the word's vague hint instead of nothing. */
   hintsEnabled: boolean;
@@ -24,6 +26,7 @@ export interface TraitorsSettings {
 }
 
 const DEFAULTS: TraitorsSettings = {
+  selectedPackIds: [],
   traitorCount: 'auto',
   hintsEnabled: true,
   totalRounds: 5,
@@ -34,6 +37,7 @@ interface TraitorsContextType {
   setTraitorCount: (n: TraitorCountSetting) => void;
   setHintsEnabled: (on: boolean) => void;
   setTotalRounds: (n: number | null) => void;
+  togglePack: (id: string) => void;
   resetSettings: () => void;
 }
 
@@ -52,6 +56,9 @@ export function TraitorsProvider({ children }: { children: ReactNode }) {
         if (raw) {
           const saved = JSON.parse(raw) as Partial<TraitorsSettings>;
           setSettings({
+            selectedPackIds: Array.isArray(saved.selectedPackIds)
+              ? saved.selectedPackIds.filter(x => typeof x === 'string')
+              : [],
             traitorCount: TRAITOR_COUNT_OPTIONS.includes(saved.traitorCount as TraitorCountSetting)
               ? (saved.traitorCount as TraitorCountSetting)
               : DEFAULTS.traitorCount,
@@ -73,6 +80,14 @@ export function TraitorsProvider({ children }: { children: ReactNode }) {
     AsyncStorage.setItem(PERSIST_KEY, JSON.stringify(settings)).catch(() => {});
   }, [settings]);
 
+  const togglePack = (id: string) =>
+    setSettings(prev => ({
+      ...prev,
+      selectedPackIds: prev.selectedPackIds.includes(id)
+        ? prev.selectedPackIds.filter(p => p !== id)
+        : [...prev.selectedPackIds, id],
+    }));
+
   return (
     <TraitorsContext.Provider
       value={{
@@ -80,6 +95,7 @@ export function TraitorsProvider({ children }: { children: ReactNode }) {
         setTraitorCount: n => setSettings(prev => ({ ...prev, traitorCount: n })),
         setHintsEnabled: on => setSettings(prev => ({ ...prev, hintsEnabled: on })),
         setTotalRounds: n => setSettings(prev => ({ ...prev, totalRounds: n })),
+        togglePack,
         resetSettings: () => setSettings(DEFAULTS),
       }}
     >

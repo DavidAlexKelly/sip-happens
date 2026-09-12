@@ -27,6 +27,8 @@ export type TimerSetting = null | 15 | 30 | 45;
 export const TIMER_OPTIONS: TimerSetting[] = [null, 15, 30, 45];
 
 export interface TriviaSettings {
+  /** Ids of the player's own packs mixed into this game. */
+  selectedPackIds: string[];
   /** Wedges in play. Never empty — the UI blocks deselecting the last one. */
   wedges: WedgeId[];
   /** Wedges needed before the final question. Clamped to wedges.length. */
@@ -40,6 +42,7 @@ export interface TriviaSettings {
 }
 
 const DEFAULTS: TriviaSettings = {
+  selectedPackIds: [],
   wedges: [...WEDGE_IDS],
   wedgesToWin: 6,
   difficulties: [1, 2, 3],
@@ -54,6 +57,7 @@ interface TriviaContextType {
   toggleDifficulty: (d: Difficulty) => void;
   setTimerSeconds: (t: TimerSetting) => void;
   setStealsEnabled: (on: boolean) => void;
+  togglePack: (id: string) => void;
   resetSettings: () => void;
 }
 
@@ -84,6 +88,9 @@ export function TriviaProvider({ children }: { children: ReactNode }) {
             ? (saved.timerSeconds as TimerSetting)
             : DEFAULTS.timerSeconds;
           setSettings({
+            selectedPackIds: Array.isArray(saved.selectedPackIds)
+              ? saved.selectedPackIds.filter(x => typeof x === 'string')
+              : [],
             wedges: wedges.length > 0 ? wedges : DEFAULTS.wedges,
             difficulties: difficulties.length > 0 ? difficulties : DEFAULTS.difficulties,
             wedgesToWin: clampWin(saved.wedgesToWin ?? DEFAULTS.wedgesToWin, wedges.length),
@@ -136,13 +143,21 @@ export function TriviaProvider({ children }: { children: ReactNode }) {
   const setStealsEnabled = (on: boolean) =>
     setSettings(prev => ({ ...prev, stealsEnabled: on }));
 
+  const togglePack = (id: string) =>
+    setSettings(prev => ({
+      ...prev,
+      selectedPackIds: prev.selectedPackIds.includes(id)
+        ? prev.selectedPackIds.filter(p => p !== id)
+        : [...prev.selectedPackIds, id],
+    }));
+
   const resetSettings = () => setSettings(DEFAULTS);
 
   return (
     <TriviaContext.Provider
       value={{
         settings, toggleWedge, setWedgesToWin, toggleDifficulty,
-        setTimerSeconds, setStealsEnabled, resetSettings,
+        setTimerSeconds, setStealsEnabled, togglePack, resetSettings,
       }}
     >
       {children}

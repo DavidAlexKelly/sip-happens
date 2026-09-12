@@ -28,6 +28,9 @@ import { STREAK_THRESHOLD, formatSips } from '../data/triviaData';
 import { useGame } from '../components/GameContext';
 import { useTrivia } from '../components/TriviaContext';
 import { useTriviaEngine, TriviaResolution } from '../hooks/useTriviaEngine';
+import { TriviaQuestion } from '../data/trivia/types';
+import { loadItems, loadPacks } from '../data/packStorage';
+import { buildTriviaPool } from '../data/scopes/trivia';
 import { Ads } from '../monetization/ads';
 import { JackButton } from '../components/jack';
 import CategoryWheel from '../components/CategoryWheel';
@@ -46,8 +49,26 @@ export default function TriviaGameScreen({ navigation }: Props) {
   const { state } = useGame();
   const { settings } = useTrivia();
 
+  // Questions from the player's own packs, resolved once on mount. Loading
+  // before the first draw would delay the game, so the engine simply starts
+  // with the built-ins and picks these up as soon as they arrive.
+  const [extraQuestions, setExtraQuestions] = useState<TriviaQuestion[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const [packs, items] = await Promise.all([
+        loadPacks('trivia'), loadItems('trivia'),
+      ]);
+      if (cancelled) return;
+      setExtraQuestions(buildTriviaPool(packs, settings.selectedPackIds, items));
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const engine = useTriviaEngine({
     players: state.players,
+    extraQuestions,
     wedges: settings.wedges,
     wedgesToWin: settings.wedgesToWin,
     difficulties: settings.difficulties,
@@ -106,6 +127,16 @@ export default function TriviaGameScreen({ navigation }: Props) {
     setPhase('result');
     fadeIn();
   }, [fadeIn]);
+
+  // Let the previous game's questions back into the pool once this game is
+  // properly under way. Without this the used-set inherited at mount is never
+  // cleared, so every "play again" starts with a larger and larger exclusion
+  // list and the wedges hit their recycle fallback almost immediately.
+  // GameScreen does the same thing at round 1 for Truth or Dare.
+  useEffect(() => {
+    if (turnCount === 1) engine.releasePreviousGameQuestions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [turnCount]);
 
   // ── Countdown ───────────────────────────────────────────────
   // Held in a ref so the expiry effect below doesn't need it as a dependency
@@ -346,13 +377,13 @@ export default function TriviaGameScreen({ navigation }: Props) {
               <View
                 style={[
                   styles.cardShadow,
-                  { backgroundColor: result.correct ? '#B6F44A' : Colors.error },
+                  { backgroundColor: result.correct ? Colors.lime : Colors.error },
                 ]}
               />
               <View style={styles.cardFace}>
                 <Text style={[
                   styles.verdict,
-                  { color: result.correct ? '#3B7A00' : Colors.error },
+                  { color: result.correct ? Colors.success : Colors.error },
                 ]}>
                   {result.correct ? 'CORRECT!' : result.timedOut ? "TIME'S UP" : 'WRONG'}
                 </Text>
@@ -371,7 +402,7 @@ export default function TriviaGameScreen({ navigation }: Props) {
                 )}
 
                 {result.streakSips > 0 && (
-                  <View style={[styles.chip, { backgroundColor: '#FF7A3C' }]}>
+                  <View style={[styles.chip, { backgroundColor: Colors.orange }]}>
                     <Ionicons name="flame" size={16} color={Colors.ink} />
                     <Text style={styles.chipText}>
                       {result.streak} IN A ROW — +{formatSips(result.streakSips)}
@@ -471,13 +502,13 @@ export default function TriviaGameScreen({ navigation }: Props) {
               <View
                 style={[
                   styles.cardShadow,
-                  { backgroundColor: stealResult.correct ? '#B6F44A' : Colors.error },
+                  { backgroundColor: stealResult.correct ? Colors.lime : Colors.error },
                 ]}
               />
               <View style={styles.cardFace}>
                 <Text style={[
                   styles.verdict,
-                  { color: stealResult.correct ? '#3B7A00' : Colors.error },
+                  { color: stealResult.correct ? Colors.success : Colors.error },
                 ]}>
                   {stealResult.correct ? 'STOLEN!' : 'NO STEAL'}
                 </Text>
@@ -571,7 +602,7 @@ const styles = StyleSheet.create({
   },
   streakBadge: {
     flexDirection: 'row', alignItems: 'center', gap: 3,
-    backgroundColor: '#FF7A3C',
+    backgroundColor: Colors.orange,
     borderRadius: 8, borderWidth: 2, borderColor: Colors.ink,
     paddingHorizontal: 6, paddingVertical: 1,
   },
@@ -641,7 +672,7 @@ const styles = StyleSheet.create({
 
   verdict: { fontFamily: Type.display, fontSize: 40, letterSpacing: -0.5 },
   answerReveal: {
-    fontFamily: Type.body, fontSize: 15, lineHeight: 22, color: '#5A5370',
+    fontFamily: Type.body, fontSize: 15, lineHeight: 22, color: Colors.inkMuted,
   },
   answerRevealBold: { fontFamily: Type.bodyBold, color: Colors.ink },
   chip: {
@@ -654,7 +685,7 @@ const styles = StyleSheet.create({
   },
   sips: { fontFamily: Type.display, fontSize: 20, color: Colors.ink },
   winText: {
-    fontFamily: Type.body, fontSize: 14, lineHeight: 20, color: '#5A5370',
+    fontFamily: Type.body, fontSize: 14, lineHeight: 20, color: Colors.inkMuted,
   },
   nextHint: {
     fontFamily: Type.body, fontSize: 13, color: Colors.onSurfaceVariant,

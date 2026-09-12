@@ -34,7 +34,7 @@ export interface CardEngineOptions {
   players: Player[];
   /** Built-in mode ids selected for this game (custom deck ids are ignored here). */
   modeIds: string[];
-  /** Pre-resolved cards from any selected custom decks. See src/data/customDecks.ts */
+  /** Pre-resolved cards from any selected packs. See data/scopes/truthOrDare.ts */
   extraPool?: Challenge[];
   totalRounds: number;
   buildPenaltyCtx: (c: Challenge) => PenaltyContext;

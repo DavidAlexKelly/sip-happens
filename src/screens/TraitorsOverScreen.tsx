@@ -60,7 +60,7 @@ export default function TraitorsOverScreen({ navigation }: Props) {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Animated.View style={{ opacity: fadeAnim, transform: [{ scale: scaleAnim }] }}>
           <JackPanel
-            color={drawn ? Colors.surfaceContainer : innocentsAhead ? '#B6F44A' : Colors.secondary}
+            color={drawn ? Colors.surfaceContainer : innocentsAhead ? Colors.lime : Colors.secondary}
             tilt={Jack.tiltL}
             shadow={Jack.shadowBig}
             faceStyle={styles.heroFace}
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
     fontFamily: Type.body, fontSize: 13, color: Colors.ink,
     opacity: 0.85, marginTop: 6, textAlign: 'center',
   },
-  onDark: { color: '#fff' },
+  onDark: { color: Colors.onAccent },
 
   liarPanel: {
     alignItems: 'center', gap: 2,

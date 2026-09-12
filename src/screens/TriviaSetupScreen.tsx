@@ -21,6 +21,8 @@ import {
   useTrivia, Difficulty, TimerSetting, TIMER_OPTIONS,
 } from '../components/TriviaContext';
 import { JackButton, JackIconButton } from '../components/jack';
+import PackSelector from '../components/PackSelector';
+import { usePackLibrary } from '../hooks/usePackLibrary';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'TriviaSetup'>;
@@ -38,8 +40,9 @@ const DIFFICULTY_LABELS: Record<Difficulty, string> = {
 export default function TriviaSetupScreen({ navigation }: Props) {
   const {
     settings, toggleWedge, setWedgesToWin, toggleDifficulty,
-    setTimerSeconds, setStealsEnabled,
+    setTimerSeconds, setStealsEnabled, togglePack,
   } = useTrivia();
+  const lib = usePackLibrary('trivia');
 
   const tap = (fn: () => void) => () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -219,6 +222,15 @@ export default function TriviaSetupScreen({ navigation }: Props) {
           </TouchableOpacity>
         </View>
 
+        <PackSelector
+          scope="trivia"
+          packs={lib.packs}
+          items={lib.items}
+          selectedIds={settings.selectedPackIds}
+          onToggle={togglePack}
+          onManage={() => navigation.navigate('PackList', { scope: 'trivia' })}
+        />
+
         <View style={styles.continue}>
           <JackButton
             label="Next — Add Players"
@@ -245,7 +257,7 @@ const styles = StyleSheet.create({
 
   pageHeader: { marginTop: 4, marginBottom: 24 },
   pageTitle: { fontFamily: Type.display, fontSize: 36, lineHeight: 39, color: Colors.onSurface },
-  pageTitleAccent: { color: Colors.primary },
+  pageTitleAccent: { color: Colors.tertiary },
   pageSubtitle: {
     fontFamily: Type.body, fontSize: 15, color: Colors.onSurfaceVariant, marginTop: 8,
   },

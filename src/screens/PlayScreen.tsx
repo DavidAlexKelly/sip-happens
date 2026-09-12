@@ -20,7 +20,6 @@ import { Colors, Jack, Type } from '../styles/theme';
 import { APP_TAGLINE } from '../branding';
 import { GAME_MODES, GameModeDefinition } from '../data/gameModes';
 import Logo from '../components/Logo';
-import BottomNav from '../components/BottomNav';
 import { JackTile, JackBadge, JackIconButton, ConfettiDots } from '../components/jack';
 import { useGame } from '../components/GameContext';
 
@@ -57,7 +56,7 @@ export default function PlayScreen({ navigation }: Props) {
     <SafeAreaView style={styles.container} edges={['top']}>
       <ConfettiDots opacity={0.55} />
 
-      {/* Header — identical structure/padding to DecksScreen & CardsScreen */}
+      {/* Header — same structure/padding as the pushed setup screens. */}
       <View style={styles.header}>
         <Logo />
         <JackIconButton
@@ -134,21 +133,19 @@ export default function PlayScreen({ navigation }: Props) {
           ))}
         </ScrollView>
       </Animated.View>
-
-      <BottomNav current="play" navigation={navigation} />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  // Must match the header style in DecksScreen/CardsScreen exactly.
+  // Matches the header style used by the setup screens.
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 24, paddingVertical: 14,
   },
   content: {
-    flex: 1, paddingHorizontal: 24, paddingBottom: 110,
+    flex: 1, paddingHorizontal: 24, paddingBottom: 16,
   },
 
   pageHeader: { marginTop: 4, marginBottom: 20 },

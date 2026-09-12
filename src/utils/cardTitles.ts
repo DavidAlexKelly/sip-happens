@@ -8,7 +8,7 @@
 // a challenge), getChallengeTitle will use them automatically.
 
 import { Challenge } from '../data/gameData';
-import { TOKEN_META } from '../components/TokenText';
+import { TOKEN_META } from '../data/tokens';
 
 const SMALL_WORDS = new Set(['a', 'an', 'the', 'of', 'to', 'in', 'on', 'or', 'and', 'for', 'with']);
 const MAX_TITLE_WORDS = 5;

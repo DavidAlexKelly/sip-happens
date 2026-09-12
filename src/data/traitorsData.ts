@@ -49,9 +49,19 @@ export const WORD_COUNT = WORDS.length;
  * Falls back to the full pack once everything has been used rather than
  * returning nothing — a long session must never run dry mid-round.
  */
-export function pickWord(usedIds: Set<string>): TraitorWord {
-  const fresh = WORDS.filter(w => !usedIds.has(w.id));
-  return pickOne(fresh.length > 0 ? fresh : WORDS);
+export function pickWord(usedIds: Set<string>, extra: TraitorWord[] = []): TraitorWord {
+  // Built-ins plus anything from the player's selected packs, de-duplicated by
+  // id so a word reachable both ways can't be twice as likely.
+  const seen = new Set<string>();
+  const pool: TraitorWord[] = [];
+  for (const w of [...WORDS, ...extra]) {
+    if (seen.has(w.id)) continue;
+    seen.add(w.id);
+    pool.push(w);
+  }
+
+  const fresh = pool.filter(w => !usedIds.has(w.id));
+  return pickOne(fresh.length > 0 ? fresh : pool);
 }
 
 /**

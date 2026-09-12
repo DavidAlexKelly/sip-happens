@@ -30,6 +30,9 @@ import { suggestedTraitors } from '../data/traitorsData';
 import { useGame } from '../components/GameContext';
 import { useTraitors } from '../components/TraitorsContext';
 import { useTraitorsEngine } from '../hooks/useTraitorsEngine';
+import { TraitorWord } from '../data/traitorsData';
+import { loadItems, loadPacks } from '../data/packStorage';
+import { buildTraitorsPool } from '../data/scopes/traitors';
 import { Ads } from '../monetization/ads';
 import { JackButton } from '../components/jack';
 
@@ -49,8 +52,25 @@ export default function TraitorsGameScreen({ navigation }: Props) {
     ? suggestedTraitors(players.length)
     : settings.traitorCount;
 
+  // Words from the player's own packs. The first round is dealt from the
+  // built-in pack; these join the pool for every round after they load.
+  const [extraWords, setExtraWords] = useState<TraitorWord[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const [packs, items] = await Promise.all([
+        loadPacks('traitors'), loadItems('traitors'),
+      ]);
+      if (cancelled) return;
+      setExtraWords(buildTraitorsPool(packs, settings.selectedPackIds, items));
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const engine = useTraitorsEngine({
     players,
+    extraWords,
     traitorCount,
     hintsEnabled: settings.hintsEnabled,
     totalRounds: settings.totalRounds,
@@ -90,7 +110,13 @@ export default function TraitorsGameScreen({ navigation }: Props) {
   };
 
   const handleNextRound = () => {
-    if (!midpointAdShown.current && engine.round >= MIDPOINT_ROUNDS) {
+    // Don't fire the midpoint ad on the last round: advanceRound() will end the
+    // game, and the game-over effect shows its own interstitial. The 60s
+    // cooldown would swallow the second one, but queueing two is still wrong.
+    const isFinalRound =
+      settings.totalRounds != null && engine.round >= settings.totalRounds;
+
+    if (!isFinalRound && !midpointAdShown.current && engine.round >= MIDPOINT_ROUNDS) {
       midpointAdShown.current = true;
       Ads.show(() => { engine.advanceRound(); fadeIn(); });
       return;
@@ -251,7 +277,7 @@ export default function TraitorsGameScreen({ navigation }: Props) {
                         : { borderColor: p.color },
                     ]}
                   >
-                    <Text style={[styles.playerChipText, picked && { color: '#fff' }]}>
+                    <Text style={[styles.playerChipText, picked && { color: Colors.onAccent }]}>
                       {p.name.toUpperCase()}
                     </Text>
                   </TouchableOpacity>
@@ -279,13 +305,13 @@ export default function TraitorsGameScreen({ navigation }: Props) {
             <View
               style={[
                 styles.verdictPanel,
-                { backgroundColor: engine.innocentsWin ? '#B6F44A' : Colors.secondary },
+                { backgroundColor: engine.innocentsWin ? Colors.lime : Colors.secondary },
               ]}
             >
-              <Text style={[styles.verdictText, { color: engine.innocentsWin ? Colors.ink : '#fff' }]}>
+              <Text style={[styles.verdictText, { color: engine.innocentsWin ? Colors.ink : Colors.onAccent }]}>
                 {engine.innocentsWin ? 'TRAITORS CAUGHT' : 'TRAITORS WIN'}
               </Text>
-              <Text style={[styles.verdictSub, { color: engine.innocentsWin ? Colors.ink : '#fff' }]}>
+              <Text style={[styles.verdictSub, { color: engine.innocentsWin ? Colors.ink : Colors.onAccent }]}>
                 The word was {engine.word.word}
               </Text>
             </View>
@@ -444,13 +470,13 @@ const styles = StyleSheet.create({
     alignItems: 'center', gap: 6,
   },
   traitorTitle: {
-    fontFamily: Type.display, fontSize: 26, color: '#fff', textAlign: 'center',
+    fontFamily: Type.display, fontSize: 26, color: Colors.onAccent, textAlign: 'center',
   },
   traitorSub: {
-    fontFamily: Type.body, fontSize: 13, color: '#fff', opacity: 0.9,
+    fontFamily: Type.body, fontSize: 13, color: Colors.onAccent, opacity: 0.9,
   },
   hintWord: {
-    fontFamily: Type.display, fontSize: 30, color: '#fff', marginTop: 2,
+    fontFamily: Type.display, fontSize: 30, color: Colors.onAccent, marginTop: 2,
   },
 
   sectionLabel: {
@@ -504,7 +530,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8,
     borderWidth: 2, borderColor: Colors.ink, overflow: 'hidden',
   },
-  roleTagTraitor: { backgroundColor: Colors.secondary, color: '#fff' },
+  roleTagTraitor: { backgroundColor: Colors.secondary, color: Colors.onAccent },
   roleTagInnocent: { backgroundColor: Colors.surfaceContainerHighest, color: Colors.onSurface },
 
   bottomBtn: { marginTop: 'auto', paddingTop: 16 },

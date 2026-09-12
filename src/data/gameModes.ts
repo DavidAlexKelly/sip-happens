@@ -22,7 +22,8 @@ export type GameModeId =
   | 'truth_or_dare'
   | 'trivia'
   | 'screw_the_dealer'
-  | 'word_traitors';
+  | 'word_traitors'
+  | 'ring_of_fire';
 
 export interface GameModeDefinition {
   id: GameModeId;
@@ -66,7 +67,7 @@ export const GAME_MODES: GameModeDefinition[] = [
     label: 'SCREW THE DEALER!',
     tagline: 'Guess the top card in two goes. Beat the dealer and they drink — but they only escape after three wins in a row.',
     icon: 'albums',
-    color: '#B6F44A', // lime — distinct from the other two tiles
+    color: Colors.lime, // lime — distinct from the other two tiles
     meta: '3+ PLAYERS · 20–50 MIN',
     route: 'DealerSetup',
     available: true,
@@ -76,9 +77,19 @@ export const GAME_MODES: GameModeDefinition[] = [
     label: 'WORD TRAITORS!',
     tagline: 'Everyone gets the secret word — except the traitors. Give a clue, find the liars, or bluff your way through.',
     icon: 'eye-off',
-    color: '#8C6BFF', // grape — the fourth distinct tile colour
+    color: Colors.grape, // grape — the fourth distinct tile colour
     meta: '3+ PLAYERS · NO DRINKING',
     route: 'TraitorsSetup',
+    available: true,
+  },
+  {
+    id: 'ring_of_fire',
+    label: 'RING OF FIRE',
+    tagline: 'The king of drinking games. Draw a card, obey it. Whoever pulls the last King downs the glass in the middle.',
+    icon: 'flame',
+    color: Colors.error,
+    meta: '3+ PLAYERS · 20–40 MIN',
+    route: 'RingSetup',
     available: true,
   },
 ];

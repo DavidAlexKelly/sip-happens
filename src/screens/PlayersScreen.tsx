@@ -37,7 +37,8 @@ export default function PlayersScreen({ navigation, route }: Props) {
   // Word Traitors needs enough bodies for the traitor to hide among; Screw the
   // Dealer needs a dealer plus enough opponents for "beat 3 in a row" to mean
   // anything. Both are 3.
-  const minPlayers = next === 'DealerGame' || next === 'TraitorsGame' ? 3 : 2;
+  const minPlayers =
+    next === 'DealerGame' || next === 'TraitorsGame' || next === 'RingGame' ? 3 : 2;
   const { state, addPlayer, removePlayer, updatePlayerPhoto, startGame, toggleMode, setSipBonus } = useGame();
   const [inputValue, setInputValue] = useState('');
   const shakeAnim = useRef(new Animated.Value(0)).current;

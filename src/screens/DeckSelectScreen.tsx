@@ -14,7 +14,8 @@ import { RootStackParamList } from '../navigation/types';
 import { Colors, Jack, Type } from '../styles/theme';
 import { MODES } from '../data/gameData';
 import { useGame } from '../components/GameContext';
-import { loadCustomDecks, CustomDeck } from '../data/customDecks';
+import { Pack } from '../data/packs';
+import { loadPacks } from '../data/packStorage';
 import { JackButton, JackIconButton, JackBadge } from '../components/jack';
 
 type Props = {
@@ -23,10 +24,10 @@ type Props = {
 
 export default function DeckSelectScreen({ navigation }: Props) {
   const { state, toggleMode } = useGame();
-  const [customDecks, setCustomDecks] = useState<CustomDeck[]>([]);
+  const [customPacks, setCustomDecks] = useState<Pack[]>([]);
 
   useEffect(() => {
-    loadCustomDecks().then(setCustomDecks);
+    loadPacks('truthOrDare').then(setCustomDecks);
   }, []);
 
   const allBuiltInSelected = MODES.every(m => state.selectedModes.includes(m.id));
@@ -116,13 +117,13 @@ export default function DeckSelectScreen({ navigation }: Props) {
           })}
         </View>
 
-        {customDecks.length > 0 && (
+        {customPacks.length > 0 && (
           <>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionLabel}>YOUR DECKS</Text>
             </View>
             <View style={styles.customList}>
-              {customDecks.map(deck => {
+              {customPacks.map(deck => {
                 const isSelected = state.selectedModes.includes(deck.id);
                 return (
                   <View key={deck.id} style={styles.deckOuter}>
@@ -148,7 +149,7 @@ export default function DeckSelectScreen({ navigation }: Props) {
                       <View style={styles.customCardInfo}>
                         <Text style={styles.customName}>{deck.name}</Text>
                         <Text style={styles.customMeta}>
-                          {deck.cardIds.length} card{deck.cardIds.length !== 1 ? 's' : ''}
+                          {deck.itemIds.length} card{deck.itemIds.length !== 1 ? 's' : ''}
                         </Text>
                       </View>
                       <View style={[
@@ -166,6 +167,33 @@ export default function DeckSelectScreen({ navigation }: Props) {
             </View>
           </>
         )}
+
+        {/* Content management used to live in a global bottom tab bar, which
+            implied it applied to every mode. It only ever configured Truth or
+            Dare, so it belongs here in this mode's setup flow. */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionLabel}>EDIT CONTENT</Text>
+        </View>
+        <View style={styles.manageRow}>
+          <TouchableOpacity
+            style={styles.manageBtn}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('PackList', { scope: 'truthOrDare' })}
+          >
+            <Ionicons name="layers" size={18} color={Colors.onSurface} />
+            <Text style={styles.manageText}>My Decks</Text>
+            <Ionicons name="chevron-forward" size={14} color={Colors.outline} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.manageBtn}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('ItemLibrary', { scope: 'truthOrDare' })}
+          >
+            <Ionicons name="card" size={18} color={Colors.onSurface} />
+            <Text style={styles.manageText}>My Cards</Text>
+            <Ionicons name="chevron-forward" size={14} color={Colors.outline} />
+          </TouchableOpacity>
+        </View>
 
         <View style={styles.continueBtn}>
           <JackButton
@@ -189,7 +217,7 @@ const styles = StyleSheet.create({
   scrollContent: { paddingHorizontal: 20, paddingBottom: 40 },
   pageHeader: { marginTop: 4, marginBottom: 20 },
   pageTitle: { fontFamily: Type.display, fontSize: 36, lineHeight: 39, color: Colors.onSurface },
-  pageTitleAccent: { color: Colors.primary },
+  pageTitleAccent: { color: Colors.secondary },
   pageSubtitle: { fontFamily: Type.body, fontSize: 15, color: Colors.onSurfaceVariant, marginTop: 8 },
 
   sectionHeader: {
@@ -241,6 +269,15 @@ const styles = StyleSheet.create({
   customCardInfo: { flex: 1 },
   customName: { fontFamily: Type.display, fontSize: 15, color: Colors.onSurface },
   customMeta: { fontFamily: Type.bodyMedium, fontSize: 12, color: Colors.onSurfaceVariant, marginTop: 2 },
+
+  manageRow: { gap: 10 },
+  manageBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    borderRadius: Jack.radius, borderWidth: 2.5, borderColor: Colors.outlineVariant,
+    backgroundColor: Colors.surfaceContainerLow,
+    paddingVertical: 13, paddingHorizontal: 14,
+  },
+  manageText: { flex: 1, fontFamily: Type.bodyBold, fontSize: 14, color: Colors.onSurface },
 
   continueBtn: { marginTop: 30 },
 });

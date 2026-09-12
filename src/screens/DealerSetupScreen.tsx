@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
 
   pageHeader: { marginTop: 4, marginBottom: 22 },
   pageTitle: { fontFamily: Type.display, fontSize: 34, lineHeight: 37, color: Colors.onSurface },
-  pageTitleAccent: { color: Colors.primary },
+  pageTitleAccent: { color: Colors.lime },
   pageSubtitle: {
     fontFamily: Type.body, fontSize: 15, color: Colors.onSurfaceVariant, marginTop: 8,
   },

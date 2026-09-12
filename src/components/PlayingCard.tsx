@@ -9,7 +9,7 @@ import { Colors, Jack, Type } from '../styles/theme';
 import { Card, SUIT_SYMBOLS, isRedSuit, rankLabel } from '../data/dealerData';
 
 /** Red that reads on the chalk paper face without looking like an error state. */
-export const CARD_RED = '#C6283C';
+export const CARD_RED = Colors.cardRed;
 
 type Size = 'small' | 'medium' | 'large';
 
@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     overflow: 'hidden',
   },
-  rank: { fontFamily: Type.display, lineHeight: undefined },
+  rank: { fontFamily: Type.display },
   suit: { fontFamily: Type.body, marginTop: -2 },
   backMark: { alignItems: 'center', justifyContent: 'center' },
   backText: { fontFamily: Type.display, color: Colors.outline },

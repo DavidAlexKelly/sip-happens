@@ -58,19 +58,19 @@ export const WEDGES: Record<WedgeId, WedgeDefinition> = {
     id: 'arts',
     label: 'Arts & Literature',
     icon: 'color-palette',
-    color: '#8C6BFF', // grape
+    color: Colors.grape, // grape
   },
   science: {
     id: 'science',
     label: 'Science & Nature',
     icon: 'flask',
-    color: '#B6F44A', // lime
+    color: Colors.lime, // lime
   },
   sport: {
     id: 'sport',
     label: 'Sport & Leisure',
     icon: 'football',
-    color: '#FF7A3C', // orange
+    color: Colors.orange, // orange
   },
 };
 

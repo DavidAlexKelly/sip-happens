@@ -36,8 +36,10 @@ import { GameProvider } from './src/components/GameContext';
 import { TriviaProvider } from './src/components/TriviaContext';
 import { DealerProvider } from './src/components/DealerContext';
 import { TraitorsProvider } from './src/components/TraitorsContext';
+import { RingProvider } from './src/components/RingContext';
 import { Ads } from './src/monetization/ads';
 import { isAgeConfirmed } from './src/utils/ageGate';
+import { runLegacyMigration } from './src/data/packStorage';
 import { requestTrackingPermission } from './src/utils/tracking';
 import { RootStackParamList } from './src/navigation/types';
 
@@ -46,8 +48,11 @@ import AgeGateScreen from './src/screens/AgeGateScreen';
 
 // Bottom nav screens
 import PlayScreen  from './src/screens/PlayScreen';
-import DecksScreen from './src/screens/DecksScreen';
-import CardsScreen from './src/screens/CardsScreen';
+
+// Shared content library
+import PackListScreen   from './src/screens/PackListScreen';
+import PackEditorScreen from './src/screens/PackEditorScreen';
+import ItemLibraryScreen from './src/screens/ItemLibraryScreen';
 
 // Truth or Dare setup flow (no bottom nav)
 import DeckSelectScreen from './src/screens/DeckSelectScreen';
@@ -69,6 +74,12 @@ import DealerOverScreen  from './src/screens/DealerOverScreen';
 import TraitorsSetupScreen from './src/screens/TraitorsSetupScreen';
 import TraitorsGameScreen  from './src/screens/TraitorsGameScreen';
 import TraitorsOverScreen  from './src/screens/TraitorsOverScreen';
+
+// Ring of Fire
+import RingSetupScreen from './src/screens/RingSetupScreen';
+import RingGameScreen  from './src/screens/RingGameScreen';
+import RingOverScreen  from './src/screens/RingOverScreen';
+import RingSetEditorScreen from './src/screens/RingSetEditorScreen';
 
 // Legal
 import LegalScreen from './src/screens/LegalScreen';
@@ -94,6 +105,14 @@ export default function App() {
 
   useEffect(() => {
     isAgeConfirmed().then(setAgeConfirmed);
+  }, []);
+
+  // One-time move of the legacy @nekkit_* decks and cards into the scoped
+  // pack store. Deliberately fire-and-forget: it is idempotent, it never
+  // overwrites newer data, and it leaves the old keys in place, so a failure
+  // here must not delay or block the app booting.
+  useEffect(() => {
+    runLegacyMigration().catch(() => {});
   }, []);
 
   /**
@@ -128,6 +147,7 @@ export default function App() {
         <TriviaProvider>
         <DealerProvider>
         <TraitorsProvider>
+        <RingProvider>
         <NavigationContainer>
           <StatusBar style="light" />
           <Stack.Navigator
@@ -145,9 +165,12 @@ export default function App() {
               {(props) => <AgeGateScreen {...props} onConfirmed={initMonetization} />}
             </Stack.Screen>
             <Stack.Screen name="Play"       component={PlayScreen} />
-            <Stack.Screen name="Decks"      component={DecksScreen} />
-            <Stack.Screen name="Cards"      component={CardsScreen} />
             <Stack.Screen name="DeckSelect" component={DeckSelectScreen} />
+
+            {/* Content library — shared by every mode that has one */}
+            <Stack.Screen name="PackList"    component={PackListScreen} />
+            <Stack.Screen name="PackEditor"  component={PackEditorScreen} />
+            <Stack.Screen name="ItemLibrary" component={ItemLibraryScreen} />
             <Stack.Screen
               name="Players"
               component={PlayersScreen}
@@ -202,9 +225,24 @@ export default function App() {
               component={TraitorsOverScreen}
               options={{ gestureEnabled: false }}
             />
+
+            {/* Ring of Fire */}
+            <Stack.Screen name="RingSetup" component={RingSetupScreen} />
+            <Stack.Screen name="RingSetEditor" component={RingSetEditorScreen} />
+            <Stack.Screen
+              name="RingGame"
+              component={RingGameScreen}
+              options={{ gestureEnabled: false }}
+            />
+            <Stack.Screen
+              name="RingOver"
+              component={RingOverScreen}
+              options={{ gestureEnabled: false }}
+            />
             <Stack.Screen name="Legal" component={LegalScreen} />
           </Stack.Navigator>
         </NavigationContainer>
+        </RingProvider>
         </TraitorsProvider>
         </DealerProvider>
         </TriviaProvider>

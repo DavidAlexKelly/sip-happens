@@ -49,6 +49,25 @@ export const Colors = {
   ink: '#160F3E',                   // borders, hard shadows, text on brights
   paper: '#FFF8EC',                 // the prompt-card face
   paperDim: '#F0E8D8',
+
+  // ── Shared accents ──
+  // These four had no names, so they were duplicated as raw hex across the app:
+  // lime appeared 14 times, orange 9, grape 8 — including inside DECK_COLORS
+  // right next to tokens for the other three. Named here so there is one
+  // source for each.
+  lime: '#B6F44A',
+  grape: '#8C6BFF',
+  orange: '#FF7A3C',
+  sky: '#5EB8FF',
+
+  // ── Text sitting on the chalk-paper card faces ──
+  inkMuted: '#5A5370',              // secondary text on paper
+  success: '#3B7A00',               // "correct" — dark enough to read on paper
+  cardRed: '#C6283C',               // hearts and diamonds, NOT the error red
+  onPaperDim: '#8A82A0',            // tertiary text / quiet icons
+
+  /** White, for text on a saturated accent fill. */
+  onAccent: '#FFFFFF',
 } as const;
 
 // The sticker system: one set of numbers, used by every surface.
@@ -64,14 +83,14 @@ export const Jack = {
 
 // Distinct, collision-friendly avatar/player palette — reads on indigo.
 export const PlayerColors = [
-  '#FFCC26', // buzzer yellow
-  '#FF4D8D', // party pink
-  '#3EE6E0', // cyan
-  '#8C6BFF', // grape
-  '#B6F44A', // lime
-  '#FF7A3C', // orange
-  '#5EB8FF', // sky
-  '#FFF8EC', // chalk
+  Colors.primary,   // buzzer yellow
+  Colors.secondary, // party pink
+  Colors.tertiary,  // cyan
+  Colors.grape,
+  Colors.lime,
+  Colors.orange,
+  Colors.sky,
+  Colors.paper,     // chalk
 ];
 
 export const PlayerRanks = [
@@ -81,13 +100,13 @@ export const PlayerRanks = [
 
 // Keyed by Challenge.mode — matches backendPools in src/data/gameData.ts.
 export const ModeColors: Record<string, string> = {
-  drink:  '#3EE6E0', // cyan — refreshing
-  dare:   '#FF7A3C', // orange
-  truth:  '#8C6BFF', // grape
-  chaos:  '#FFCC26', // yellow
-  spicy:  '#FF4D8D', // pink-red
-  custom: '#5EB8FF', // sky — user-made
-  other:  '#5EB8FF', // custom-card catch-all category
+  drink:  Colors.tertiary, // cyan — refreshing
+  dare:   Colors.orange,
+  truth:  Colors.grape,
+  chaos:  Colors.primary,  // yellow
+  spicy:  Colors.secondary,// pink-red
+  custom: Colors.sky,      // user-made
+  other:  Colors.sky,      // custom-card catch-all category
 };
 
 export const ModeLabels: Record<string, string> = {

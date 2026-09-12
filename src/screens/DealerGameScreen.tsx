@@ -176,7 +176,7 @@ export default function DealerGameScreen({ navigation }: Props) {
           </Animated.View>
 
           {phase === 'guess2' && hint && firstGuess != null && (
-            <View style={[styles.hintPill, { backgroundColor: hint === 'higher' ? '#B6F44A' : '#FF7A3C' }]}>
+            <View style={[styles.hintPill, { backgroundColor: hint === 'higher' ? Colors.lime : Colors.orange }]}>
               <Ionicons
                 name={hint === 'higher' ? 'arrow-up' : 'arrow-down'}
                 size={16}
@@ -244,21 +244,27 @@ export default function DealerGameScreen({ navigation }: Props) {
         </View>
 
         {/* Table strip */}
-        <TouchableOpacity
-          style={styles.tableBar}
-          activeOpacity={0.8}
-          onPress={() => setShowTable(true)}
-        >
-          <View style={styles.tableHeader}>
+        <View style={styles.tableBar}>
+          {/* Only the header row is the tap target. The strip below is a
+              horizontal ScrollView, and a ScrollView nested inside a
+              TouchableOpacity swallows the gesture — tapping the cards to
+              expand would silently do nothing. */}
+          <TouchableOpacity
+            style={styles.tableHeader}
+            activeOpacity={0.7}
+            onPress={() => setShowTable(true)}
+            hitSlop={{ top: 6, bottom: 4, left: 6, right: 6 }}
+          >
             <Text style={styles.tableLabel}>
               ON THE TABLE · {engine.revealed.length}
             </Text>
-            <Text style={styles.tableLabel}>
-              {engine.deckRemaining} LEFT
-            </Text>
-          </View>
+            <View style={styles.tableExpand}>
+              <Text style={styles.tableLabel}>{engine.deckRemaining} LEFT</Text>
+              <Ionicons name="chevron-up" size={12} color={Colors.outline} />
+            </View>
+          </TouchableOpacity>
           <DealtGrid cards={engine.revealed} compact />
-        </TouchableOpacity>
+        </View>
       </View>
 
       {/* Full table */}
@@ -369,9 +375,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.secondary,
     paddingVertical: 4, paddingHorizontal: 8,
   },
-  damageValue: { fontFamily: Type.display, fontSize: 20, color: '#fff' },
+  damageValue: { fontFamily: Type.display, fontSize: 20, color: Colors.onAccent },
   damageLabel: {
-    fontFamily: Type.display, fontSize: 8, letterSpacing: 1.5, color: '#fff', opacity: 0.85,
+    fontFamily: Type.display, fontSize: 8, letterSpacing: 1.5, color: Colors.onAccent, opacity: 0.85,
   },
 
   banner: {
@@ -402,7 +408,7 @@ const styles = StyleSheet.create({
   cardNameText: {
     fontFamily: Type.bodyMedium, fontSize: 13, color: Colors.onSurfaceVariant,
   },
-  verdictGood: { fontFamily: Type.display, fontSize: 26, color: '#B6F44A' },
+  verdictGood: { fontFamily: Type.display, fontSize: 26, color: Colors.lime },
   verdictBad: { fontFamily: Type.display, fontSize: 26, color: Colors.error },
   drinkLine: { fontFamily: Type.display, fontSize: 17, color: Colors.onSurface },
   cappedNote: {
@@ -431,6 +437,7 @@ const styles = StyleSheet.create({
   tableLabel: {
     fontFamily: Type.display, fontSize: 9, letterSpacing: 1.5, color: Colors.outline,
   },
+  tableExpand: { flexDirection: 'row', alignItems: 'center', gap: 4 },
 
   modalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(10,6,32,0.72)' },
   modalSheet: {

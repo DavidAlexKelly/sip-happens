@@ -1,9 +1,11 @@
 // src/data/dealerData.ts
 // ─────────────────────────────────────────────────────────────────────────────
-// Cards and drink maths for Screw the Dealer!
+// Drink maths for Screw the Dealer!
 //
-// Aces are low: A=1 … 10, J=11, Q=12, K=13. Only rank matters to the rules;
-// suits exist so the laid-out grid looks like actual cards.
+// The deck itself now lives in ./playingCards.ts, shared with Ring of Fire.
+// Those primitives are re-exported here so existing imports (and the smoke
+// test) keep working unchanged — this file is the Screw-the-Dealer-specific
+// rules layer on top.
 //
 // Unlike Trivia, this mode does NOT reuse the PENALTY scale. The paper rules
 // fix the numbers — 4 drinks, 2 drinks, or the difference — so those are the
@@ -15,77 +17,14 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { PenaltyContext } from './gameData';
-import { shuffle } from '../utils/random';
+import { RANKS, SUITS, type Card } from './playingCards';
 
-export type Suit = 'spades' | 'hearts' | 'diamonds' | 'clubs';
-
-export const SUITS: Suit[] = ['spades', 'hearts', 'diamonds', 'clubs'];
-
-/** 1 = Ace (low) … 13 = King. */
-export const RANKS: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
-
-export const MIN_RANK = 1;
-export const MAX_RANK = 13;
-
-export interface Card {
-  rank: number;
-  suit: Suit;
-  /** Stable within a deck, e.g. "7-hearts". */
-  id: string;
-}
-
-const RANK_LABELS: Record<number, string> = {
-  1: 'A', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7',
-  8: '8', 9: '9', 10: '10', 11: 'J', 12: 'Q', 13: 'K',
-};
-
-export const SUIT_SYMBOLS: Record<Suit, string> = {
-  spades: '\u2660',
-  hearts: '\u2665',
-  diamonds: '\u2666',
-  clubs: '\u2663',
-};
-
-export const RED_SUITS: Suit[] = ['hearts', 'diamonds'];
-
-export function rankLabel(rank: number): string {
-  return RANK_LABELS[rank] ?? String(rank);
-}
-
-export function isRedSuit(suit: Suit): boolean {
-  return RED_SUITS.includes(suit);
-}
-
-/** Long form for the reveal line, e.g. "Queen of Hearts". */
-export function cardName(card: Card): string {
-  const names: Record<number, string> = {
-    1: 'Ace', 11: 'Jack', 12: 'Queen', 13: 'King',
-  };
-  const rank = names[card.rank] ?? String(card.rank);
-  const suit = card.suit.charAt(0).toUpperCase() + card.suit.slice(1);
-  return `${rank} of ${suit}`;
-}
-
-// ─────────────────────────────────────────────
-// DECK
-// ─────────────────────────────────────────────
-
-/** All 52, in order. Four of every rank. */
-export function buildDeck(): Card[] {
-  const deck: Card[] = [];
-  for (const suit of SUITS) {
-    for (const rank of RANKS) {
-      deck.push({ rank, suit, id: `${rank}-${suit}` });
-    }
-  }
-  return deck;
-}
-
-export const DECK_SIZE = 52;
-
-export function shuffledDeck(): Card[] {
-  return shuffle(buildDeck());
-}
+export {
+  SUITS, RANKS, SUIT_SYMBOLS, RED_SUITS, DECK_SIZE,
+  rankLabel, rankName, isRedSuit, cardName, buildDeck, shuffledDeck,
+  remainingByRank,
+} from './playingCards';
+export type { Suit, Card } from './playingCards';
 
 // ─────────────────────────────────────────────
 // RULES
@@ -147,12 +86,7 @@ export function wrongGuessDrinks(
   return Math.min(diff, cap);
 }
 
-/** How many of each rank are still unseen, for an optional counting aid. */
-export function remainingByRank(revealed: Card[]): Record<number, number> {
-  const counts: Record<number, number> = {};
-  for (const rank of RANKS) counts[rank] = SUITS.length;
-  for (const card of revealed) {
-    counts[card.rank] = Math.max(0, (counts[card.rank] ?? 0) - 1);
-  }
-  return counts;
-}
+// Keep the unused-import checker happy about SUITS/Card being re-exported
+// types rather than locals: both are referenced by the re-export block above.
+export type DealerCard = Card;
+export const SUIT_COUNT = SUITS.length;

@@ -6,22 +6,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { Colors, Type } from '../styles/theme';
+import { TOKEN_META } from '../data/tokens';
 
-export const TOKEN_META: Record<string, { label: string; color: string }> = {
-  player1: { label: 'Player 1', color: '#FFCC26' },
-  player2: { label: 'Player 2', color: '#FF7A3C' },
-  sip:     { label: 'sip',      color: '#3EE6E0' },
-  small:   { label: 'small',    color: '#B6F44A' },
-  medium:  { label: 'medium',   color: '#5EB8FF' },
-  large:   { label: 'large',    color: '#FF4D8D' },
-  max:     { label: 'MAX',      color: '#8C6BFF' },
-  take_or_give_sip:    { label: 'take/give sip',    color: '#3EE6E0' },
-  take_or_give_small:  { label: 'take/give small',  color: '#B6F44A' },
-  take_or_give_medium: { label: 'take/give medium', color: '#5EB8FF' },
-  take_or_give_large:  { label: 'take/give large',  color: '#FF4D8D' },
-  take_or_give_max:    { label: 'take/give MAX',    color: '#8C6BFF' },
-  topic:   { label: 'random topic', color: '#FFF8EC' },
-};
+export { TOKEN_META };
+
 
 type Props = {
   text: string;

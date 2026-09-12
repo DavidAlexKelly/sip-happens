@@ -100,6 +100,12 @@ export interface TriviaEngineOptions {
   difficulties?: Array<1 | 2 | 3>;
   /** Offer a missed question to the next player. */
   stealsEnabled?: boolean;
+  /**
+   * Questions resolved from the player's selected packs. Merged into whichever
+   * wedge each one belongs to, so a custom question is drawn exactly like a
+   * built-in one of the same wedge.
+   */
+  extraQuestions?: TriviaQuestion[];
   /** Supplies `bonus` from the Sip Intensity stepper. */
   penaltyCtx?: PenaltyContext;
 }
@@ -207,8 +213,11 @@ export function useTriviaEngine(opts: TriviaEngineOptions) {
   }, [activeWedges, currentPlayer, wedgesFor]);
 
   const pickQuestion = useCallback((wedge: WedgeId): TriviaQuestion | null => {
-    const { difficulties } = optsRef.current;
-    const pool = getWedgePool(wedge, difficulties);
+    const { difficulties, extraQuestions = [] } = optsRef.current;
+    const allowed = difficulties && difficulties.length > 0 ? difficulties : null;
+    const extras = extraQuestions.filter(q =>
+      q.wedge === wedge && (allowed === null || allowed.includes(q.difficulty)));
+    const pool = [...getWedgePool(wedge, difficulties), ...extras];
     if (pool.length === 0) return null;
 
     let available = pool.filter(q => !usedIds.current.has(q.id));
@@ -266,6 +275,19 @@ export function useTriviaEngine(opts: TriviaEngineOptions) {
   const resolve = useCallback((chosen: string): TriviaResolution | null => {
     const turn = current;
     if (!turn) return null;
+
+    // Refuse to resolve the same turn twice.
+    //
+    // The countdown and a tap can land in the same React batch: the interval
+    // fires expireRef -> timeout() -> resolve() while the tap's setPhase has
+    // been queued but not yet applied, so the screen's `phase !== 'question'`
+    // guard hasn't taken effect. Without this the turn scores twice — double
+    // sips and a double streak increment.
+    //
+    // dealerGame and traitorsGame don't need this because their transitions
+    // guard on the phase held INSIDE the state machine; this engine leaves
+    // phase to the screen, so the guard has to live here.
+    if (lastResolution !== null) return null;
 
     const { penaltyCtx = {}, stealsEnabled = false, players } = optsRef.current;
     const correct = isCorrect(turn.question, chosen);
@@ -343,7 +365,7 @@ export function useTriviaEngine(opts: TriviaEngineOptions) {
     setLastResolution(resolution);
     return resolution;
   }, [
-    current, wedgesFor, streakFor, recordStreak, awardWedge,
+    current, lastResolution, wedgesFor, streakFor, recordStreak, awardWedge,
     requiredWedgeCount, playerAt,
   ]);
 

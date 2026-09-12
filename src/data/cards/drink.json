@@ -450,12 +450,6 @@
     "intensity": 2
   },
   {
-    "text": "Take {sip} if you've never smoked weed.",
-    "action": "Drink up",
-    "icon": "flame",
-    "intensity": 1
-  },
-  {
     "text": "Drink {small} if you've ever had sex on public transport.",
     "action": "Commuter confess",
     "icon": "car",
